@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: "*/5 * * * *"   # cada 5 minutos
   workflow_dispatch: {}
+  push:
+    paths:
+      - 'data.json'         # el commit de cada ciclo dispara el siguiente (cadena)
 
 permissions:
   contents: write
@@ -29,12 +32,9 @@ jobs:
       - name: refrescar precios
         run: python scraper.py
 
-      - name: programar siguiente ciclo (cadena 5 min)
+      - name: pausa 4 min (ciclo ~5 min)
         if: always()
-        run: |
-          sleep 240
-          TK="${{ secrets.PUSH_TOKEN }}"
-          echo "toklen=${#TK}"
+        run: sleep 240
           CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token $TK" -H "Accept: application/vnd.github+json" https://api.github.com/${{ github.repository }}/actions/workflows/refresh.yml/dispatches -d '{"ref":"main"}')
           echo "auto-dispatch HTTP $CODE"
 
