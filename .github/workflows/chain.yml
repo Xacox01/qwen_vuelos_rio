@@ -1,0 +1,38 @@
+name: chain
+
+on:
+  push:
+    paths:
+      - 'data.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chain
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: pausa 4 min (ritmo del ciclo ~5 min)
+        run: sleep 240
+
+      - name: ping que dispara el siguiente refresh
+        run: |
+          git config user.name "arena-bot"
+          git config user.email "arena-bot@users.noreply.github.com"
+          python3 - <<'PY'
+          import json, datetime
+          d = json.load(open('data.json'))
+          d['chain_ping'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+          json.dump(d, open('data.json', 'w'), ensure_ascii=False)
+          PY
+          git add data.json
+          git commit -m "chain ping $(date -u +%H:%MZ)"
+          git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push

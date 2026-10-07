@@ -32,10 +32,6 @@ jobs:
       - name: refrescar precios
         run: python scraper.py
 
-      - name: pausa 4 min (ciclo ~5 min)
-        if: always()
-        run: sleep 240
-
       - name: publicar si hubo cambios
         if: always()
         run: |
