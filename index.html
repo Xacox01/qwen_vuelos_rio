@@ -1,178 +1,174 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vuelos SCL⇄Río · EN VIVO · ene–feb 2027</title>
 <style>
- body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;margin:0;background:#0f172a;color:#e2e8f0}
- header{background:linear-gradient(120deg,#1e3a8a,#7c3aed);padding:18px 24px}
- h1{margin:0 0 4px;font-size:1.25rem}
- .sub{opacity:.9;font-size:.85rem}
- .badge{display:inline-block;background:#052e16;border:1px solid #16a34a;color:#86efac;border-radius:20px;padding:3px 12px;font-size:.78rem;margin:4px 6px 0 0}
- .badge.warn{background:#422006;border-color:#b45309;color:#fcd34d}
- .tabs{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;background:#111c33;position:sticky;top:0;z-index:5}
- .tabs button{background:#1e293b;color:#cbd5e1;border:1px solid #334155;border-radius:8px;padding:8px 13px;cursor:pointer;font-size:.84rem}
- .tabs button.on{background:#2563eb;color:#fff;border-color:#2563eb}
- section{display:none;padding:6px 20px 40px} section.on{display:block}
- table{border-collapse:collapse;width:100%;font-size:.82rem;margin-top:8px;background:#111c33;border-radius:10px;overflow:hidden}
- th{background:#1e293b;text-align:left;padding:7px 9px;position:sticky;top:50px;z-index:2}
- td{padding:6px 9px;border-top:1px solid #24334d}
- tr:hover td{background:#182742}
- .p{color:#4ade80;font-weight:600;white-space:nowrap}
- .b{color:#94a3b8;font-size:.74rem}
- a{color:#60a5fa;text-decoration:none;white-space:nowrap} a:hover{text-decoration:underline}
- .btn{display:inline-block;background:#16a34a;color:#fff!important;border-radius:7px;padding:4px 10px;font-weight:600;font-size:.78rem}
- .btn:hover{background:#15803d;text-decoration:none}
- .btn.sky{background:#7c3aed}.btn.ggl{background:#1d4ed8}.btn.fal{background:#b45309}
- .ok,.warnbox{border-radius:10px;padding:10px 14px;font-size:.84rem;margin:10px 0}
- .ok{background:#052e16;border:1px solid #166534}
- .warnbox{background:#422006;border:1px solid #92400e}
- h2{font-size:1rem;margin:14px 0 2px}
- .note{color:#94a3b8;font-size:.8rem}
- .hero{background:#132a4a;border:1px solid #1d4ed8;border-radius:12px;padding:14px 18px;margin:10px 0;font-size:.92rem}
- .hero b{color:#4ade80;font-size:1.15rem}
- .spin{display:inline-block;width:10px;height:10px;border:2px solid #4ade80;border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;margin-right:6px}
- @keyframes sp{to{transform:rotate(360deg)}}
- #countdown{font-variant-numeric:tabular-nums}
- .filt{margin:8px 0;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 10px;color:#e2e8f0;font-size:.85rem}
+:root{--bg:#0f172a;--panel:#111c33;--line:#24334d;--txt:#e2e8f0;--mut:#94a3b8;--grn:#4ade80;--blu:#60a5fa;--tabs-h:52px}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;margin:0;background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased}
+header{background:linear-gradient(120deg,#1e3a8a,#7c3aed);padding:14px 16px;position:sticky;top:0;z-index:10}
+h1{margin:0 0 2px;font-size:clamp(1rem,4vw,1.3rem)}
+.sub{opacity:.92;font-size:clamp(.72rem,2.6vw,.85rem)}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.badge{background:#052e16;border:1px solid #16a34a;color:#86efac;border-radius:20px;padding:3px 10px;font-size:.72rem;white-space:nowrap}
+.badge.warn{background:#422006;border-color:#b45309;color:#fcd34d}
+.badge.info{background:#1e293b;border-color:#334155;color:#cbd5e1}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:var(--panel);position:sticky;top:0;z-index:9;scrollbar-width:none;border-bottom:1px solid var(--line)}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;background:#1e293b;color:#cbd5e1;border:1px solid #334155;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:.8rem}
+nav button.on{background:#2563eb;color:#fff;border-color:#2563eb}
+main{padding:10px 12px 60px;max-width:1100px;margin:0 auto}
+section{display:none}section.on{display:block}
+.ok,.warnbox{border-radius:10px;padding:10px 12px;font-size:.8rem;margin:10px 0;line-height:1.45}
+.ok{background:#052e16;border:1px solid #166534}
+.warnbox{background:#422006;border:1px solid #92400e}
+.hero{background:#132a4a;border:1px solid #1d4ed8;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.88rem;line-height:1.5}
+.hero b{color:var(--grn);font-size:1.05rem}
+.tbl{overflow:auto;max-height:68vh;border:1px solid var(--line);border-radius:10px;margin:10px 0;background:var(--panel);overscroll-behavior:contain}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:.8rem;min-width:560px}
+th{background:#1e293b;text-align:left;padding:8px 9px;position:sticky;top:0;z-index:2;box-shadow:0 1px 0 var(--line)}
+td{padding:7px 9px;border-top:1px solid var(--line);vertical-align:top}
+tr:hover td{background:#182742}
+.p{color:var(--grn);font-weight:600;white-space:nowrap}
+.b{color:var(--mut);font-size:.72rem}
+a{color:var(--blu);text-decoration:none;white-space:nowrap}
+.btn{display:inline-block;background:#16a34a;color:#fff!important;border-radius:7px;padding:5px 10px;font-weight:600;font-size:.75rem}
+.btn.sky{background:#7c3aed}.btn.ggl{background:#1d4ed8}.btn.fal{background:#b45309}
+h2{font-size:.95rem;margin:16px 0 4px}
+input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:9px 10px;color:var(--txt);font-size:.85rem}
+.spin{display:inline-block;width:9px;height:9px;border:2px solid var(--grn);border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;margin-right:5px;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{margin:20px auto;max-width:560px;background:#422006;border:1px solid #92400e;border-radius:12px;padding:16px;font-size:.9rem}
+@media (max-width:640px){
+ table{min-width:520px;font-size:.76rem}
+ th,td{padding:6px 7px}
+ .hero{font-size:.82rem}
+ main{padding:8px 8px 50px}
+}
 </style></head><body>
-<header>
- <h1>✈️ SCL ⇄ Río de Janeiro · precios EN VIVO</h1>
- <div class="sub">Ventana ene–feb 2027 · regreso ≤ 23-feb · precios finales pp en CLP · <span class="spin"></span>auto-actualización cada 5 min · alojado en GitHub Pages</div>
- <div id="badges"></div>
-</header>
-<div class="tabs" id="tabs"></div>
-
-<section id="s0" class="on"><div id="t0"></div></section>
-<section id="s1"><div id="t1"></div></section>
-<section id="s2"><div id="t2"></div></section>
-<section id="s3"><div id="t3"></div></section>
-<section id="s4"><div id="t4"></div></section>
-<section id="s5"><div id="t5"></div></section>
-<section id="s6"><div id="t6"></div></section>
-<section id="s7"><div id="t7"></div></section>
-
+<div id="app">
+ <div v-if="fatal" class="err">⚠️ No se pudo cargar el motor de la interfaz (Vue). Revisa tu conexión y recarga.</div>
+ <template v-else>
+ <header>
+  <h1>✈️ SCL ⇄ Río de Janeiro · precios EN VIVO</h1>
+  <div class="sub">ene–feb 2027 · regreso ≤ 23-feb · CLP pp · <span class="spin"></span>datos refrescados cada 5 min por GitHub Actions</div>
+  <div class="badges">
+   <span class="badge info">🕐 Actualizado: {{DATA?.updated||'—'}}</span>
+   <span v-for="(v,k) in (DATA?.fuentes||{})" :key="k" class="badge" :class="{warn:!v.ok}">{{v.ok?'✅':'⚠️'}} {{NAMES[k]||k}}</span>
+  </div>
+ </header>
+ <nav>
+  <button v-for="(t,i) in TABS" :key="i" :class="{on:cur===i}" @click="cur=i">{{t}}</button>
+ </nav>
+ <main>
+  <!-- 0 combos JetSMART -->
+  <section :class="{on:cur===0}">
+   <div class="ok">✅ <b>API oficial de disponibilidad JetSMART</b> — el botón verde abre el checkout real con esas fechas cargadas.</div>
+   <div class="hero" v-if="js.combos?.length">🏆 Mejor combinación ahora: <b>{{dw(js.combos[0].ida)}} {{js.combos[0].ida}} → {{dw(js.combos[0].vuelta)}} {{js.combos[0].vuelta}}</b> ({{js.combos[0].noches}} noches)<br>
+    {{js.combos[0].v_ida}} + {{js.combos[0].v_vue}} · <b>{{fmt(js.combos[0].clp)}}</b> pp · ×9 = <b>{{fmt(js.combos[0].clp*9)}}</b>
+    &nbsp;<a class="btn" :href="jsRT(js.combos[0].ida,js.combos[0].vuelta)" target="_blank" rel="noopener">Comprar ↗</a></div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp</th><th>CLP ×9</th><th>Comprar</th></tr>
+    <tr v-for="c in js.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*9)}}</td><td><a class="btn" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+   </table></div>
+  </section>
+  <!-- 1 y 2 vuelos JetSMART -->
+  <section :class="{on:cur===1}">
+   <div class="ok">✅ API oficial JetSMART · ida SCL→GIG.</div>
+   <input class="filt" v-model="fi" placeholder="Filtrar por fecha (ej: 2027-01-22 o 2027-01)">
+   <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr>
+    <tr v-for="x in fI" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'SCL','GIG')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+    <tr v-if="!fI.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
+   </table></div>
+  </section>
+  <section :class="{on:cur===2}">
+   <div class="ok">✅ API oficial JetSMART · vuelta GIG→SCL.</div>
+   <input class="filt" v-model="fv" placeholder="Filtrar por fecha (ej: 2027-02-01 o 2027-02)">
+   <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr>
+    <tr v-for="x in fV" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'GIG','SCL')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+    <tr v-if="!fV.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
+   </table></div>
+  </section>
+  <!-- 3 SKY -->
+  <section :class="{on:cur===3}">
+   <div class="ok">✅ <b>API oficial SKY</b> (histograma de skyairline.com) · RT 9–12 noches. Corrobora buscando el par exacto en skyairline.com.</div>
+   <div class="hero" v-if="sky.pairs?.length">🏆 Mejor tarifa SKY: <b>{{dw(sky.pairs[0].ida)}} {{sky.pairs[0].ida}} → {{dw(sky.pairs[0].vuelta)}} {{sky.pairs[0].vuelta}}</b> ({{sky.pairs[0].noches}} noches) · <b>{{fmt(sky.pairs[0].clp)}}</b> pp · ×9 = <b>{{fmt(sky.pairs[0].clp*9)}}</b> &nbsp;<a class="btn sky" href="https://www.skyairline.com/chile/" target="_blank" rel="noopener">Ir a SKY ↗</a></div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>
+    <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*9)}}</td><td><a class="btn sky" href="https://www.skyairline.com/chile/" target="_blank" rel="noopener">Buscar ↗</a></td></tr>
+   </table></div>
+  </section>
+  <!-- 4 LATAM oficial -->
+  <section :class="{on:cur===4}">
+   <div class="ok">✅ <b>API oficial web de LATAM</b> (calendario de latamairlines.com, solo directos). Combos = ida + vuelta.</div>
+   <div class="hero" v-if="lat.combos?.length">🏆 Mejor combo LATAM: <b>{{dw(lat.combos[0].ida)}} {{lat.combos[0].ida}} → {{dw(lat.combos[0].vuelta)}} {{lat.combos[0].vuelta}}</b> ({{lat.combos[0].noches}} noches) · <b>{{fmt(lat.combos[0].clp)}}</b> pp · ×9 = <b>{{fmt(lat.combos[0].clp*9)}}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">Comprar en LATAM ↗</a></div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>
+    <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*9)}}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
+   </table></div>
+   <h2>Mínimo por día · solo directos</h2>
+   <div class="tbl"><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>
+    <tr v-for="(row,i) in latRows" :key="i"><td>{{row.a?dw(row.a.fecha)+' '+row.a.fecha:''}}</td><td class="p">{{row.a?fmt(row.a.clp):''}}</td><td>{{row.b?dw(row.b.fecha)+' '+row.b.fecha:''}}</td><td class="p">{{row.b?fmt(row.b.clp):''}}</td></tr>
+   </table></div>
+  </section>
+  <!-- 5 Google espejo -->
+  <section :class="{on:cur===5}">
+   <div class="warnbox">🔎 LATAM bloquea bots en su sitio; esto es su inventario espejado en Google Flights. El botón abre la búsqueda ya armada (solo directos).</div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Vuelo</th><th>Salida</th><th>CLP pp RT</th><th>Verificar</th></tr>
+    <tr v-for="v in ggl.vuelos" :key="(v.codigo||'')+v.ida"><td>{{v.ida?dw(v.ida)+' '+v.ida+' → '+dw(v.vuelta)+' '+v.vuelta:'—'}}</td><td><b>{{v.codigo||''}}</b></td><td>{{v.hora||''}}</td><td class="p">{{fmt(v.clp)}}</td><td><a class="btn ggl" :href="v.link" target="_blank" rel="noopener">Google ↗</a></td></tr>
+   </table></div>
+  </section>
+  <!-- 6 Falabella -->
+  <section :class="{on:cur===6}">
+   <div class="warnbox">⚠️ <b>Referencia no garantizada</b>: mínimos de la caché SSR de viajesfalabella.cl (1 adulto). El checkout real manda.</div>
+   <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp</th><th>Estado</th><th>Ver en vivo</th></tr>
+    <template v-for="d in fal.dias" :key="d.sentido+d.fecha">
+     <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td>{{d.status===200?'✅':'❌ '+d.status}}</td><td><a class="btn fal" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+     <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td><a :href="falOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+    </template>
+   </table></div>
+  </section>
+  <!-- 7 Despegar & Cocha -->
+  <section :class="{on:cur===7}">
+   <div class="warnbox">⚠️ Referencias públicas: mínimos SSR de despegar.cl y tarjetas "Desde" de cocha.com. El checkout real manda.</div>
+   <div class="hero" v-if="cocha.rio">🏬 Cocha: SCL⇄Río ida y vuelta <b>desde {{fmt(cocha.rio.clp)}}</b> pp (precio final publicado) &nbsp;<a class="btn fal" href="https://www.cocha.com/vuelos/destinos/rio-de-janeiro" target="_blank" rel="noopener">Ver en Cocha ↗</a></div>
+   <div class="tbl"><table><tr><th>Fuente</th><th>Sentido / destino</th><th>Fecha</th><th>Mínimo pp</th><th>Abrir</th></tr>
+    <tr v-for="d in des.dias||[]" :key="d.sentido+d.fecha"><td>Despegar</td><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+    <tr v-for="c in cocha.cards||[]" :key="c.destino"><td>Cocha</td><td>{{c.destino}}</td><td></td><td class="p">{{fmt(c.clp)}}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+   </table></div>
+  </section>
+ </main>
+ </template>
+</div>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script>
+if(!window.Vue){document.getElementById('app').innerHTML='<div class="err">⚠️ No se pudo cargar Vue (CDN bloqueado). Recarga o revisa tu conexión.</div>';}
+else{
 const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
-const dw=d=>{const[a,b,c]=d.split('-').map(Number);return DIA[new Date(a,b-1,c).getDay()]};
-const fmt=n=>'$ '+Math.round(n).toLocaleString('es-CL');
-const jsOW=(f,o,d)=>`https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=false&cur=CLP&culture=es-CL&dd1=${f}&o1=${o}&d1=${d}`;
-const jsRT=(i,v)=>`https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=true&cur=CLP&culture=es-CL&dd1=${i}&o1=SCL&d1=GIG&dd2=${v}`;
-const SKY_URL='https://www.skyairline.com/chile/';
-const FAL_OW=(o,d,f)=>`https://www.viajesfalabella.cl/shop/flights/results/oneway/${o}/${d}/${f}/1/0/0`;
-let DATA=null,cur=0,nextAt=null;
-
-function tab(i){cur=i;document.querySelectorAll('section').forEach((s,j)=>s.classList.toggle('on',j===i));
- document.querySelectorAll('.tabs button').forEach((b,j)=>b.classList.toggle('on',j===i));window.scrollTo(0,0);}
-
-function render(){
- if(!DATA)return;
- const F=DATA.fuentes||{};
- // badges
- let bh=`<span class="badge">🕐 Última actualización: ${DATA.updated||'—'}</span>`;
- if(nextAt)bh+=`<span class="badge">⏳ Próx. refresh: <span id="countdown">${nextAt}</span></span>`;
- for(const[k,v]of Object.entries(F)){
-  const name={jetsmart:'JetSMART (API oficial)',sky:'SKY (API oficial)',latam:'LATAM (API oficial)',google:'LATAM (espejo Google)',falabella:'Falabella (referencia)',despegar:'Despegar (referencia)',cocha:'Cocha (referencia)'}[k]||k;
-  bh+=`<span class="badge ${v.ok?'':'warn'}">${v.ok?'✅':'⚠️'} ${name}: ${v.ts||''}</span>`;}
- document.getElementById('badges').innerHTML=bh;
-
- // TABS fijos
- const tabs=document.getElementById('tabs');
- if(!tabs.childElementCount){
-  ['🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar & Cocha (ref.)']
-   .forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>tab(i);tabs.appendChild(b);});
-  tabs.children[0].classList.add('on');}
-
- // --- T0 combos ---
- const js=F.jetsmart||{};const combos=(js.combos||[]).slice(0,14);
- let h0=`<div class="ok">✅ <b>Fuente: API oficial de disponibilidad de JetSMART</b> — el botón verde abre el checkout real con estas fechas ya cargadas.</div>`;
- if(combos.length){const c=combos[0];
-  h0+=`<div class="hero">🏆 Mejor combinación ahora mismo: <b>${dw(c.ida)} ${c.ida} → ${dw(c.vuelta)} ${c.vuelta}</b> (${c.noches} noches)<br>
-  ${c.v_ida} + ${c.v_vue} · <b>${fmt(c.clp)}</b> pp · ×9 pasajeros = <b>${fmt(c.clp*9)}</b>
-  &nbsp;<a class="btn" href="${jsRT(c.ida,c.vuelta)}" target="_blank">Comprar ↗</a></div>`;}
- h0+=`<table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp</th><th>CLP ×9</th><th>Comprar</th></tr>`;
- for(const c of combos)h0+=`<tr><td>${dw(c.ida)} ${c.ida} → ${dw(c.vuelta)} ${c.vuelta}</td><td>${c.noches}</td><td><b>${c.v_ida}</b> / <b>${c.v_vue}</b></td><td class="p">${fmt(c.clp)}</td><td class="p">${fmt(c.clp*9)}</td><td><a class="btn" href="${jsRT(c.ida,c.vuelta)}" target="_blank">Comprar ↗</a></td></tr>`;
- h0+=`</table>`;
- document.getElementById('t0').innerHTML=h0;
-
- // --- T1/T2 vuelos ---
- const flt=(arr,sentido)=>{
-  let h=`<div class="ok">✅ API oficial JetSMART · botón abre el checkout de booking.jetsmart.com en tiempo real.</div>
-  <input class="filt" id="f${sentido}" placeholder="Filtrar por fecha (ej: 2027-01-22 o 2027-01)" oninput="renderRows('${sentido}')">
-  <table><thead><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr></thead><tbody id="tb${sentido}"></tbody></table>`;
-  return h;};
- document.getElementById('t1').innerHTML=flt(null,'i');
- document.getElementById('t2').innerHTML=flt(null,'v');
- window.renderRows=s=>{
-  const o=document.getElementById('f'+s)?.value||'';
-  const arr=(s==='i'?js.idas:js.vueltas)||[];
-  const tb=document.getElementById('tb'+s);if(!tb)return;
-  let r='';
-  for(const x of arr){if(o&&!x.fecha.includes(o))continue;
-   const link=s==='i'?jsOW(x.fecha,'SCL','GIG'):jsOW(x.fecha,'GIG','SCL');
-   r+=`<tr><td>${dw(x.fecha)} ${x.fecha}</td><td><b>${x.vuelo}</b></td><td>${x.hora}</td><td class="p">${fmt(x.clp)}</td><td class="b">${(x.buckets||[]).join(', ')}</td><td><a class="btn" href="${link}" target="_blank">Comprar ↗</a></td></tr>`;}
-  tb.innerHTML=r||'<tr><td colspan=6>Sin resultados para ese filtro</td></tr>';};
- renderRows('i');renderRows('v');
-
- // --- T3 SKY ---
- const sk=(F.sky||{}).pairs||[];
- let h3=`<div class="ok">✅ <b>Fuente: API oficial de SKY</b> (histograma de skyairline.com) · tarifas i/v para estadas de 9–12 noches. Para corroborar: entra a skyairline.com y busca el par exacto de fechas.</div>`;
- if(sk.length){const s0=sk[0];h3+=`<div class="hero">🏆 Mejor tarifa SKY ahora: <b>${dw(s0.ida)} ${s0.ida} → ${dw(s0.vuelta)} ${s0.vuelta}</b> (${s0.noches} noches) · <b>${fmt(s0.clp)}</b> pp · ×9 = <b>${fmt(s0.clp*9)}</b> &nbsp;<a class="btn sky" href="${SKY_URL}" target="_blank">Ir a SKY ↗</a></div>`;}
- h3+=`<table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>`;
- for(const s of sk)h3+=`<tr><td>${dw(s.ida)} ${s.ida} → ${dw(s.vuelta)} ${s.vuelta}</td><td>${s.noches}</td><td class="p">${fmt(s.clp)}</td><td class="p">${fmt(s.clp*9)}</td><td><a class="btn sky" href="${SKY_URL}" target="_blank">Buscar fechas ↗</a></td></tr>`;
- h3+=`</table>`;
- document.getElementById('t3').innerHTML=h3;
-
-
- // --- T4 LATAM oficial ---
- const la=F.latam||{};const lc=(la.combos||[]).slice(0,14);
- let h4b=`<div class="ok">✅ <b>Fuente: API oficial web de LATAM</b> (calendario de tarifas de latamairlines.com, solo directos). Combos = ida + vuelta.</div>`;
- if(lc.length){const c=lc[0];
-  h4b+=`<div class="hero">🏆 Mejor combo LATAM ahora: <b>${dw(c.ida)} ${c.ida} → ${dw(c.vuelta)} ${c.vuelta}</b> (${c.noches} noches) · <b>${fmt(c.clp)}</b> pp · ×9 = <b>${fmt(c.clp*9)}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank">Comprar en LATAM ↗</a></div>`;}
- h4b+=`<table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>`;
- for(const c of lc)h4b+=`<tr><td>${dw(c.ida)} ${c.ida} → ${dw(c.vuelta)} ${c.vuelta}</td><td>${c.noches}</td><td class="p">${fmt(c.clp)}</td><td class="p">${fmt(c.clp*9)}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank">LATAM ↗</a></td></tr>`;
- h4b+=`</table><h2>Mínimo por día · solo directos</h2><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>`;
- const od=(la.dias_out||[]),idn=(la.dias_in||[]);
- for(let i=0;i<Math.max(od.length,idn.length);i++){const a=od[i]||{},b=idn[i]||{};
-  h4b+=`<tr><td>${a.fecha?(dw(a.fecha)+' '+a.fecha):''}</td><td class="p">${a.clp?fmt(a.clp):''}</td><td>${b.fecha?(dw(b.fecha)+' '+b.fecha):''}</td><td class="p">${b.clp?fmt(b.clp):''}</td></tr>`;}
- h4b+=`</table>`;
- document.getElementById('t4').innerHTML=h4b;
- // --- T5 LATAM espejo Google ---
- const gg=(F.google||{}).vuelos||[];
- let h4=`<div class="warnbox">🔎 LATAM bloquea bots en su sitio; estos datos salen del inventario LATAM espejado en Google Flights. El botón azul abre la búsqueda ya armada (solo directos) para verificar.</div>
- <table><tr><th>Ida → Vuelta</th><th>Vuelo</th><th>Salida</th><th>CLP pp RT</th><th>Verificar</th></tr>`;
- for(const v of gg)h4+=`<tr><td>${v.ida?dw(v.ida)+' '+v.ida+' → '+dw(v.vuelta)+' '+v.vuelta:'—'}</td><td><b>${v.codigo||''}</b></td><td>${v.hora||''}</td><td class="p">${fmt(v.clp)}</td><td><a class="btn ggl" href="${v.link}" target="_blank">Ver en Google ↗</a></td></tr>`;
- h4+=`</table>`;
- document.getElementById('t5').innerHTML=h4;
-
- // --- T6 Falabella ---
- const fa=(F.falabella||{}).dias||[];
- let h5=`<div class="warnbox">⚠️ <b>Referencia no garantizada</b>: mínimos publicados en la caché de viajesfalabella.cl (1 adulto). El checkout real con varios pasajeros manda. Cupones con stock limitado pueden agotarse.</div>
- <table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo publicado (pp)</th><th>Estado</th><th>Revisar en vivo</th></tr>`;
- for(const d of fa){const[O,D]=d.sentido.split('-');
-  h5+=`<tr><td>${O==='SCL'?'Ida SCL→Río':'Vuelta Río→SCL'}</td><td>${dw(d.fecha)} ${d.fecha}</td><td class="p">${d.min_clp?fmt(d.min_clp):'—'}</td><td>${d.status===200?'✅':'❌ '+d.status}</td><td><a class="btn fal" href="${FAL_OW(O,D,d.fecha)}" target="_blank">Abrir ↗</a></td></tr>`;
-  for(const c of (d.calendario||[]))h5+=`<tr><td class="b">· día vecino</td><td>${dw(c.fecha)} ${c.fecha}</td><td class="p b">${fmt(c.clp)}</td><td></td><td><a href="${FAL_OW(O,D,c.fecha)}" target="_blank">Abrir ↗</a></td></tr>`;}
- h5+=`</table>`;
- document.getElementById('t6').innerHTML=h5;
-// --- T7 Despegar & Cocha ---
- const de=F.despegar||{},co=F.cocha||{};
- let h7=`<div class="warnbox">⚠️ Referencias públicas: mínimos SSR de despegar.cl y tarjetas "Desde" de cocha.com. El checkout real manda.</div>`;
- if(co.rio)h7+=`<div class="hero">🏬 Cocha: SCL⇄Río ida y vuelta <b>desde ${fmt(co.rio.clp)}</b> pp (precio final publicado) &nbsp;<a class="btn fal" href="https://www.cocha.com/vuelos/destinos/rio-de-janeiro" target="_blank">Ver en Cocha ↗</a></div>`;
- h7+=`<table><tr><th>Fuente</th><th>Sentido / destino</th><th>Fecha</th><th>Mínimo pp</th><th>Abrir</th></tr>`;
- for(const d of (de.dias||[])){const[O,D]=d.sentido.split('-');
-  h7+=`<tr><td>Despegar</td><td>${O==='SCL'?'Ida SCL→Río':'Vuelta Río→SCL'}</td><td>${dw(d.fecha)} ${d.fecha}</td><td class="p">${d.min_clp?fmt(d.min_clp):'—'}</td><td><a class="btn sky" href="https://www.despegar.cl/shop/flights/results/oneway/${O}/${D}/${d.fecha}/1/0/0" target="_blank">Abrir ↗</a></td></tr>`;}
- for(const c of (co.cards||[]))h7+=`<tr><td>Cocha</td><td>${c.destino}</td><td></td><td class="p">${fmt(c.clp)}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank">Abrir ↗</a></td></tr>`;
- h7+=`</table>`;
- document.getElementById('t7').innerHTML=h7;
+const {createApp}=Vue;
+createApp({
+ data:()=>({DATA:null,cur:0,fi:'',fv:'',fatal:false,
+  TABS:['🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar & Cocha (ref.)'],
+  NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',google:'Google/LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha'}}),
+ computed:{
+  F(){return this.DATA?.fuentes||{}},
+  js(){return this.F.jetsmart||{}},
+  sky(){return this.F.sky||{}},
+  lat(){return this.F.latam||{}},
+  ggl(){return this.F.google||{}},
+  fal(){return this.F.falabella||{}},
+  des(){return this.F.despegar||{}},
+  cocha(){return this.F.cocha||{}},
+  fI(){const o=this.fi.trim();return (this.js.idas||[]).filter(x=>!o||x.fecha.includes(o))},
+  fV(){const o=this.fv.trim();return (this.js.vueltas||[]).filter(x=>!o||x.fecha.includes(o))},
+  latRows(){const a=this.lat.dias_out||[],b=this.lat.dias_in||[],n=Math.max(a.length,b.length),r=[];for(let i=0;i<n;i++)r.push({a:a[i],b:b[i]});return r}
+ },
+ methods:{
+  dw(d){if(!d)return'';const[p,m,dd]=d.split('-').map(Number);return DIA[new Date(p,m-1,dd).getDay()]},
+  fmt(n){return '$ '+Math.round(n).toLocaleString('es-CL')},
+  jsOW(f,o,dd){return `https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=false&cur=CLP&culture=es-CL&dd1=${f}&o1=${o}&d1=${dd}`},
+  jsRT(i,v){return `https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=true&cur=CLP&culture=es-CL&dd1=${i}&o1=SCL&d1=GIG&dd2=${v}`},
+  falOW(s,f){const[O,D]=s.split('-');return `https://www.viajesfalabella.cl/shop/flights/results/oneway/${O}/${D}/${f}/1/0/0`},
+  desOW(s,f){const[O,D]=s.split('-');return `https://www.despegar.cl/shop/flights/results/oneway/${O}/${D}/${f}/1/0/0`},
+  async poll(){try{const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});this.DATA=await r.json()}catch(e){console.error(e)}},
+ },
+ async mounted(){await this.poll();setInterval(()=>this.poll(),60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)this.poll()})}
+}).mount('#app');
 }
-
-
- 
-async function poll(){
- try{const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});DATA=await r.json();
-  nextAt=DATA.next_refresh||null;render();}catch(e){console.error(e);}
-}
-poll();setInterval(poll,60000);
-setInterval(()=>{const el=document.getElementById('countdown');
- if(el&&nextAt){const[h,m,s]=nextAt.split(':').map(Number);const now=new Date();
- let diff=(h*3600+m*60+s)-(now.getHours()*3600+now.getMinutes()*60+now.getSeconds());
- if(diff<0)diff=0;el.textContent=`${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')} min`;}},1000);
 </script></body></html>
