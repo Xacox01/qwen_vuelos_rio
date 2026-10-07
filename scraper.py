@@ -54,27 +54,52 @@ def fetch_jetsmart():
             if key in tgt:
                 if clp < tgt[key]["clp"]:
                     tgt[key]["clp"] = clp
-                if bucket not in tgt[key]["buckets"]:
-                    tgt[key]["buckets"].append(bucket)
+                tgt[key]["bk"].append([clp, int(leg.get("s", 0) or 0), bucket])
             else:
                 tgt[key] = {"fecha": fecha, "vuelo": vuelo, "hora": hora,
-                            "clp": clp, "buckets": [bucket]}
+                            "clp": clp, "buckets": [bucket],
+                            "bk": [[clp, int(leg.get("s", 0) or 0), bucket]]}
     def flat(d):
+        for v in d.values():
+            v["bk"].sort(key=lambda b: b[0])
         return sorted(d.values(), key=lambda x: (x["fecha"], x["hora"]))
-    return {"idas": flat(idas), "vueltas": flat(vues),
-            "combos": best_combos(flat(idas), flat(vues)),
+    I, V = flat(idas), flat(vues)
+    return {"idas": I, "vueltas": V,
+            "combos": best_combos(I, V, 1),
+            "combos_by_pax": {str(n): best_combos(I, V, n) for n in (1, 2, 4, 5, 9)},
             "secs": round(time.time() - t0, 1), "n_records": len(recs)}
 
-def best_combos(idas, vues):
+def alloc(bk, n):
+    """Costo total de n asientos en el mismo vuelo, asignando cubos de menor a mayor precio."""
+    tot, rem = 0, n
+    for clp, seats, _code in bk:
+        take = min(seats, rem)
+        if take <= 0:
+            continue
+        tot += take * clp
+        rem -= take
+        if rem == 0:
+            break
+    if rem > 0:
+        return None
+    return tot
+
+def best_combos(idas, vues, n=1):
     vby = {}
     for v in vues:
         if v["fecha"] <= RET_LIMIT:
-            vby.setdefault(v["fecha"], []).append(v)
+            cost = alloc(v.get("bk") or [[v["clp"], 9, "?"]], n)
+            if cost is None:
+                continue
+            vby.setdefault(v["fecha"], []).append((cost, v))
     for k in vby:
-        vby[k].sort(key=lambda r: r["clp"])
+        vby[k].sort(key=lambda r: r[0])
     combos = []
     for i in idas:
         if not ("2027-01-05" <= i["fecha"] <= "2027-02-12"):
+            continue
+        ci = alloc(i.get("bk") or [[i["clp"], 9, "?"]], n)
+        if ci is None:
             continue
         d0 = datetime.date.fromisoformat(i["fecha"])
         for stay in range(9, 13):
@@ -82,11 +107,12 @@ def best_combos(idas, vues):
             if rd > RET_LIMIT or (CARNAVAL[0] <= rd <= CARNAVAL[1]):
                 continue
             if rd in vby:
-                v = vby[rd][0]
+                cv, v = vby[rd][0]
+                tot = ci + cv
                 combos.append({"ida": i["fecha"], "vuelta": rd, "noches": stay,
                                "v_ida": f"{i['vuelo']} {i['hora']}", "v_vue": f"{v['vuelo']} {v['hora']}",
-                               "clp": i["clp"] + v["clp"]})
-    combos.sort(key=lambda c: c["clp"])
+                               "clp": round(tot / n), "tot": tot})
+    combos.sort(key=lambda c: c["tot"])
     top, seen = [], set()
     for c in combos:
         k = (c["ida"], c["vuelta"])
@@ -278,10 +304,12 @@ def seed():
     live["fuentes"]["jetsmart"] = {
         "ts": "2026-10-06 14:00 (seed)", "ok": True,
         "idas": [{"fecha": r["fecha"], "vuelo": r["vuelo"], "hora": r["hora"],
-                  "clp": float(r["mejor_precio_clp"]), "buckets": [r["buckets_disponibles"].split(":")[0]]} for r in idas],
+                  "clp": float(r["mejor_precio_clp"]), "buckets": [r["buckets_disponibles"].split(":")[0]],
+                  "bk": [[float(r["mejor_precio_clp"]), 9, r["buckets_disponibles"].split(":")[0]]]} for r in idas],
         "vueltas": [{"fecha": r["fecha"], "vuelo": r["vuelo"], "hora": r["hora"],
-                     "clp": float(r["mejor_precio_clp"]), "buckets": [r["buckets_disponibles"].split(":")[0]]} for r in vues],
-        "combos": [{"ida": c[1], "vuelta": c[3], "noches": c[5], "v_ida": c[2], "v_vue": c[4], "clp": c[0]} for c in combos]}
+                     "clp": float(r["mejor_precio_clp"]), "buckets": [r["buckets_disponibles"].split(":")[0]],
+                     "bk": [[float(r["mejor_precio_clp"]), 9, r["buckets_disponibles"].split(":")[0]]]} for r in vues],
+        "combos": [{"ida": c[1], "vuelta": c[3], "noches": c[5], "v_ida": c[2], "v_vue": c[4], "clp": c[0], "tot": c[0]} for c in combos]}
     sky = list(csv.DictReader(open(os.path.join(SEED, "SKY_tarifas_ene-feb2027.csv"))))
     live["fuentes"]["sky"] = {"ts": "2026-10-06 14:09 (seed)", "ok": True,
                               "pairs": [{"ida": r["ida"], "vuelta": r["vuelta"], "noches": int(r["noches"]),

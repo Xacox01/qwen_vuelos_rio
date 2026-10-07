@@ -62,12 +62,13 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
  <main>
   <!-- 0 combos JetSMART -->
   <section :class="{on:cur===0}">
-   <div class="ok">✅ <b>API oficial de disponibilidad JetSMART</b> — el botón verde abre el checkout real con esas fechas cargadas.</div>
-   <div class="hero" v-if="js.combos?.length">🏆 Mejor combinación ahora: <b>{{dw(js.combos[0].ida)}} {{js.combos[0].ida}} → {{dw(js.combos[0].vuelta)}} {{js.combos[0].vuelta}}</b> ({{js.combos[0].noches}} noches)<br>
-    {{js.combos[0].v_ida}} + {{js.combos[0].v_vue}} · <b>{{fmt(js.combos[0].clp)}}</b> pp · ×9 = <b>{{fmt(js.combos[0].clp*9)}}</b>
-    &nbsp;<a class="btn" :href="jsRT(js.combos[0].ida,js.combos[0].vuelta)" target="_blank" rel="noopener">Comprar ↗</a></div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp</th><th>CLP ×9</th><th>Comprar</th></tr>
-    <tr v-for="c in js.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*9)}}</td><td><a class="btn" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+   <div class="ok">✅ <b>API oficial de disponibilidad JetSMART</b> — el botón verde abre el checkout real con esas fechas cargadas. Elige cuántos pasajeros cotizan: el precio pp se recalcula con la <b>asignación real de asientos por cubo de tarifa</b> (por eso 5 pax puede salir más caro que 1).</div>
+<div style="display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap"><span class="b">Pasajeros:</span><button v-for="n in PAXOPTS" :key="n" class="btn" :style="pax===n?'':'background:#1e293b;border:1px solid #334155'" @click="pax=n">{{n}}</button></div>
+   <div class="hero" v-if="combosPax.length">🏆 Mejor combinación para {{pax}} pax: <b>{{dw(combosPax[0].ida)}} {{combosPax[0].ida}} → {{dw(combosPax[0].vuelta)}} {{combosPax[0].vuelta}}</b> ({{combosPax[0].noches}} noches)<br>
+    {{combosPax[0].v_ida}} + {{combosPax[0].v_vue}} · <b>{{fmt(combosPax[0].clp)}}</b> pp · total {{pax}} pax = <b>{{fmt(combosPax[0].tot??combosPax[0].clp*pax)}}</b>
+    &nbsp;<a class="btn" :href="jsRT(combosPax[0].ida,combosPax[0].vuelta)" target="_blank" rel="noopener">Comprar ↗</a></div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp ({{pax}} pax)</th><th>Total grupo</th><th>Comprar</th></tr>
+    <tr v-for="c in combosPax.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.tot??c.clp*pax)}}</td><td><a class="btn" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
    </table></div>
   </section>
   <!-- 1 y 2 vuelos JetSMART -->
@@ -133,6 +134,14 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
     <tr v-for="c in cocha.cards||[]" :key="c.destino"><td>Cocha</td><td>{{c.destino}}</td><td></td><td class="p">{{fmt(c.clp)}}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
    </table></div>
   </section>
+  <!-- 8 Cupones -->
+  <section :class="{on:cur===8}">
+   <div class="warnbox">⏰ <b>CyberMonday Chile termina HOY 7-oct 23:59.</b> Cupones verificados en las páginas oficiales; stock limitado, un uso por cliente en la mayoría. Pruébalos en el checkout ("¿Tienes un cupón?").</div>
+   <div class="tbl"><table><tr><th>Código</th><th>Descuento</th><th>Dónde</th><th>Ir</th></tr>
+    <tr v-for="c in COUPONS" :key="c.code"><td><b>{{c.code}}</b></td><td>{{c.desc}}</td><td class="b">{{c.where}}</td><td><a class="btn fal" :href="c.url" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+   </table></div>
+   <div class="ok">💳 Además: JetSMART hasta 60% dcto a Brasil con promos extra para clientes <b>BancoEstado y BCI</b>; LATAM hasta 71% dcto internacional (vuelo hasta dic-2027); SKY Cyber hasta 70% en rutas seleccionadas.</div>
+  </section>
  </main>
  </template>
 </div>
@@ -144,8 +153,10 @@ const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
 const {createApp}=Vue;
 createApp({
  data:()=>({DATA:null,cur:0,fi:'',fv:'',fatal:false,
-  TABS:['🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar & Cocha (ref.)'],
-  NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',google:'Google/LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha'}}),
+  TABS:['🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar & Cocha (ref.)','🎟️ Cyber HOY'],
+  COUPONS:[{code:'SUD10SKY',desc:'10% dcto en vuelos y paquetes a Brasil vía SKY',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWAM',desc:'hasta $100.000 dcto hoteles/paquetes WAM (Búzios, Fortaleza, Porto Seguro)',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'RITZ2X',desc:'hasta $70.000 dcto hoteles Rede Ritz Brasil',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWISH',desc:'$80.000 dcto paquetes hoteles Wish/Prodigy/Linx',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XBEACHPARK',desc:'$200.000 dcto paquetes Beach Park',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'CAMBORIU2X',desc:'hasta $100.000 dcto hotel Marambaia Camboriú',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'Cupón CMR Sudamérica',desc:'$60.000 web / $80.000 presencial en paquetes (mín $900K web, aplica Brasil)',where:'Falabella Oportunidad Única',url:'https://www.viajesfalabella.cl/ofertas-viajes/oportunidad-unica'},{code:'CYBERPAQ',desc:'$100.000 dcto viajes internacionales',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'SKY + cyber.cl',desc:'$80.000 dcto paquetes a Sudamérica',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'Iberostar cyber.cl',desc:'$150.000 dcto paquetes Caribe y Brasil',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'CYBERASISTENCIA20',desc:'20% dcto asistencia Universal Assistance (tope $50K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/asistencia-al-viajero'},{code:'LOCALIZA25',desc:'15% dcto autos en Brasil (tope $25K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/autos'}],
+ NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',google:'Google/LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha'},
+  pax:1,PAXOPTS:[1,2,4,5,9]}),
  computed:{
   F(){return this.DATA?.fuentes||{}},
   js(){return this.F.jetsmart||{}},
@@ -155,6 +166,7 @@ createApp({
   fal(){return this.F.falabella||{}},
   des(){return this.F.despegar||{}},
   cocha(){return this.F.cocha||{}},
+  combosPax(){const m=this.js.combos_by_pax||{};return m[String(this.pax)]||this.js.combos||[]},
   fI(){const o=this.fi.trim();return (this.js.idas||[]).filter(x=>!o||x.fecha.includes(o))},
   fV(){const o=this.fv.trim();return (this.js.vueltas||[]).filter(x=>!o||x.fecha.includes(o))},
   latRows(){const a=this.lat.dias_out||[],b=this.lat.dias_in||[],n=Math.max(a.length,b.length),r=[];for(let i=0;i<n;i++)r.push({a:a[i],b:b[i]});return r}
