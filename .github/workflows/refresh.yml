@@ -42,6 +42,18 @@ jobs:
             echo "Sin cambios: no se publica commit."
           else
             git commit -m "refresh $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase || true
             git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
             git push
           fi
+
+      - name: encadenar siguiente ciclo (~5 min)
+        if: always()
+        run: |
+          sleep 240
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "Authorization: token ${{ secrets.PUSH_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/refresh.yml/dispatches" \
+            -d '{"ref":"main"}')
+          echo "auto-dispatch HTTP $CODE"
