@@ -437,8 +437,10 @@ def main():
     LIVE["next_refresh"] = None
     sig = signature(LIVE)
     if old and old.get("sig") == sig:
-        print("SIN CAMBIOS de precios — no se reescribe data.json", flush=True)
-        return
+        print("SIN CAMBIOS de precios (verificación registrada)", flush=True)
+    else:
+        LIVE["last_price_change"] = now_iso()
+        print("CAMBIO DE PRECIOS detectado", flush=True)
     LIVE["sig"] = sig
     tmp = DATA + ".tmp"
     with open(tmp, "w") as fh:

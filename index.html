@@ -52,7 +52,8 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <h1>✈️ SCL ⇄ Río de Janeiro · precios EN VIVO</h1>
   <div class="sub">ene–feb 2027 · regreso ≤ 23-feb · CLP pp · <span class="spin"></span>datos refrescados cada 5 min por GitHub Actions</div>
   <div class="badges">
-   <span class="badge info">🕐 Actualizado: {{DATA?.updated||'—'}}</span>
+   <span class="badge info">🔄 Verificado: {{DATA?.updated||'—'}}</span>
+   <span class="badge info">💾 Último cambio de precios: {{DATA?.last_price_change||DATA?.updated||'—'}}</span>
    <span v-for="(v,k) in (DATA?.fuentes||{})" :key="k" class="badge" :class="{warn:!v.ok}">{{v.ok?'✅':'⚠️'}} {{NAMES[k]||k}}</span>
   </div>
   <div style="display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap"><span class="b">Pasajeros:</span><button v-for="n in PAXOPTS" :key="n" class="btn" :style="pax===n?'':'background:#1e293b;border:1px solid #334155'" @click="pax=n">{{n}}</button></div>
