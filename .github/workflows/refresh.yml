@@ -33,7 +33,9 @@ jobs:
         if: always()
         run: |
           sleep 240
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token ${{ secrets.PUSH_TOKEN }}" -H "Accept: application/vnd.github+json" https://api.github.com/${{ github.repository }}/actions/workflows/refresh.yml/dispatches -d '{"ref":"main"}')
+          TK="${{ secrets.PUSH_TOKEN }}"
+          echo "toklen=${#TK}"
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token $TK" -H "Accept: application/vnd.github+json" https://api.github.com/${{ github.repository }}/actions/workflows/refresh.yml/dispatches -d '{"ref":"main"}')
           echo "auto-dispatch HTTP $CODE"
 
       - name: publicar si hubo cambios
