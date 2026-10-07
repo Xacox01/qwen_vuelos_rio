@@ -54,7 +54,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <div class="badges">
    <span class="badge info">🕐 Actualizado: {{DATA?.updated||'—'}}</span>
    <span v-for="(v,k) in (DATA?.fuentes||{})" :key="k" class="badge" :class="{warn:!v.ok}">{{v.ok?'✅':'⚠️'}} {{NAMES[k]||k}}</span>
-  </div>
+  <div style="display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap"><span class="b">Pasajeros:</span><button v-for="n in PAXOPTS" :key="n" class="btn" :style="pax===n?'':'background:#1e293b;border:1px solid #334155'" @click="pax=n">{{n}}</button></div>
  </header>
  <nav>
   <button v-for="(t,i) in TABS" :key="i" :class="{on:cur===i}" @click="cur=i">{{t}}</button>
@@ -63,7 +63,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <!-- 0 combos JetSMART -->
   <section :class="{on:cur===0}">
    <div class="ok">✅ <b>API oficial de disponibilidad JetSMART</b> — el botón verde abre el checkout real con esas fechas cargadas. Elige cuántos pasajeros cotizan: el precio pp se recalcula con la <b>asignación real de asientos por cubo de tarifa</b> (por eso 5 pax puede salir más caro que 1).</div>
-<div style="display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap"><span class="b">Pasajeros:</span><button v-for="n in PAXOPTS" :key="n" class="btn" :style="pax===n?'':'background:#1e293b;border:1px solid #334155'" @click="pax=n">{{n}}</button></div>
+
    <div class="hero" v-if="combosPax.length">🏆 Mejor combinación para {{pax}} pax: <b>{{dw(combosPax[0].ida)}} {{combosPax[0].ida}} → {{dw(combosPax[0].vuelta)}} {{combosPax[0].vuelta}}</b> ({{combosPax[0].noches}} noches)<br>
     {{combosPax[0].v_ida}} + {{combosPax[0].v_vue}} · <b>{{fmt(combosPax[0].clp)}}</b> pp · total {{pax}} pax = <b>{{fmt(combosPax[0].tot??combosPax[0].clp*pax)}}</b>
     &nbsp;<a class="btn" :href="jsRT(combosPax[0].ida,combosPax[0].vuelta)" target="_blank" rel="noopener">Comprar ↗</a></div>
@@ -90,18 +90,18 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   </section>
   <!-- 3 SKY -->
   <section :class="{on:cur===3}">
-   <div class="ok">✅ <b>API oficial SKY</b> (histograma de skyairline.com) · RT 9–12 noches. Corrobora buscando el par exacto en skyairline.com.</div>
-   <div class="hero" v-if="sky.pairs?.length">🏆 Mejor tarifa SKY: <b>{{dw(sky.pairs[0].ida)}} {{sky.pairs[0].ida}} → {{dw(sky.pairs[0].vuelta)}} {{sky.pairs[0].vuelta}}</b> ({{sky.pairs[0].noches}} noches) · <b>{{fmt(sky.pairs[0].clp)}}</b> pp · ×9 = <b>{{fmt(sky.pairs[0].clp*9)}}</b> &nbsp;<a class="btn sky" href="https://www.skyairline.com/chile/" target="_blank" rel="noopener">Ir a SKY ↗</a></div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>
-    <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*9)}}</td><td><a class="btn sky" href="https://www.skyairline.com/chile/" target="_blank" rel="noopener">Buscar ↗</a></td></tr>
+   <div class="ok">✅ <b>API oficial SKY</b> (histograma de skyairline.com) · RT 9–12 noches · tarifas de 1 adulto; el total por grupo es estimación (la API no publica cubos de asientos).</div>
+   <div class="hero" v-if="sky.pairs?.length">🏆 Mejor tarifa SKY: <b>{{dw(sky.pairs[0].ida)}} {{sky.pairs[0].ida}} → {{dw(sky.pairs[0].vuelta)}} {{sky.pairs[0].vuelta}}</b> ({{sky.pairs[0].noches}} noches) · <b>{{fmt(sky.pairs[0].clp)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(sky.pairs[0].clp*pax)}}</b> &nbsp;<a class="btn sky" href="https://www.skyairline.com/chile/" target="_blank" rel="noopener">Ir a SKY ↗</a></div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
+    <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*pax)}}</td><td><a class="btn sky" href="https://www.skyairline.com/chile/" target="_blank" rel="noopener">Buscar ↗</a></td></tr>
    </table></div>
   </section>
   <!-- 4 LATAM oficial -->
   <section :class="{on:cur===4}">
    <div class="ok">✅ <b>API oficial web de LATAM</b> (calendario de latamairlines.com, solo directos). Combos = ida + vuelta.</div>
-   <div class="hero" v-if="lat.combos?.length">🏆 Mejor combo LATAM: <b>{{dw(lat.combos[0].ida)}} {{lat.combos[0].ida}} → {{dw(lat.combos[0].vuelta)}} {{lat.combos[0].vuelta}}</b> ({{lat.combos[0].noches}} noches) · <b>{{fmt(lat.combos[0].clp)}}</b> pp · ×9 = <b>{{fmt(lat.combos[0].clp*9)}}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">Comprar en LATAM ↗</a></div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>
-    <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*9)}}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
+   <div class="hero" v-if="lat.combos?.length">🏆 Mejor combo LATAM: <b>{{dw(lat.combos[0].ida)}} {{lat.combos[0].ida}} → {{dw(lat.combos[0].vuelta)}} {{lat.combos[0].vuelta}}</b> ({{lat.combos[0].noches}} noches) · <b>{{fmt(lat.combos[0].clp)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(lat.combos[0].clp*pax)}}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">Comprar en LATAM ↗</a></div>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
+    <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
    </table></div>
    <h2>Mínimo por día · solo directos</h2>
    <div class="tbl"><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>
@@ -111,16 +111,16 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <!-- 5 Google espejo -->
   <section :class="{on:cur===5}">
    <div class="warnbox">🔎 LATAM bloquea bots en su sitio; esto es su inventario espejado en Google Flights. El botón abre la búsqueda ya armada (solo directos).</div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Vuelo</th><th>Salida</th><th>CLP pp RT</th><th>Verificar</th></tr>
-    <tr v-for="v in ggl.vuelos" :key="(v.codigo||'')+v.ida"><td>{{v.ida?dw(v.ida)+' '+v.ida+' → '+dw(v.vuelta)+' '+v.vuelta:'—'}}</td><td><b>{{v.codigo||''}}</b></td><td>{{v.hora||''}}</td><td class="p">{{fmt(v.clp)}}</td><td><a class="btn ggl" :href="v.link" target="_blank" rel="noopener">Google ↗</a></td></tr>
+   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Vuelo</th><th>Salida</th><th>CLP pp RT</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
+    <tr v-for="v in ggl.vuelos" :key="(v.codigo||'')+v.ida"><td>{{v.ida?dw(v.ida)+' '+v.ida+' → '+dw(v.vuelta)+' '+v.vuelta:'—'}}</td><td><b>{{v.codigo||''}}</b></td><td>{{v.hora||''}}</td><td class="p">{{fmt(v.clp)}}</td><td class="p">{{fmt(v.clp*pax)}}</td><td><a class="btn ggl" :href="v.link" target="_blank" rel="noopener">Google ↗</a></td></tr>
    </table></div>
   </section>
   <!-- 6 Falabella -->
   <section :class="{on:cur===6}">
    <div class="warnbox">⚠️ <b>Referencia no garantizada</b>: mínimos de la caché SSR de viajesfalabella.cl (1 adulto). El checkout real manda.</div>
-   <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp</th><th>Estado</th><th>Ver en vivo</th></tr>
+   <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp (1 ad.)</th><th>{{pax}} pax (est.)</th><th>Estado</th><th>Ver en vivo</th></tr>
     <template v-for="d in fal.dias" :key="d.sentido+d.fecha">
-     <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td>{{d.status===200?'✅':'❌ '+d.status}}</td><td><a class="btn fal" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+     <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td>{{d.status===200?'✅':'❌ '+d.status}}</td><td><a class="btn fal" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
      <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td><a :href="falOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
     </template>
    </table></div>
@@ -129,9 +129,9 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <section :class="{on:cur===7}">
    <div class="warnbox">⚠️ Referencias públicas: mínimos SSR de despegar.cl y tarjetas "Desde" de cocha.com. El checkout real manda.</div>
    <div class="hero" v-if="cocha.rio">🏬 Cocha: SCL⇄Río ida y vuelta <b>desde {{fmt(cocha.rio.clp)}}</b> pp (precio final publicado) &nbsp;<a class="btn fal" href="https://www.cocha.com/vuelos/destinos/rio-de-janeiro" target="_blank" rel="noopener">Ver en Cocha ↗</a></div>
-   <div class="tbl"><table><tr><th>Fuente</th><th>Sentido / destino</th><th>Fecha</th><th>Mínimo pp</th><th>Abrir</th></tr>
-    <tr v-for="d in des.dias||[]" :key="d.sentido+d.fecha"><td>Despegar</td><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-    <tr v-for="c in cocha.cards||[]" :key="c.destino"><td>Cocha</td><td>{{c.destino}}</td><td></td><td class="p">{{fmt(c.clp)}}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+   <div class="tbl"><table><tr><th>Fuente</th><th>Sentido / destino</th><th>Fecha</th><th>Mínimo pp (1 ad.)</th><th>{{pax}} pax (est.)</th><th>Abrir</th></tr>
+    <tr v-for="d in des.dias||[]" :key="d.sentido+d.fecha"><td>Despegar</td><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+    <tr v-for="c in cocha.cards||[]" :key="c.destino"><td>Cocha</td><td>{{c.destino}}</td><td></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
    </table></div>
   </section>
   <!-- 8 Cupones -->

@@ -40,3 +40,19 @@ jobs:
             git commit -m "refresh $(date -u +%Y-%m-%dT%H:%MZ)"
             git push
           fi
+
+  probe-waf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: instalar camoufox
+        run: |
+          pip install -q camoufox
+          python -m camoufox fetch
+      - name: sondear WAF DataDome
+        run: python probe_waf.py
