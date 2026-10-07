@@ -46,5 +46,6 @@ jobs:
             echo "Sin cambios: no se publica commit."
           else
             git commit -m "refresh $(date -u +%Y-%m-%dT%H:%MZ)"
+            git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
             git push
           fi
