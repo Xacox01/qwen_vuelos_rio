@@ -54,6 +54,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <div class="badges">
    <span class="badge info">🕐 Actualizado: {{DATA?.updated||'—'}}</span>
    <span v-for="(v,k) in (DATA?.fuentes||{})" :key="k" class="badge" :class="{warn:!v.ok}">{{v.ok?'✅':'⚠️'}} {{NAMES[k]||k}}</span>
+  </div>
   <div style="display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap"><span class="b">Pasajeros:</span><button v-for="n in PAXOPTS" :key="n" class="btn" :style="pax===n?'':'background:#1e293b;border:1px solid #334155'" @click="pax=n">{{n}}</button></div>
  </header>
  <nav>
