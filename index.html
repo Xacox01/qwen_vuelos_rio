@@ -47,6 +47,8 @@
 <section id="s3"><div id="t3"></div></section>
 <section id="s4"><div id="t4"></div></section>
 <section id="s5"><div id="t5"></div></section>
+<section id="s6"><div id="t6"></div></section>
+<section id="s7"><div id="t7"></div></section>
 
 <script>
 const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
@@ -68,14 +70,14 @@ function render(){
  let bh=`<span class="badge">🕐 Última actualización: ${DATA.updated||'—'}</span>`;
  if(nextAt)bh+=`<span class="badge">⏳ Próx. refresh: <span id="countdown">${nextAt}</span></span>`;
  for(const[k,v]of Object.entries(F)){
-  const name={jetsmart:'JetSMART (API oficial)',sky:'SKY (API oficial)',google:'LATAM (espejo Google)',falabella:'Falabella (referencia)'}[k]||k;
+  const name={jetsmart:'JetSMART (API oficial)',sky:'SKY (API oficial)',latam:'LATAM (API oficial)',google:'LATAM (espejo Google)',falabella:'Falabella (referencia)',despegar:'Despegar (referencia)',cocha:'Cocha (referencia)'}[k]||k;
   bh+=`<span class="badge ${v.ok?'':'warn'}">${v.ok?'✅':'⚠️'} ${name}: ${v.ts||''}</span>`;}
  document.getElementById('badges').innerHTML=bh;
 
  // TABS fijos
  const tabs=document.getElementById('tabs');
  if(!tabs.childElementCount){
-  ['🥇 Combos ida+vuelta','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · Tarifas RT','🥉 LATAM','⚠️ Falabella (ref.)']
+  ['🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar & Cocha (ref.)']
    .forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>tab(i);tabs.appendChild(b);});
   tabs.children[0].classList.add('on');}
 
@@ -119,15 +121,29 @@ function render(){
  h3+=`</table>`;
  document.getElementById('t3').innerHTML=h3;
 
- // --- T4 LATAM ---
+
+ // --- T4 LATAM oficial ---
+ const la=F.latam||{};const lc=(la.combos||[]).slice(0,14);
+ let h4b=`<div class="ok">✅ <b>Fuente: API oficial web de LATAM</b> (calendario de tarifas de latamairlines.com, solo directos). Combos = ida + vuelta.</div>`;
+ if(lc.length){const c=lc[0];
+  h4b+=`<div class="hero">🏆 Mejor combo LATAM ahora: <b>${dw(c.ida)} ${c.ida} → ${dw(c.vuelta)} ${c.vuelta}</b> (${c.noches} noches) · <b>${fmt(c.clp)}</b> pp · ×9 = <b>${fmt(c.clp*9)}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank">Comprar en LATAM ↗</a></div>`;}
+ h4b+=`<table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>CLP ×9</th><th>Verificar</th></tr>`;
+ for(const c of lc)h4b+=`<tr><td>${dw(c.ida)} ${c.ida} → ${dw(c.vuelta)} ${c.vuelta}</td><td>${c.noches}</td><td class="p">${fmt(c.clp)}</td><td class="p">${fmt(c.clp*9)}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank">LATAM ↗</a></td></tr>`;
+ h4b+=`</table><h2>Mínimo por día · solo directos</h2><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>`;
+ const od=(la.dias_out||[]),idn=(la.dias_in||[]);
+ for(let i=0;i<Math.max(od.length,idn.length);i++){const a=od[i]||{},b=idn[i]||{};
+  h4b+=`<tr><td>${a.fecha?(dw(a.fecha)+' '+a.fecha):''}</td><td class="p">${a.clp?fmt(a.clp):''}</td><td>${b.fecha?(dw(b.fecha)+' '+b.fecha):''}</td><td class="p">${b.clp?fmt(b.clp):''}</td></tr>`;}
+ h4b+=`</table>`;
+ document.getElementById('t4').innerHTML=h4b;
+ // --- T5 LATAM espejo Google ---
  const gg=(F.google||{}).vuelos||[];
  let h4=`<div class="warnbox">🔎 LATAM bloquea bots en su sitio; estos datos salen del inventario LATAM espejado en Google Flights. El botón azul abre la búsqueda ya armada (solo directos) para verificar.</div>
  <table><tr><th>Ida → Vuelta</th><th>Vuelo</th><th>Salida</th><th>CLP pp RT</th><th>Verificar</th></tr>`;
  for(const v of gg)h4+=`<tr><td>${v.ida?dw(v.ida)+' '+v.ida+' → '+dw(v.vuelta)+' '+v.vuelta:'—'}</td><td><b>${v.codigo||''}</b></td><td>${v.hora||''}</td><td class="p">${fmt(v.clp)}</td><td><a class="btn ggl" href="${v.link}" target="_blank">Ver en Google ↗</a></td></tr>`;
  h4+=`</table>`;
- document.getElementById('t4').innerHTML=h4;
+ document.getElementById('t5').innerHTML=h4;
 
- // --- T5 Falabella ---
+ // --- T6 Falabella ---
  const fa=(F.falabella||{}).dias||[];
  let h5=`<div class="warnbox">⚠️ <b>Referencia no garantizada</b>: mínimos publicados en la caché de viajesfalabella.cl (1 adulto). El checkout real con varios pasajeros manda. Cupones con stock limitado pueden agotarse.</div>
  <table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo publicado (pp)</th><th>Estado</th><th>Revisar en vivo</th></tr>`;
@@ -135,9 +151,20 @@ function render(){
   h5+=`<tr><td>${O==='SCL'?'Ida SCL→Río':'Vuelta Río→SCL'}</td><td>${dw(d.fecha)} ${d.fecha}</td><td class="p">${d.min_clp?fmt(d.min_clp):'—'}</td><td>${d.status===200?'✅':'❌ '+d.status}</td><td><a class="btn fal" href="${FAL_OW(O,D,d.fecha)}" target="_blank">Abrir ↗</a></td></tr>`;
   for(const c of (d.calendario||[]))h5+=`<tr><td class="b">· día vecino</td><td>${dw(c.fecha)} ${c.fecha}</td><td class="p b">${fmt(c.clp)}</td><td></td><td><a href="${FAL_OW(O,D,c.fecha)}" target="_blank">Abrir ↗</a></td></tr>`;}
  h5+=`</table>`;
- document.getElementById('t5').innerHTML=h5;
+ document.getElementById('t6').innerHTML=h5;
 }
 
+
+ // --- T7 Despegar & Cocha ---
+ const de=F.despegar||{},co=F.cocha||{};
+ let h7=`<div class="warnbox">⚠️ Referencias públicas: mínimos SSR de despegar.cl y tarjetas "Desde" de cocha.com. El checkout real manda.</div>`;
+ if(co.rio)h7+=`<div class="hero">🏬 Cocha: SCL⇄Río ida y vuelta <b>desde ${fmt(co.rio.clp)}</b> pp (precio final publicado) &nbsp;<a class="btn fal" href="https://www.cocha.com/vuelos/destinos/rio-de-janeiro" target="_blank">Ver en Cocha ↗</a></div>`;
+ h7+=`<table><tr><th>Fuente</th><th>Sentido / destino</th><th>Fecha</th><th>Mínimo pp</th><th>Abrir</th></tr>`;
+ for(const d of (de.dias||[])){const[O,D]=d.sentido.split('-');
+  h7+=`<tr><td>Despegar</td><td>${O==='SCL'?'Ida SCL→Río':'Vuelta Río→SCL'}</td><td>${dw(d.fecha)} ${d.fecha}</td><td class="p">${d.min_clp?fmt(d.min_clp):'—'}</td><td><a class="btn sky" href="https://www.despegar.cl/shop/flights/results/oneway/${O}/${D}/${d.fecha}/1/0/0" target="_blank">Abrir ↗</a></td></tr>`;}
+ for(const c of (co.cards||[]))h7+=`<tr><td>Cocha</td><td>${c.destino}</td><td></td><td class="p">${fmt(c.clp)}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank">Abrir ↗</a></td></tr>`;
+ h7+=`</table>`;
+ document.getElementById('t7').innerHTML=h7;
 async function poll(){
  try{const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});DATA=await r.json();
   nextAt=DATA.next_refresh||null;render();}catch(e){console.error(e);}

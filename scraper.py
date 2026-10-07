@@ -178,6 +178,97 @@ def fetch_google(cycle):
                          "avion": leg.get("aircraft")})
     return {"ventana": [dep, ret], "vuelos": rows, "link": glink(dep, ret)}
 
+# ---------------- LATAM (BFF oficial web) ----------------
+import uuid as _uuid
+def _latam_headers():
+    app = "xp-web-products-searchbox-lib"
+    return {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            "x-latam-app-session-id": str(_uuid.uuid1()), "x-latam-application-country": "CL",
+            "x-latam-application-lang": "es", "x-latam-application-name": app,
+            "x-latam-application-oc": "cl", "x-latam-client-name": app,
+            "x-latam-request-id": str(_uuid.uuid1()), "x-latam-track-id": str(_uuid.uuid1()),
+            "x-latam-action-name": "home-homepage-web-customer.searchbox_calendar.load",
+            "Accept": "application/json"}
+
+def _latam_cal(o, d):
+    dias = {}
+    for m in (1, 2):
+        u = (f"https://www.latamairlines.com/bff/web-products-searchbox/v1/calendar?"
+             f"origin={o}&destination={d}&month={m}&year=2027&isRoundTrip=false&extended=true&directFlights=true")
+        r = cr.get(u, impersonate="chrome", timeout=30, headers=_latam_headers())
+        r.raise_for_status()
+        for day in r.json().get("days", []):
+            for calblk in day.get("calendar", []):
+                for det in (calblk.get("detailsCalendar") or []):
+                    if det.get("enabled") and det.get("fare"):
+                        dias[det["date"]] = {"clp": det["fare"]["amount"],
+                                             "directo": bool(det.get("highlightDirectFlight")),
+                                             "low": bool(det.get("lowPrice"))}
+    return dias
+
+def fetch_latam():
+    t0 = time.time()
+    out = _latam_cal("SCL", "GIG")
+    inn = _latam_cal("GIG", "SCL")
+    combos = []
+    for ida, vo in out.items():
+        if not ("2027-01-05" <= ida <= "2027-02-12"):
+            continue
+        d0 = datetime.date.fromisoformat(ida)
+        for stay in range(9, 13):
+            rd = (d0 + datetime.timedelta(days=stay)).isoformat()
+            if rd > RET_LIMIT or (CARNAVAL[0] <= rd <= CARNAVAL[1]) or rd not in inn:
+                continue
+            combos.append({"ida": ida, "vuelta": rd, "noches": stay,
+                           "clp": vo["clp"] + inn[rd]["clp"],
+                           "directo": vo["directo"] and inn[rd]["directo"]})
+    combos.sort(key=lambda c: c["clp"])
+    top, seen = [], set()
+    for c in combos:
+        k = (c["ida"], c["vuelta"])
+        if k not in seen:
+            seen.add(k)
+            top.append(c)
+        if len(top) >= 20:
+            break
+    return {"dias_out": [{"fecha": k, **v} for k, v in sorted(out.items())],
+            "dias_in": [{"fecha": k, **v} for k, v in sorted(inn.items())],
+            "combos": top, "secs": round(time.time() - t0, 1)}
+
+# ---------------- Despegar (mismo motor SSR que Falabella) ----------------
+def fetch_despegar():
+    rows = []
+    for o, d, fecha in FAL_DATES:
+        u = f"https://www.despegar.cl/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
+        r = cr.get(u, impersonate="chrome", timeout=45, headers={"Accept-Language": "es-CL,es;q=0.9"})
+        if r.status_code != 200:
+            rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": r.status_code, "min_clp": None, "calendario": []})
+            continue
+        h = r.text
+        precios = [int(p.replace(".", "")) for p in re.findall(r"clickedPrice=CLP_(\d+)", h)]
+        cards = [int(p.replace(".", "")) for p in re.findall(r">\s*\$\s?(\d{2,3}\.\d{3})\s*<", h)]
+        cal = [{"fecha": m.group(1), "clp": int(m.group(2))} for m in re.finditer(
+            r"oneway/[a-z]{3}/[a-z]{3}/(\d{4}-\d{2}-\d{2})/\d/\d/\d\?refererEvent=calendarPricesMatrix&clickedPrice=CLP_(\d+)", h)]
+        rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": 200,
+                     "min_clp": min(precios + cards) if (precios or cards) else None, "calendario": cal})
+    return {"dias": rows}
+
+# ---------------- Cocha (SSR /vuelos: tarjetas "Desde") ----------------
+def fetch_cocha():
+    r = cr.get("https://www.cocha.com/vuelos", impersonate="chrome", timeout=30,
+               headers={"Accept-Language": "es-CL,es;q=0.9"})
+    r.raise_for_status()
+    h = r.text
+    cards = []
+    for blk in re.split(r"Vuelo ida y vuelta", h)[1:]:
+        seg = blk[:2600]
+        p = re.search(r"Desde\s+\$([\d.]+)", seg)
+        alts = re.findall(r'alt="([^"]+)"', seg)
+        if p:
+            cards.append({"destino": (alts[0] if alts else "?")[:80], "clp": int(p.group(1).replace(".", ""))})
+    rio = next((c for c in cards if "Río de Janeiro" in c["destino"]), None)
+    return {"rio": rio, "cards": cards[:14]}
+
 # ---------------- Semilla (primera corrida / respaldo) ----------------
 def seed():
     live = {"updated": "seed", "next_refresh": None, "cycle": 0, "fuentes": {}}
@@ -220,11 +311,17 @@ def signature(live):
     sk = F.get("sky", {})
     gg = F.get("google", {})
     fa = F.get("falabella", {})
+    la = F.get("latam", {})
+    de = F.get("despegar", {})
+    co = F.get("cocha", {})
     return json.dumps([
         [int(c["clp"]) for c in (js.get("combos") or [])[:5]],
         [int(p["clp"]) for p in (sk.get("pairs") or [])[:5]],
         [int(v["clp"]) for v in (gg.get("vuelos") or [])[:5]],
         [int(d.get("min_clp") or 0) for d in (fa.get("dias") or [])],
+        [int(c["clp"]) for c in (la.get("combos") or [])[:5]],
+        [int(d.get("min_clp") or 0) for d in (de.get("dias") or [])],
+        int((co.get("rio") or {}).get("clp") or 0),
     ])
 
 def main():
@@ -265,6 +362,36 @@ def main():
                 print("Falabella WAF: se conserva último dato", flush=True)
         except Exception as e:
             print(f"Falabella FAIL: {str(e)[:80]}", flush=True)
+    # 5) LATAM oficial (BFF calendario)
+    try:
+        la = fetch_latam()
+        LIVE["fuentes"]["latam"] = {"ts": now_iso(), "ok": True, **la}
+        print(f"LATAM OK: {len(la['dias_out'])}+{len(la['dias_in'])} días, mejor combo {la['combos'][0]['clp']:,.0f}", flush=True)
+    except Exception as e:
+        print(f"LATAM FAIL: {str(e)[:100]}", flush=True)
+        cur = LIVE["fuentes"].get("latam")
+        if cur is not None:
+            cur["ok"] = False
+    # 6) Despegar SSR
+    try:
+        de = fetch_despegar()
+        if any(r.get("min_clp") for r in de["dias"]):
+            LIVE["fuentes"]["despegar"] = {"ts": now_iso(), "ok": True, "nota": "SSR público — referencia", **de}
+            print("Despegar OK", flush=True)
+        else:
+            print("Despegar WAF: se conserva último dato", flush=True)
+    except Exception as e:
+        print(f"Despegar FAIL: {str(e)[:80]}", flush=True)
+    # 7) Cocha SSR
+    try:
+        co = fetch_cocha()
+        if co.get("rio"):
+            LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True, **co}
+            print(f"Cocha OK: Río {co['rio']['clp']:,}", flush=True)
+        else:
+            print("Cocha sin tarjeta Río", flush=True)
+    except Exception as e:
+        print(f"Cocha FAIL: {str(e)[:80]}", flush=True)
     # 4) Google espejo (1 ventana rotativa)
     try:
         gg = fetch_google(cycle)
