@@ -152,10 +152,7 @@ function render(){
   for(const c of (d.calendario||[]))h5+=`<tr><td class="b">· día vecino</td><td>${dw(c.fecha)} ${c.fecha}</td><td class="p b">${fmt(c.clp)}</td><td></td><td><a href="${FAL_OW(O,D,c.fecha)}" target="_blank">Abrir ↗</a></td></tr>`;}
  h5+=`</table>`;
  document.getElementById('t6').innerHTML=h5;
-}
-
-
- // --- T7 Despegar & Cocha ---
+// --- T7 Despegar & Cocha ---
  const de=F.despegar||{},co=F.cocha||{};
  let h7=`<div class="warnbox">⚠️ Referencias públicas: mínimos SSR de despegar.cl y tarjetas "Desde" de cocha.com. El checkout real manda.</div>`;
  if(co.rio)h7+=`<div class="hero">🏬 Cocha: SCL⇄Río ida y vuelta <b>desde ${fmt(co.rio.clp)}</b> pp (precio final publicado) &nbsp;<a class="btn fal" href="https://www.cocha.com/vuelos/destinos/rio-de-janeiro" target="_blank">Ver en Cocha ↗</a></div>`;
@@ -165,6 +162,10 @@ function render(){
  for(const c of (co.cards||[]))h7+=`<tr><td>Cocha</td><td>${c.destino}</td><td></td><td class="p">${fmt(c.clp)}</td><td><a class="btn fal" href="https://www.cocha.com/vuelos" target="_blank">Abrir ↗</a></td></tr>`;
  h7+=`</table>`;
  document.getElementById('t7').innerHTML=h7;
+}
+
+
+ 
 async function poll(){
  try{const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});DATA=await r.json();
   nextAt=DATA.next_refresh||null;render();}catch(e){console.error(e);}
