@@ -433,6 +433,7 @@ def main():
         print(f"Google skip: {str(e)[:80]}", flush=True)
 
     LIVE["cycle"] = cycle + 1
+    LIVE["checked"] = now_iso()
     LIVE["updated"] = now_iso()
     LIVE["next_refresh"] = None
     sig = signature(LIVE)
