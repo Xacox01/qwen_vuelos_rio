@@ -295,6 +295,75 @@ def fetch_cocha():
     rio = next((c for c in cards if "Río de Janeiro" in c["destino"]), None)
     return {"rio": rio, "cards": cards[:14]}
 
+# ---------------- Cocha REAL (API GraphQL descubierta) ----------------
+COCHA_GQL = "https://apis-prod.cocha.cloud/api-search-manager/graphql"
+COCHA_Q = ("query funcion($channel: Channel!, $searchType: SearchType!, $cabinType: CabinType!, "
+           "$itinerary: [Itinerary]!, $classType: ClassType!, $maxStops: Int, $fareType: FareType!, "
+           "$passengers: String!) { flightV2(channel:$channel, searchType:$searchType, cabinType:$cabinType, "
+           "itinerary:$itinerary, classType:$classType, maxStops:$maxStops, fareType:$fareType, "
+           "passengers:$passengers) { found{ supplier sections prices{ details total } } } }")
+AER = {"H2": "SKY", "JA": "JetSMART", "LA": "LATAM", "G3": "GOL", "AR": "Aerolíneas Argentinas",
+       "CM": "Copa", "AV": "Avianca", "IB": "Iberia", "AM": "Aeroméxico", "DL": "Delta",
+       "UA": "United", "EK": "Emirates", "LU": "LATAM", "H2": "SKY"}
+COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20")]
+
+def cocha_rt(ida, vuelta):
+    variables = {"channel": "B2C", "searchType": "roundtrip", "cabinType": "Y",
+                 "itinerary": [{"origin": "SCL", "destination": "GIG", "date": ida},
+                               {"origin": "GIG", "destination": "SCL", "date": vuelta}],
+                 "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5}
+    r = cr.post(COCHA_GQL, impersonate="chrome", timeout=90,
+                headers={"Content-Type": "application/json", "Origin": "https://www.cocha.com",
+                         "Referer": "https://www.cocha.com/"},
+                json={"operationName": "funcion", "variables": variables, "query": COCHA_Q})
+    r.raise_for_status()
+    found = ((r.json().get("data") or {}).get("flightV2") or {}).get("found") or []
+    out = []
+    for f in found:
+        try:
+            secs = f.get("sections") or []
+            if len(secs) < 2:
+                continue
+            seg_ida, seg_vue = secs[0], secs[1]
+            cod = seg_ida[0].get("airline", "?")
+            escalas = sum(len(s) - 1 for s in (seg_ida, seg_vue))
+            hora = seg_ida[0].get("departure", "")[-5:]
+            hvue = seg_vue[0].get("departure", "")[-5:]
+            precios = []
+            pr = f.get("prices")
+            items = pr if isinstance(pr, list) else ([pr] if pr else [])
+            for p in items:
+                if not isinstance(p, dict):
+                    continue
+                t = p.get("total")
+                if isinstance(t, (int, float)):
+                    precios.append(t)
+                elif isinstance(t, dict):
+                    c = (t.get("clp") or {}).get("total")
+                    if isinstance(c, (int, float)):
+                        precios.append(c)
+            if not precios:
+                continue
+            out.append({"aerolinea": AER.get(cod, cod), "cod": cod,
+                        "det": f"{cod}{seg_ida[0].get('connections',[{}])[0].get('flightNumber','')} {hora} salida · vuelta {hvue}",
+                        "escalas": escalas, "clp": min(precios)})
+        except Exception:
+            continue
+    out.sort(key=lambda x: x["clp"])
+    return out
+
+def fetch_cocha_live():
+    ventanas = []
+    for ida, vuelta in COCHA_VENTANAS:
+        res = cocha_rt(ida, vuelta)
+        if res:
+            ventanas.append({"ida": ida, "vuelta": vuelta, "min_clp": res[0]["clp"],
+                             "link": f"https://www.cocha.com/resultado/vuelos/SCL/GIG/{ida}/1/Y?origin2=GIG&destination2=SCL&date2={vuelta}",
+                             "resultados": res[:8]})
+    if not ventanas:
+        raise RuntimeError("sin resultados cocha")
+    return {"ventanas": ventanas}
+
 # ---------------- Semilla (primera corrida / respaldo) ----------------
 def seed():
     live = {"updated": "seed", "next_refresh": None, "cycle": 0, "fuentes": {}}
@@ -410,16 +479,25 @@ def main():
             print("Despegar WAF: se conserva último dato", flush=True)
     except Exception as e:
         print(f"Despegar FAIL: {str(e)[:80]}", flush=True)
-    # 7) Cocha SSR
+    # 7) Cocha: cotización REAL por API + tarjetas SSR de respaldo
     try:
-        co = fetch_cocha()
-        if co.get("rio"):
-            LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True, **co}
-            print(f"Cocha OK: Río {co['rio']['clp']:,}", flush=True)
-        else:
-            print("Cocha sin tarjeta Río", flush=True)
+        co_live = fetch_cocha_live()
+        old = LIVE["fuentes"].get("cocha") or {}
+        LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True,
+            "nota": "Cotización real automática vía API de cocha.com, ordenada del más barato (1 adulto, tasas incl.)",
+            "rio": old.get("rio"), "cards": old.get("cards", []),
+            "link": "https://www.cocha.com/vuelos", **co_live}
+        print("Cocha LIVE OK: " + " | ".join(
+            f"{v['ida']}→{v['vuelta']} ${v['min_clp']:,.0f}" for v in co_live["ventanas"]), flush=True)
     except Exception as e:
-        print(f"Cocha FAIL: {str(e)[:80]}", flush=True)
+        print(f"Cocha live FAIL: {str(e)[:90]}", flush=True)
+        try:
+            co = fetch_cocha()
+            if co.get("rio"):
+                LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True, **co}
+                print(f"Cocha SSR OK: Río {co['rio']['clp']:,}", flush=True)
+        except Exception as e2:
+            print(f"Cocha SSR FAIL: {str(e2)[:80]}", flush=True)
     # 4) Google espejo (1 ventana rotativa)
     try:
         gg = fetch_google(cycle)

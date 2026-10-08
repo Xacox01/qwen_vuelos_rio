@@ -62,8 +62,16 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <button v-for="(t,i) in TABS" :key="i" :class="{on:cur===i}" @click="cur=i">{{t}}</button>
  </nav>
  <main>
-  <!-- 0 combos JetSMART -->
+  <!-- 0 Consolidado -->
   <section :class="{on:cur===0}">
+   <div class="ok">🏅 <b>Lo mejor de cada empresa ahora mismo</b>, ordenado del más barato al más caro (por persona). Se recalcula solo cada ~5 min con el refresco automático. Usa el selector de pasajeros de arriba para ver el total de tu grupo.</div>
+   <div class="tbl"><table><tr><th>#</th><th>Empresa</th><th>Mejor opción</th><th>Fechas</th><th>CLP pp</th><th>{{pax}} pax</th><th>Ir a comprar</th></tr>
+    <tr v-for="(r,i) in consol" :key="r.emp"><td>{{i+1}}</td><td><b>{{r.emp}}</b><br><span class="b">{{r.tipo}}</span></td><td>{{r.det}}</td><td><template v-if="r.ida==='—'">fechas flexibles</template><template v-else>{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}}</template></td><td class="p"><b>{{fmt(r.pp)}}</b></td><td class="p">{{fmt(r.pp*pax)}}</td><td><a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+   </table></div>
+   <div class="warnbox">⚠️ Falabella y Despegar suman las mejores idas y vueltas publicadas hoy (referencia verificada manualmente, tasas incl.); SKY/JetSMART/LATAM son precios oficiales de sus APIs. Cocha publica un "desde" ida y vuelta sin fechas fijas. Confirma siempre en el checkout.</div>
+  </section>
+  <!-- 1 combos JetSMART -->
+  <section :class="{on:cur===1}">
    <div class="ok">✅ <b>API oficial de disponibilidad JetSMART</b> — el botón verde abre el checkout real con esas fechas cargadas. Elige cuántos pasajeros cotizan: el precio pp se recalcula con la <b>asignación real de asientos por cubo de tarifa</b> (por eso 5 pax puede salir más caro que 1).</div>
 
    <div class="hero" v-if="combosPax.length">🏆 Mejor combinación para {{pax}} pax: <b>{{dw(combosPax[0].ida)}} {{combosPax[0].ida}} → {{dw(combosPax[0].vuelta)}} {{combosPax[0].vuelta}}</b> ({{combosPax[0].noches}} noches)<br>
@@ -74,7 +82,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
    </table></div>
   </section>
   <!-- 1 y 2 vuelos JetSMART -->
-  <section :class="{on:cur===1}">
+  <section :class="{on:cur===2}">
    <div class="ok">✅ API oficial JetSMART · ida SCL→GIG.</div>
    <input class="filt" v-model="fi" placeholder="Filtrar por fecha (ej: 2027-01-22 o 2027-01)">
    <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr>
@@ -82,7 +90,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
     <tr v-if="!fI.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
    </table></div>
   </section>
-  <section :class="{on:cur===2}">
+  <section :class="{on:cur===3}">
    <div class="ok">✅ API oficial JetSMART · vuelta GIG→SCL.</div>
    <input class="filt" v-model="fv" placeholder="Filtrar por fecha (ej: 2027-02-01 o 2027-02)">
    <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr>
@@ -91,7 +99,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
    </table></div>
   </section>
   <!-- 3 SKY -->
-  <section :class="{on:cur===3}">
+  <section :class="{on:cur===4}">
    <div class="ok">✅ <b>API oficial SKY</b> (histograma de skyairline.com) · RT 9–12 noches · mínimo oficial por fechas (1 adulto) · verificado {{sky.ts||'—'}}.<br>ℹ️ El botón <b>"Reservar estas fechas ↗"</b> abre SKY con tus fechas y pasajeros ya cargados. El precio de compra puede variar vs. el mínimo mostrado: depende de la familia tarifaria y de los asientos que queden (stock cambia rápido).</div>
    <div class="hero" v-if="sky.pairs?.length">🏆 Mejor tarifa SKY: <b>{{dw(sky.pairs[0].ida)}} {{sky.pairs[0].ida}} → {{dw(sky.pairs[0].vuelta)}} {{sky.pairs[0].vuelta}}</b> ({{sky.pairs[0].noches}} noches) · <b>{{fmt(sky.pairs[0].clp)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(sky.pairs[0].clp*pax)}}</b> &nbsp;<a class="btn sky" :href="skyLink(sky.pairs[0])" target="_blank" rel="noopener">Reservar estas fechas ↗</a></div>
    <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
@@ -99,7 +107,7 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
    </table></div>
   </section>
   <!-- 4 LATAM oficial -->
-  <section :class="{on:cur===4}">
+  <section :class="{on:cur===5}">
    <div class="ok">✅ <b>API oficial web de LATAM</b> (calendario de latamairlines.com, solo directos). Combos = ida + vuelta.</div>
    <div class="hero" v-if="lat.combos?.length">🏆 Mejor combo LATAM: <b>{{dw(lat.combos[0].ida)}} {{lat.combos[0].ida}} → {{dw(lat.combos[0].vuelta)}} {{lat.combos[0].vuelta}}</b> ({{lat.combos[0].noches}} noches) · <b>{{fmt(lat.combos[0].clp)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(lat.combos[0].clp*pax)}}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">Comprar en LATAM ↗</a></div>
    <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
@@ -111,14 +119,14 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
    </table></div>
   </section>
   <!-- 5 Google espejo -->
-  <section :class="{on:cur===5}">
+  <section :class="{on:cur===6}">
    <div class="warnbox">🔎 LATAM bloquea bots en su sitio; esto es su inventario espejado en Google Flights. El botón abre la búsqueda ya armada (solo directos).</div>
    <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Vuelo</th><th>Salida</th><th>CLP pp RT</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
     <tr v-for="v in ggl.vuelos" :key="(v.codigo||'')+v.ida"><td>{{v.ida?dw(v.ida)+' '+v.ida+' → '+dw(v.vuelta)+' '+v.vuelta:'—'}}</td><td><b>{{v.codigo||''}}</b></td><td>{{v.hora||''}}</td><td class="p">{{fmt(v.clp)}}</td><td class="p">{{fmt(v.clp*pax)}}</td><td><a class="btn ggl" :href="v.link" target="_blank" rel="noopener">Google ↗</a></td></tr>
    </table></div>
   </section>
   <!-- 6 Falabella -->
-  <section :class="{on:cur===6}">
+  <section :class="{on:cur===7}">
    <div class="warnbox">⚠️ <b>Referencia verificada manualmente</b> — {{fal.ts||'sin fecha'}}. DataDome bloquea el auto-refresco de Falabella, así que estos mínimos se releen a mano y llevan sello de hora. Tramos por separado (1 adulto, tasas incl.); el checkout real manda.</div>
    <div class="hero" v-if="falBest">💡 Mejor ida+y+vuelta referencial Falabella: <b>{{falBest.ida.fecha}} → {{falBest.vuelta.fecha}}</b> ≈ <b>{{fmt(falBest.tot)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(falBest.tot*pax)}}</b></div>
    <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp (1 ad.)</th><th>{{pax}} pax (est.)</th><th>Detalle</th><th>Ver en vivo</th></tr>
@@ -129,26 +137,30 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
    </table></div>
   </section>
   <!-- 7 Despegar -->
-  <section :class="{on:cur===7}">
-   <div class="warnbox">⚠️ <b>Referencia verificada manualmente</b> — {{des.ts||'sin fecha'}}. DataDome bloquea el auto-refresco de Despegar, así que estos mínimos se releen a mano y llevan sello de hora. Tramos por separado (1 adulto, tasas incl.); el checkout real manda.</div>
+  <section :class="{on:cur===8}">
+   <div class="warnbox">✅ <b>Cotizaciones reales del buscador de Despegar leídas hoy</b> ({{des.ts||'sin fecha'}}), ordenadas del más barato hacia arriba. Tasas incl., 1 adulto; el total por grupo es estimación. DataDome impide que esto se refresque solo: si la hora se ve antigua, pide un refresco manual.</div>
    <div class="hero" v-if="desBest">💡 Mejor ida+y+vuelta referencial Despegar: <b>{{desBest.ida.fecha}} → {{desBest.vuelta.fecha}}</b> ≈ <b>{{fmt(desBest.tot)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(desBest.tot*pax)}}</b> (con tarjeta BCI la ida baja ~$20.000)</div>
    <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp (1 ad.)</th><th>{{pax}} pax (est.)</th><th>Detalle</th><th>Ver en vivo</th></tr>
     <template v-for="d in des.dias||[]" :key="d.sentido+d.fecha">
      <tr><td>{{d.sentido==='SCL-GIG'?'Ida SCL→Río (GIG)':'Vuelta Río (GIG)→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+     <tr v-for="v in d.vuelos||[]" :key="d.fecha+v.det"><td class="b">· cotización</td><td class="b">{{v.det}}</td><td class="p b">{{fmt(v.clp)}}</td><td class="p b">{{fmt(v.clp*pax)}}</td><td>{{v.nota||''}}</td><td><a :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Ver ↗</a></td></tr>
      <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="desOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
     </template>
    </table></div>
   </section>
   <!-- 8 Cocha -->
-  <section :class="{on:cur===8}">
-   <div class="warnbox">⚠️ <b>Referencia</b> — {{cocha.ts||'sin fecha'}}. Tarjetas "Desde" publicadas por cocha.com (ida y vuelta final por persona, fechas las elige Cocha). Verifica siempre en su buscador.</div>
-   <div class="hero" v-if="cocha.rio">🧭 Cocha: SCL⇄Río ida y vuelta <b>desde {{fmt(cocha.rio.clp)}}</b> pp (precio final publicado) · {{pax}} pax ≈ <b>{{fmt(cocha.rio.clp*pax)}}</b> &nbsp;<a class="btn fal" :href="cocha.link||'https://www.cocha.com/vuelos'" target="_blank" rel="noopener">Buscar en Cocha ↗</a></div>
-   <div class="tbl"><table><tr><th>Destino (RT publicado)</th><th>Desde pp</th><th>{{pax}} pax (est.)</th><th>Abrir</th></tr>
-    <tr v-for="c in cocha.cards||[]" :key="c.destino"><td>{{c.destino}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn fal" :href="cocha.link||'https://www.cocha.com/vuelos'" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-   </table></div>
-  </section>
-  <!-- 9 Cupones -->
   <section :class="{on:cur===9}">
+   <div class="ok">✅ <b>Cotización REAL automática</b> — {{cocha.ts||'sin fecha'}}. Resultados vivos del buscador de Cocha (ida y vuelta, 1 adulto, tasas incl.), ordenados del más barato hacia arriba; se refrescan solos cada ciclo.</div>
+   <template v-for="v in cocha.ventanas||[]" :key="v.ida+v.vuelta">
+    <h2>SCL ⇄ Río · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}} · mejor RT <span class="p">{{fmt(v.min_clp)}}</span> &nbsp;<a class="btn fal" :href="v.link" target="_blank" rel="noopener">Abrir en Cocha ↗</a></h2>
+    <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle</th><th>Escalas</th><th>CLP pp RT</th><th>{{pax}} pax (est.)</th><th>Cotizar</th></tr>
+     <tr v-for="(r,i) in v.resultados" :key="v.ida+r.det"><td>{{i+1}}</td><td><b>{{r.aerolinea}}</b></td><td class="b">{{r.det}}</td><td>{{r.escalas===0?'Directo ✈️':r.escalas}}</td><td class="p">{{fmt(r.clp)}}</td><td class="p">{{fmt(r.clp*pax)}}</td><td><a class="btn fal" :href="v.link" target="_blank" rel="noopener">Ver ↗</a></td></tr>
+    </table></div>
+   </template>
+   <div class="hero" v-if="cocha.rio">🧭 Portada Cocha: SCL⇄Río <b>desde {{fmt(cocha.rio.clp)}}</b> pp (precio publicado, fechas de Cocha) &nbsp;<a class="btn fal" :href="cocha.link||'https://www.cocha.com/vuelos'" target="_blank" rel="noopener">Buscar en Cocha ↗</a></div>
+  </section>
+  <!-- 10 Cupones -->
+  <section :class="{on:cur===10}">
    <div class="warnbox">⏰ <b>CyberMonday Chile termina HOY 7-oct 23:59.</b> Cupones verificados en las páginas oficiales; stock limitado, un uso por cliente en la mayoría. Pruébalos en el checkout ("¿Tienes un cupón?").</div>
    <div class="tbl"><table><tr><th>Código</th><th>Descuento</th><th>Dónde</th><th>Ir</th></tr>
     <tr v-for="c in COUPONS" :key="c.code"><td><b>{{c.code}}</b></td><td>{{c.desc}}</td><td class="b">{{c.where}}</td><td><a class="btn fal" :href="c.url" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
@@ -166,7 +178,7 @@ const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
 const {createApp}=Vue;
 createApp({
  data:()=>({DATA:null,cur:0,fi:'',fv:'',fatal:false,
-  TABS:['🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar (ref.)','🧭 Cocha (ref.)','🎟️ Cyber HOY'],
+  TABS:['🏅 Consolidado por empresa','🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','🔎 LATAM (espejo Google)','⚠️ Falabella (ref.)','🏬 Despegar (ref.)','🧭 Cocha (ref.)','🎟️ Cyber HOY'],
   COUPONS:[{code:'SUD10SKY',desc:'10% dcto en vuelos y paquetes a Brasil vía SKY',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWAM',desc:'hasta $100.000 dcto hoteles/paquetes WAM (Búzios, Fortaleza, Porto Seguro)',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'RITZ2X',desc:'hasta $70.000 dcto hoteles Rede Ritz Brasil',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWISH',desc:'$80.000 dcto paquetes hoteles Wish/Prodigy/Linx',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XBEACHPARK',desc:'$200.000 dcto paquetes Beach Park',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'CAMBORIU2X',desc:'hasta $100.000 dcto hotel Marambaia Camboriú',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'Cupón CMR Sudamérica',desc:'$60.000 web / $80.000 presencial en paquetes (mín $900K web, aplica Brasil)',where:'Falabella Oportunidad Única',url:'https://www.viajesfalabella.cl/ofertas-viajes/oportunidad-unica'},{code:'CYBERPAQ',desc:'$100.000 dcto viajes internacionales',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'SKY + cyber.cl',desc:'$80.000 dcto paquetes a Sudamérica',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'Iberostar cyber.cl',desc:'$150.000 dcto paquetes Caribe y Brasil',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'CYBERASISTENCIA20',desc:'20% dcto asistencia Universal Assistance (tope $50K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/asistencia-al-viajero'},{code:'LOCALIZA25',desc:'15% dcto autos en Brasil (tope $25K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/autos'}],
  NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',google:'Google/LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha'},
   pax:1,PAXOPTS:[1,2,4,5,9]}),
@@ -179,11 +191,19 @@ createApp({
   fal(){return this.F.falabella||{}},
   des(){return this.F.despegar||{}},
   cocha(){return this.F.cocha||{}},
+  consol(){const r=[];
+   const sp=this.sky.pairs?.[0]; if(sp) r.push({emp:'SKY Airline',tipo:'API oficial · RT directo',det:'Mínimo oficial ida y vuelta',ida:sp.ida,vuelta:sp.vuelta,pp:sp.clp,link:this.skyLink(sp),cls:'sky'});
+   const cp=this.combosPax[0]; if(cp) r.push({emp:'JetSMART',tipo:'API oficial · RT directo',det:(cp.v_ida||'')+' / '+(cp.v_vue||''),ida:cp.ida,vuelta:cp.vuelta,pp:cp.clp,link:this.jsRT(cp.ida,cp.vuelta),cls:''});
+   const lc=this.lat.combos?.[0]; if(lc) r.push({emp:'LATAM',tipo:'API oficial · RT directo',det:'Mínimo oficial ida y vuelta',ida:lc.ida,vuelta:lc.vuelta,pp:lc.clp,link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
+   const fb=this.falBest; if(fb) r.push({emp:'Viajes Falabella',tipo:'OTA · referencia de hoy',det:'Mejor ida + mejor vuelta publicadas',ida:fb.ida.fecha,vuelta:fb.vuelta.fecha,pp:fb.tot,link:this.falOW(fb.ida.sentido,fb.ida.fecha),cls:'fal'});
+   const db=this.desBest; if(db) r.push({emp:'Despegar',tipo:'OTA · referencia de hoy',det:'Mejor ida + mejor vuelta publicadas',ida:db.ida.fecha,vuelta:db.vuelta.fecha,pp:db.tot,link:this.desOW(db.ida.sentido,db.ida.fecha),cls:'fal'});
+   const co=this.cocha.rio; if(co?.clp) r.push({emp:'Cocha',tipo:'OTA · desde publicado',det:'RT final publicado sin fechas fijas',ida:'—',vuelta:'—',pp:co.clp,link:this.cocha.link||'https://www.cocha.com/vuelos',cls:'fal'});
+   return r.sort((a,b)=>a.pp-b.pp)},
   desBest(){const ds=this.des.dias||[];const i=ds.filter(d=>d.sentido==='SCL-GIG'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];const v=ds.filter(d=>d.sentido==='GIG-SCL'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];return i&&v?{ida:i,vuelta:v,tot:i.min_clp+v.min_clp}:null},
   falBest(){const ds=this.fal.dias||[];const i=ds.filter(d=>d.sentido==='SCL-RIO'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];const v=ds.filter(d=>d.sentido==='RIO-SCL'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];return i&&v?{ida:i,vuelta:v,tot:i.min_clp+v.min_clp}:null},
   combosPax(){const m=this.js.combos_by_pax||{};return m[String(this.pax)]||this.js.combos||[]},
-  fI(){const o=this.fi.trim();return (this.js.idas||[]).filter(x=>!o||x.fecha.includes(o))},
-  fV(){const o=this.fv.trim();return (this.js.vueltas||[]).filter(x=>!o||x.fecha.includes(o))},
+  fI(){const o=this.fi.trim();return [...(this.js.idas||[])].filter(x=>!o||x.fecha.includes(o)).sort((a,b)=>a.clp-b.clp)},
+  fV(){const o=this.fv.trim();return [...(this.js.vueltas||[])].filter(x=>!o||x.fecha.includes(o)).sort((a,b)=>a.clp-b.clp)},
   latRows(){const a=this.lat.dias_out||[],b=this.lat.dias_in||[],n=Math.max(a.length,b.length),r=[];for(let i=0;i<n;i++)r.push({a:a[i],b:b[i]});return r}
  },
  methods:{
