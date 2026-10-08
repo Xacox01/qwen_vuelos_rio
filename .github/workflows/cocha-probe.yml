@@ -1,0 +1,66 @@
+name: cocha-probe
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: instalar playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i playwright >/dev/null 2>&1
+          npx playwright install chromium --with-deps >/dev/null 2>&1
+          echo install-ok
+
+      - name: cotizar cocha
+        run: |
+          cat > probe.mjs << 'JS'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const URLS = {
+            rt_22ene: 'https://www.cocha.com/resultado/vuelos/SCL/GIG/2027-01-22/1/Y?origin2=GIG&destination2=SCL&date2=2027-02-01',
+            rt_02ene: 'https://www.cocha.com/resultado/vuelos/SCL/GIG/2027-01-02/1/Y?origin2=GIG&destination2=SCL&date2=2027-02-01'
+          };
+          const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+          const out = {};
+          for (const [name, url] of Object.entries(URLS)) {
+            const page = await browser.newPage();
+            const caps = [];
+            page.on('request', r => {
+              if (r.url().includes('graphql') && r.method() === 'POST') {
+                try { caps.push(JSON.parse(r.postData() || '{}')); } catch {}
+              }
+            });
+            try {
+              await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+              await page.waitForTimeout(25000);
+              const txt = await page.evaluate(() => document.body.innerText);
+              fs.writeFileSync(`cocha_${name}.txt`, txt);
+              fs.writeFileSync(`cocha_${name}_graphql.json`, JSON.stringify(caps, null, 1));
+              out[name] = { chars: txt.length, graphql_posts: caps.length };
+              // primeras lineas con precios
+              const lines = txt.split('\n').filter(l => /\$\s?\d{2,3}\.\d{3}/.test(l)).slice(0, 25);
+              out[name].precio_lines = lines;
+            } catch (e) { out[name] = { error: String(e).slice(0, 200) }; }
+            await page.close();
+          }
+          await browser.close();
+          console.log(JSON.stringify(out, null, 1));
+          JS
+          node probe.mjs
+
+      - name: subir evidencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocha-probe
+          path: |
+            cocha_*.txt
+            cocha_*_graphql.json
