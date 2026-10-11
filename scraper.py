@@ -306,17 +306,32 @@ AER = {"H2": "SKY", "JA": "JetSMART", "LA": "LATAM", "G3": "GOL", "AR": "Aerolí
        "CM": "Copa", "AV": "Avianca", "IB": "Iberia", "AM": "Aeroméxico", "DL": "Delta",
        "UA": "United", "EK": "Emirates", "LU": "LATAM", "H2": "SKY"}
 COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20")]
+_cocha_last = [0.0]
 
 def cocha_rt(ida, vuelta, dst="GIG"):
+    gap = time.time() - _cocha_last[0]
+    if gap < 2.5:
+        time.sleep(2.5 - gap)
     variables = {"channel": "B2C", "searchType": "roundtrip", "cabinType": "Y",
                  "itinerary": [{"origin": "SCL", "destination": dst, "date": ida},
                                {"origin": dst, "destination": "SCL", "date": vuelta}],
                  "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5}
-    r = cr.post(COCHA_GQL, impersonate="chrome", timeout=90,
-                headers={"Content-Type": "application/json", "Origin": "https://www.cocha.com",
-                         "Referer": "https://www.cocha.com/"},
-                json={"operationName": "funcion", "variables": variables, "query": COCHA_Q})
-    r.raise_for_status()
+    r = None
+    for intento in range(2):
+        try:
+            r = cr.post(COCHA_GQL, impersonate="chrome", timeout=90,
+                        headers={"Content-Type": "application/json", "Origin": "https://www.cocha.com",
+                                 "Referer": "https://www.cocha.com/"},
+                        json={"operationName": "funcion", "variables": variables, "query": COCHA_Q})
+            r.raise_for_status()
+            break
+        except Exception as e:
+            if intento == 0 and any(c in str(e) for c in ("403", "429")):
+                print(f"cocha {dst}: {str(e)[:30]} — pausa 20s y reintento", flush=True)
+                time.sleep(20)
+                continue
+            raise
+    _cocha_last[0] = time.time()
     found = ((r.json().get("data") or {}).get("flightV2") or {}).get("found") or []
     out = []
     for f in found:
@@ -456,9 +471,9 @@ def minimos_de(live):
         vals = [r.get(key) or 0 for r in (rows or []) if r.get(key)]
         return min(vals) if vals else None
     m = {}
-    for k, serie in (("sky", "SKY SCL-Río"), ("jetsmart", "JetSMART SCL-Río"), ("latam", "LATAM SCL-Río")):
+    for k, serie, key in (("sky", "SKY SCL-Río", "pairs"), ("jetsmart", "JetSMART SCL-Río", "combos"), ("latam", "LATAM SCL-Río", "combos")):
         if (f.get(k) or {}).get("ok"):
-            m[serie] = mn(f[k].get("vuelos"))
+            m[serie] = mn(f[k].get(key))
     if (f.get("cocha") or {}).get("ok"):
         m["Cocha SCL-Río"] = mn(f["cocha"].get("ventanas"), "min_clp")
     return m
