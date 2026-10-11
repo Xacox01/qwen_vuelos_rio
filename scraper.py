@@ -307,10 +307,10 @@ AER = {"H2": "SKY", "JA": "JetSMART", "LA": "LATAM", "G3": "GOL", "AR": "Aerolí
        "UA": "United", "EK": "Emirates", "LU": "LATAM", "H2": "SKY"}
 COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20")]
 
-def cocha_rt(ida, vuelta):
+def cocha_rt(ida, vuelta, dst="GIG"):
     variables = {"channel": "B2C", "searchType": "roundtrip", "cabinType": "Y",
-                 "itinerary": [{"origin": "SCL", "destination": "GIG", "date": ida},
-                               {"origin": "GIG", "destination": "SCL", "date": vuelta}],
+                 "itinerary": [{"origin": "SCL", "destination": dst, "date": ida},
+                               {"origin": dst, "destination": "SCL", "date": vuelta}],
                  "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5}
     r = cr.post(COCHA_GQL, impersonate="chrome", timeout=90,
                 headers={"Content-Type": "application/json", "Origin": "https://www.cocha.com",
@@ -352,17 +352,45 @@ def cocha_rt(ida, vuelta):
     out.sort(key=lambda x: x["clp"])
     return out
 
+COCHA_BRASIL = [("FLN", "Florianópolis"), ("GRU", "São Paulo"), ("SSA", "Salvador"),
+                ("CNF", "Belo Horizonte"), ("CWB", "Curitiba"), ("FOR", "Fortaleza"), ("REC", "Recife")]
+
 def fetch_cocha_live():
     ventanas = []
     for ida, vuelta in COCHA_VENTANAS:
         res = cocha_rt(ida, vuelta)
-        if res:
-            ventanas.append({"ida": ida, "vuelta": vuelta, "min_clp": res[0]["clp"],
-                             "link": f"https://www.cocha.com/resultado/vuelos/SCL/GIG/{ida}/1/Y?origin2=GIG&destination2=SCL&date2={vuelta}",
-                             "resultados": res[:8]})
+        if not res:
+            continue
+        top = res[:8]
+        extras = []
+        vistos = {r["det"] for r in top}
+        for r in res:
+            if r["aerolinea"] not in {x["aerolinea"] for x in top + extras} and r["det"] not in vistos:
+                extras.append(r)
+            if len(extras) >= 5:
+                break
+        ventanas.append({"ida": ida, "vuelta": vuelta, "min_clp": res[0]["clp"],
+                         "link": f"https://www.cocha.com/resultado/vuelos/SCL/GIG/{ida}/1/Y?origin2=GIG&destination2=SCL&date2={vuelta}",
+                         "resultados": top + extras})
     if not ventanas:
         raise RuntimeError("sin resultados cocha")
-    return {"ventanas": ventanas}
+    # destinos alternativos en Brasil (misma ventana más barata de Río)
+    base = min(ventanas, key=lambda v: v["min_clp"])
+    rio_min = base["min_clp"]
+    brasil = []
+    for cod, nombre in COCHA_BRASIL:
+        try:
+            r = cocha_rt(base["ida"], base["vuelta"], dst=cod)
+            if r:
+                brasil.append({"cod": cod, "destino": nombre, "min_clp": r[0]["clp"],
+                               "aerolinea": r[0]["aerolinea"], "escalas": r[0]["escalas"],
+                               "delta_pct": round((r[0]["clp"] / rio_min - 1) * 100, 1),
+                               "link": f"https://www.cocha.com/resultado/vuelos/SCL/{cod}/{base['ida']}/1/Y?origin2={cod}&destination2=SCL&date2={base['vuelta']}"})
+        except Exception:
+            continue
+    brasil.sort(key=lambda b: b["min_clp"])
+    return {"ventanas": ventanas, "brasil": brasil,
+            "brasil_ventana": f"{base['ida']} → {base['vuelta']}"}
 
 # ---------------- Semilla (primera corrida / respaldo) ----------------
 def seed():
@@ -420,6 +448,20 @@ def signature(live):
         [int(d.get("min_clp") or 0) for d in (de.get("dias") or [])],
         int((co.get("rio") or {}).get("clp") or 0),
     ])
+
+def minimos_de(live):
+    """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
+    f = live.get("fuentes", {})
+    def mn(rows, key="clp"):
+        vals = [r.get(key) or 0 for r in (rows or []) if r.get(key)]
+        return min(vals) if vals else None
+    m = {}
+    for k, serie in (("sky", "SKY SCL-Río"), ("jetsmart", "JetSMART SCL-Río"), ("latam", "LATAM SCL-Río")):
+        if (f.get(k) or {}).get("ok"):
+            m[serie] = mn(f[k].get("vuelos"))
+    if (f.get("cocha") or {}).get("ok"):
+        m["Cocha SCL-Río"] = mn(f["cocha"].get("ventanas"), "min_clp")
+    return m
 
 def main():
     old = None
@@ -498,17 +540,8 @@ def main():
                 print(f"Cocha SSR OK: Río {co['rio']['clp']:,}", flush=True)
         except Exception as e2:
             print(f"Cocha SSR FAIL: {str(e2)[:80]}", flush=True)
-    # 4) Google espejo (1 ventana rotativa)
-    try:
-        gg = fetch_google(cycle)
-        oldv = LIVE["fuentes"].get("google", {}).get("vuelos", [])
-        new = [dict(v, ida=gg["ventana"][0], vuelta=gg["ventana"][1], link=gg["link"]) for v in gg["vuelos"]]
-        merged = [v for v in oldv if (v.get("ida"), v.get("vuelta")) != tuple(gg["ventana"])] + new
-        merged.sort(key=lambda v: v["clp"])
-        LIVE["fuentes"]["google"] = {"ts": now_iso(), "ok": True, "vuelos": merged}
-        print(f"Google OK: ventana {gg['ventana']}", flush=True)
-    except Exception as e:
-        print(f"Google skip: {str(e)[:80]}", flush=True)
+    # (espejo Google eliminado por pedido del usuario)
+    LIVE["fuentes"].pop("google", None)
 
     LIVE["cycle"] = cycle + 1
     LIVE["checked"] = now_iso()
@@ -521,6 +554,33 @@ def main():
         LIVE["last_price_change"] = now_iso()
         print("CAMBIO DE PRECIOS detectado", flush=True)
     LIVE["sig"] = sig
+    # ---- Alertas de bajada de precio (motor de notificación por correo) ----
+    try:
+        prev = {}
+        if os.path.exists(DATA):
+            with open(DATA, encoding="utf8") as fh:
+                prev = json.load(fh)
+        minimos = minimos_de(LIVE)
+        alerts = list(prev.get("alerts") or [])
+        nuevos = []
+        for serie, ahora in minimos.items():
+            if not ahora:
+                continue
+            antes = (prev.get("minimos") or {}).get(serie)
+            if antes and ahora < antes and (antes - ahora) >= 1000 and (antes - ahora) / antes >= 0.005:
+                pct = round((antes - ahora) / antes * 100, 1)
+                nuevos.append({"ts": now_iso(), "serie": serie, "antes": antes,
+                               "ahora": ahora, "baja": antes - ahora, "pct": pct})
+        if nuevos:
+            alerts = (alerts + nuevos)[-30:]
+            LIVE["email_pending"] = True
+            print("ALERTA: " + "; ".join(f"{n['serie']} ${n['antes']:,}→${n['ahora']:,}" for n in nuevos), flush=True)
+        else:
+            LIVE["email_pending"] = bool(prev.get("email_pending"))
+        LIVE["alerts"] = alerts
+        LIVE["minimos"] = minimos
+    except Exception as e:
+        print(f"alerts skip: {str(e)[:80]}", flush=True)
     tmp = DATA + ".tmp"
     with open(tmp, "w") as fh:
         json.dump(LIVE, fh, ensure_ascii=False)

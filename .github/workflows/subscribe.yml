@@ -1,0 +1,59 @@
+name: Suscripciones email
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+jobs:
+  gestionar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Procesar ALTA/BAJA
+        env:
+          TITULO: ${{ github.event.issue.title }}
+          NUM: ${{ github.event.issue.number }}
+          TOKEN: ${{ secrets.PUSH_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, re, subprocess, urllib.request, urllib.parse
+          titulo = os.environ["TITULO"]; num = os.environ["NUM"]
+          token = os.environ["TOKEN"]; repo = os.environ["REPO"]
+          email_m = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", titulo or "")
+          email = email_m.group(0).lower() if email_m else None
+          up = (titulo or "").upper()
+          accion = "ALTA" if up.startswith("ALTA") else ("BAJA" if up.startswith("BAJA") else None)
+          def api(method, path, body=None):
+              req = urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
+                  data=json.dumps(body).encode() if body else None, method=method,
+                  headers={"Authorization": f"token {token}", "Accept": "application/vnd.github+json"})
+              try: urllib.request.urlopen(req, timeout=20)
+              except Exception as e: print(f"api {path}: {e}")
+          def cerrar(comentario):
+              api("POST", f"issues/{num}/comments", {"body": comentario})
+              api("PATCH", f"issues/{num}", {"state": "closed"})
+          if not email or not accion:
+              cerrar("❌ Formato inválido. Para suscribirte abre un issue con título `ALTA tucorreo@ejemplo.com` (o `BAJA ...` para desuscribirte). Cerrando automáticamente.")
+              raise SystemExit(0)
+          subs = json.load(open("subscribers.json")) if os.path.exists("subscribers.json") else []
+          if accion == "ALTA":
+              if email not in subs: subs.append(email)
+              json.dump(subs, open("subscribers.json", "w"), ensure_ascii=False, indent=1)
+              subprocess.run(["git", "config", "user.name", "arena-bot"], check=True)
+              subprocess.run(["git", "config", "user.email", "arena-bot@users.noreply.github.com"], check=True)
+              r = subprocess.run(["git", "commit", "-am", f"alertas: ALTA {email[:3]}***"])
+              if r.returncode == 0:
+                  subprocess.run(["git", "push", f"https://x-access-token:{token}@github.com/{repo}.git", "HEAD:main"], check=False)
+              cerrar(f"✅ **{email}** quedó suscrito a las alertas de bajada de precio (total suscritos: {len(subs)}). Recibirás un correo cuando el panel detecte que una combinación baja. Para salir: issue `BAJA {email}`.")
+          else:
+              if email in subs: subs.remove(email)
+              json.dump(subs, open("subscribers.json", "w"), ensure_ascii=False, indent=1)
+              subprocess.run(["git", "config", "user.name", "arena-bot"], check=True)
+              subprocess.run(["git", "config", "user.email", "arena-bot@users.noreply.github.com"], check=True)
+              r = subprocess.run(["git", "commit", "-am", f"alertas: BAJA {email[:3]}***"])
+              if r.returncode == 0:
+                  subprocess.run(["git", "push", f"https://x-access-token:{token}@github.com/{repo}.git", "HEAD:main"], check=False)
+              cerrar(f"👋 **{email}** fue desuscrito de las alertas. Para volver: issue `ALTA {email}`.")
+          PYEOF
