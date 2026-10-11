@@ -155,7 +155,8 @@ input.filt{width:100%;margin:8px 0;background:#1e293b;border:1px solid #334155;b
   <!-- 9 Brasil alternativas -->
   <section :class="{on:cur===9}">
    <div class="ok">🇧🇷 <b>Otros destinos en Brasil</b> para la ventana {{cocha.brasil_ventana||'—'}} — cotización real Cocha (API automática), ordenada por precio. Δ% = diferencia vs. el mejor RT a Río de Janeiro cotizado en el mismo ciclo.</div>
-   <div class="tbl"><table><tr><th>#</th><th>Destino</th><th>Aerolínea</th><th>Escalas</th><th>Mejor RT pp</th><th>{{pax}} pax (est.)</th><th>Δ vs Río</th><th>Cotizar</th></tr>
+   <div class="warnbox" v-if="!(cocha.brasil||[]).length">⏳ El comparador de destinos se está cotizando (Cocha responde por lotes cada ciclo de 5 min). Aparecerá aquí automáticamente.</div>
+   <div class="tbl" v-if="(cocha.brasil||[]).length"><table><tr><th>#</th><th>Destino</th><th>Aerolínea</th><th>Escalas</th><th>Mejor RT pp</th><th>{{pax}} pax (est.)</th><th>Δ vs Río</th><th>Cotizar</th></tr>
     <tr v-for="(b,i) in cocha.brasil||[]" :key="b.cod" :style="(b.delta_pct??99)<=20?'background:#ecfdf5':''"><td>{{i+1}}</td><td><b>{{b.destino}}</b> ({{b.cod}})</td><td>{{b.aerolinea}}</td><td>{{b.escalas===0?'Directo ✈️':b.escalas}}</td><td class="p"><b>{{fmt(b.min_clp)}}</b></td><td class="p">{{fmt(b.min_clp*pax)}}</td><td class="p">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}%</td><td><a class="btn fal" :href="b.link" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
    </table></div>
    <div class="warnbox">💡 Filas destacadas = dentro de +20% (o más baratas) respecto a Río. Búzios se vuela vía Río (GIG), ya cubierto en las demás pestañas.</div>

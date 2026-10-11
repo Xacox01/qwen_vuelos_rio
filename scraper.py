@@ -392,8 +392,11 @@ def fetch_cocha_live():
     # destinos alternativos en Brasil (misma ventana más barata de Río)
     base = min(ventanas, key=lambda v: v["min_clp"])
     rio_min = base["min_clp"]
-    brasil = []
-    for cod, nombre in COCHA_BRASIL:
+    brasil_prev = {b["cod"]: b for b in (LIVE["fuentes"].get("cocha") or {}).get("brasil", []) if isinstance(b, dict)}
+    orden = ([c for c, _ in COCHA_BRASIL if c not in brasil_prev] or [c for c, _ in COCHA_BRASIL])
+    lote = orden[:3]
+    brasil = [b for c, b in brasil_prev.items() if c not in lote]
+    for cod, nombre in [(c, n) for c, n in COCHA_BRASIL if c in lote]:
         try:
             r = cocha_rt(base["ida"], base["vuelta"], dst=cod)
             if r:
@@ -551,7 +554,10 @@ def main():
         try:
             co = fetch_cocha()
             if co.get("rio"):
-                LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True, **co}
+                co_old = LIVE["fuentes"].get("cocha") or {}
+                LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True,
+                    "ventanas": co_old.get("ventanas", []), "brasil": co_old.get("brasil", []),
+                    "brasil_ventana": co_old.get("brasil_ventana"), **co}
                 print(f"Cocha SSR OK: Río {co['rio']['clp']:,}", flush=True)
         except Exception as e2:
             print(f"Cocha SSR FAIL: {str(e2)[:80]}", flush=True)
