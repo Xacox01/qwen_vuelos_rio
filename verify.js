@@ -14,6 +14,7 @@ if (i0 < 0 || i1 < 0) { console.error('FATAL: no se encuentra createApp/mount');
 const cfgSrc = html.slice(i0 + 'createApp('.length, i1 + 1);
 global.location = { pathname: '/vuelos-rio-live/' };
 const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
+const NOMS={JA:'JetSMART',H2:'SKY Airline',LA:'LATAM',LU:'LATAM',G3:'GOL',AD:'Azul',CM:'Copa Airlines',AV:'Avianca',AR:'Aerolíneas Argentinas',AM:'Aeroméxico',EK:'Emirates',TK:'Turkish Airlines',IB:'Iberia',DL:'Delta',UA:'United',AA:'American',AF:'Air France',KL:'KLM',LH:'Lufthansa'};
 let cfg;
 try { cfg = eval('(' + cfgSrc + ')'); } catch (e) { console.error('FATAL: config no compila:', e.message); process.exit(2); }
 
@@ -40,6 +41,36 @@ ok(staleOTA.length === 0, 'sin OTA con datos de +24h en consolidado', staleOTA.m
 const staleCochaSSR = consol.filter(r => r.emp === 'Cocha' && r.tipo && /desde publicado/.test(r.tipo) && !fresh((f.cocha || {}).ts));
 ok(staleCochaSSR.length === 0, 'Cocha SSR sin dato fresco no entra al consolidado');
 consol.forEach(r => console.log('     ' + r.emp + ': $' + Math.round(r.pp).toLocaleString('es-CL') + ' (' + r.ida + ' -> ' + r.vuelta + ')'));
+
+
+console.log('== 0b. Portada: ranking compañías + mezcla + campeón ==');
+vm.pax = 9;
+const rt = vm.rtPorAerolinea || [];
+ok(rt.length >= 3, 'rtPorAerolinea tiene >=3 compañías', rt.length);
+ok(rt.every(r => money(r.clp)), 'rtPorAerolinea precios validos', rt.map(r => r.clp));
+ok(rt.every((r, i) => i === 0 || rt[i - 1].clp <= r.clp), 'rtPorAerolinea ordenado');
+ok(new Set(rt.map(r => r.cod)).size === rt.length, 'sin compañías duplicadas', rt.map(r => r.cod));
+ok(rt.every(r => (r.link || '').startsWith('http')), 'rtPorAerolinea links http');
+ok(rt.every(r => r.ida < r.vuelta), 'rtPorAerolinea fechas coherentes');
+const ja = rt.find(r => r.cod === 'JA');
+if (ja && (vm.combosPax || []).length) ok(ja.clp <= vm.combosPax[0].clp + 0.5, 'JetSMART ranking <= combo oficial pax');
+const mx = vm.mezclas;
+ok(mx !== null && mx !== undefined, 'mezcla entre compañías existe');
+if (mx) {
+  ok(money(mx.total), 'mezcla total valido', mx.total);
+  ok(mx.total === mx.ida.clp + mx.vuelta.clp, 'mezcla total = ida+vuelta');
+  ok(mx.ida.cod !== mx.vuelta.cod, 'mezcla usa compañías distintas', [mx.ida.cod, mx.vuelta.cod]);
+  ok(mx.noches >= 9, 'mezcla >=9 noches', mx.noches);
+  ok(mx.vuelta.fecha <= '2027-02-23', 'mezcla vuelta <= 23-feb');
+  ok((mx.ida.link || '').startsWith('http') && (mx.vuelta.link || '').startsWith('http'), 'mezcla links http');
+}
+const camp = vm.campeon;
+ok(camp !== null && camp !== undefined, 'campeon existe');
+if (camp && rt.length && mx) {
+  ok(camp.total === Math.min(rt[0].clp, mx.total), 'campeon = min(ranking, mezcla)', [camp.total, rt[0].clp, mx.total]);
+  ok(camp.botones.length >= 1 && camp.botones.every(b => (b.href || '').startsWith('http')), 'campeon botones validos');
+  ok(money(camp.total), 'campeon precio valido');
+}
 
 console.log('== 1. Combos JetSMART ==');
 for (const pax of [1, 4, 5, 9]) {

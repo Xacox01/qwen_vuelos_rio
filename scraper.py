@@ -529,9 +529,38 @@ def fetch_skiplagged():
                 extras.append(x)
             if len(extras) >= 5:
                 break
+        def ow_list(direc, aeropuerto_ini, aeropuerto_fin, maxn=40):
+            out = []
+            for it in (d.get("itineraries") or {}).get(direc) or []:
+                try:
+                    cents = it.get("one_way_price") or 0
+                    if not cents:
+                        continue
+                    fl = flights.get(it.get("flight")) or {}
+                    segs = fl.get("segments") or []
+                    if not segs:
+                        continue
+                    dep0 = segs[0].get("departure") or {}
+                    arrF = segs[-1].get("arrival") or {}
+                    if dep0.get("airport") != aeropuerto_ini or arrF.get("airport") != aeropuerto_fin:
+                        continue
+                    cod = segs[0].get("airline", "?")
+                    nombre = (airlines.get(cod) or {}).get("name", cod)
+                    fecha = (dep0.get("time") or "")[:10]
+                    hora = (dep0.get("time") or "")[11:16]
+                    esc = max(len(segs) - 1, 0)
+                    out.append({"aerolinea": nombre, "cod": cod, "fecha": fecha, "hora": hora,
+                                "clp": round(cents / 100.0 * fx), "escalas": esc,
+                                "det": f"{cod}{segs[0].get('flight_number','')} {hora} · {esc} escala(s)"})
+                except Exception:
+                    continue
+            out.sort(key=lambda x: x["clp"])
+            return out[:maxn]
         ventanas.append({"ida": ida, "vuelta": vuelta, "min_clp": rows[0]["clp"], "fx": round(fx, 2),
                          "link": f"https://skiplagged.com/flights/SCL/GIG/{ida}/{vuelta}?sort=cost",
-                         "resultados": top + extras})
+                         "resultados": top + extras,
+                         "ow_out": ow_list("outbound", "SCL", "GIG"),
+                         "ow_in": ow_list("inbound", "GIG", "SCL")})
     if not ventanas:
         raise RuntimeError("skiplagged sin resultados")
     return {"ventanas": ventanas}
