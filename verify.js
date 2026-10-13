@@ -157,5 +157,80 @@ console.log('== fmt/dw ==');
 ok(vm.fmt(1234567).includes('1.234.567'), 'fmt es-CL', vm.fmt(1234567));
 ok(typeof vm.dw('2027-01-22') === 'string' && vm.dw('2027-01-22').length > 1, 'dw funciona');
 
+console.log('== P21. Calendario de precios ==');
+const calO = vm.calOut, calI = vm.calIn;
+ok(Object.keys(calO).length > 10, 'calOut tiene dias', Object.keys(calO).length);
+ok(Object.keys(calI).length > 10, 'calIn tiene dias', Object.keys(calI).length);
+ok(Object.values(calO).every(x => money(x.min) && typeof x.src === 'string'), 'calOut valores validos');
+ok(Object.values(calI).every(x => money(x.min)), 'calIn valores validos');
+ok(Object.keys(calO).every(k => /^2027-0[12]-\d\d$/.test(k)), 'calOut fechas ene/feb 2027');
+ok(Object.keys(calI).every(k => /^2027-0[12]-\d\d$/.test(k)), 'calIn fechas ene/feb 2027');
+const rg = vm.calRange;
+ok(money(rg.lo) && money(rg.hi) && rg.lo <= rg.hi, 'calRange coherente', [rg.lo, rg.hi]);
+const cc = vm.calCells;
+ok(cc.ene.filter(Boolean).length === 31, 'ene tiene 31 dias', cc.ene.filter(Boolean).length);
+ok(cc.feb.filter(Boolean).length === 28, 'feb tiene 28 dias (2027 no bisiesto)', cc.feb.filter(Boolean).length);
+ok(cc.ene.find(x => x).d === 1 && cc.ene[cc.ene.length - 1].d === 31, 'ene d=1..31 en orden');
+ok(cc.feb[0] && cc.feb[0].d === 1 && cc.feb[cc.feb.length - 1].d === 28, 'feb d=1..28 (1-feb-2027 es lunes)');
+ok(cc.ene.filter(Boolean).every(x => x.fecha.startsWith('2027-01')), 'ene fechas 2027-01-XX');
+ok(cc.feb.filter(Boolean).every(x => x.fecha.startsWith('2027-02')), 'feb fechas 2027-02-XX');
+vm.calMode = 'ida';
+ok(vm.dayOk('2027-02-20') === false, 'ida post 14-feb deshabilitada');
+ok(vm.dayOk('2027-03-01') === false, 'fecha fuera de rango deshabilitada');
+const diaBarato = Object.keys(calO).filter(k => k <= '2027-02-14').sort((a, b) => calO[a].min - calO[b].min)[0];
+ok(vm.dayOk(diaBarato) === true, 'dia con precio valido habilitado', diaBarato);
+vm.calMode = 'vuelta';
+ok(vm.dayOk('2027-02-24') === false, 'vuelta post 23-feb deshabilitada');
+vm.calMode = 'ida';
+
+console.log('== P21. heat/kfmt/rtLinks ==');
+ok(vm.kfmt(313628) === '$314K', 'kfmt miles', vm.kfmt(313628));
+ok(vm.kfmt(1743976) === '$1.7M', 'kfmt millones', vm.kfmt(1743976));
+const hLo = vm.heat(rg.lo), hHi = vm.heat(rg.hi);
+ok(hLo.background && hLo.background.includes('hsla(158'), 'heat(min) = verde', hLo.background);
+ok(hHi.background && hHi.background.includes('hsla(0,'), 'heat(max) = rojo', hHi.background);
+ok(Object.keys(vm.heat(null)).length === 0, 'heat(sin precio) vacio');
+ok((vm.heatTxt(rg.lo).color || '').includes('hsl(158'), 'heatTxt(min) verde');
+const rl = vm.rtLinks('2027-01-22', '2027-02-01');
+ok(rl.length === 4 && rl.every(x => (x.href || '').startsWith('http')), 'rtLinks 4 destinos http');
+ok(rl[0].href.includes('2027-01-22') && rl[0].href.includes('2027-02-01'), 'rtLinks JetSMART con ambas fechas');
+ok(rl[1].href.includes('skyairline') && rl[1].href.includes('2027-01-22'), 'rtLinks SKY con fechas');
+ok(rl[2].href.includes('cocha.com') && rl[2].href.includes('date2=2027-02-01'), 'rtLinks Cocha con fechas');
+ok(rl[3].href.includes('skiplagged.com/flights/SCL/GIG/2027-01-22/2027-02-01'), 'rtLinks Skiplagged con fechas');
+
+console.log('== P21. ticker + selInfo + brasilBars ==');
+const tk = vm.ticker;
+ok(Array.isArray(tk) && tk.length >= 3, 'ticker >= 3 fuentes', tk.length);
+ok(tk.every(x => typeof x.k === 'string' && money(x.v)), 'ticker valores validos');
+vm.selDate = '';
+ok(vm.selInfo === null, 'selInfo null sin fecha elegida');
+vm.selDate = diaBarato; vm.calMode = 'ida';
+const si = vm.selInfo;
+ok(si !== null, 'selInfo existe con fecha', diaBarato);
+ok(Array.isArray(si.opts) && si.opts.every(o => money(o.clp) && (o.link || '').startsWith('http') && typeof o.det === 'string'), 'selInfo opts validas', si.opts.length);
+ok(si.sugg.length > 0, 'selInfo sugg no vacio para dia mas barato', si.sugg.length);
+ok(si.sugg.every(s => s.noches >= 9 && s.vuelta <= '2027-02-23' && s.ida === diaBarato && money(s.min)), 'sugg cumplen >=9 noches y vuelta<=23-feb');
+ok(si.sugg.every((s, i) => i === 0 || si.sugg[i - 1].min <= s.min), 'sugg ordenadas por precio');
+vm.calMode = 'vuelta';
+const diaV = Object.keys(calI).filter(k => k <= '2027-02-23').sort((a, b) => calI[a].min - calI[b].min)[0];
+vm.selDate = diaV;
+const sv = vm.selInfo;
+ok(sv.sugg.every(s => s.vuelta === diaV && s.noches >= 9 && s.ida < diaV), 'sugg modo vuelta coherentes', diaV);
+vm.calMode = 'ida'; vm.selDate = '';
+const bb = vm.brasilBars;
+if (bb.length) {
+  ok(bb.every(b => b.w >= 6 && b.w <= 100), 'barras ancho 6-100%', bb.map(b => b.w));
+  ok(Math.max(...bb.map(b => b.w)) === 100, 'destino mas caro = 100%');
+  ok(bb.every(b => typeof b.good === 'boolean' && b.good === ((b.delta_pct ?? 99) <= 20)), 'flag good = delta<=20%');
+  ok(bb.every(b => (b.link || '').startsWith('http')), 'barras con link');
+} else console.log('  -- brasilBars vacio (cocha.brasil pendiente esta pasada)');
+
+console.log('== P21. Marcadores de plantilla ==');
+for (const m of ['class="ticker"', 'class="cals"', 'class="podium"', 'class="rlist"', 'class="bars"', 'class="tl"', 'class="code"', 'dayMin(', 'dayOk(', 'rtLinks(', 'brasilBars', 'selInfo']) {
+  ok(html.includes(m), 'plantilla contiene ' + m);
+}
+ok((html.match(/details class="acc"/g) || []).length >= 8, '>=8 acordeones de detalle', (html.match(/details class="acc"/g) || []).length);
+ok(html.includes("calMode==='ida'") && html.includes("calMode==='vuelta'"), 'selector ida/vuelta presente');
+
 console.log('\n' + (fails === 0 ? 'TODO OK' : 'HAY FALLOS') + ': ' + (checks - fails) + '/' + checks + ' checks pasaron');
 process.exit(fails === 0 ? 0 : 1);

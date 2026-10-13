@@ -122,6 +122,94 @@ footer a{color:var(--mut)}
  main{padding:10px 10px 56px}
  .champ{padding:20px 14px 18px}
 }
+/* ===== Rediseño v2: calendario, tarjetas, barras, ticker ===== */
+.ticker{overflow:hidden;border:1px solid var(--line);border-radius:999px;background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);margin:13px 0;position:relative}
+.ticker .track{display:flex;gap:36px;white-space:nowrap;padding:8px 18px;animation:mq 30s linear infinite;width:max-content}
+.ticker:hover .track{animation-play-state:paused}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tk{font-size:.73rem;color:var(--mut)}
+.tk b{color:var(--mint);font-variant-numeric:tabular-nums;font-size:.8rem}
+.cals{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:12px 0}
+.month{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px 13px 15px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.mtitle{font-weight:800;font-size:.88rem;margin-bottom:9px;letter-spacing:.01em}
+.dows,.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dows span{text-align:center;font-size:.6rem;color:var(--mut2);font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:2px 0}
+.cday{border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.03);color:var(--txt);font:inherit;cursor:pointer;padding:5px 2px 4px;text-align:center;transition:transform .15s,box-shadow .15s,border-color .15s;min-height:46px;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.cday:hover:not(:disabled){transform:translateY(-2px);border-color:var(--line2);box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.cday:disabled{opacity:.25;cursor:default}
+.cday.sel{outline:2px solid var(--cyan);outline-offset:1px;box-shadow:0 0 16px rgba(34,211,238,.45)}
+.cday .dn{font-size:.72rem;font-weight:700;color:var(--txt)}
+.cday .pr{font-size:.62rem;font-weight:800;font-variant-numeric:tabular-nums}
+.cempty{min-height:46px}
+.legend{display:flex;align-items:center;gap:9px;font-size:.68rem;color:var(--mut);margin:10px 0}
+.legend .lbar{width:180px;height:8px;border-radius:4px;background:linear-gradient(90deg,hsl(158,72%,46%),hsl(79,72%,46%),hsl(0,72%,46%))}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:11px;margin:12px 0}
+.ccard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px 14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .22s,border-color .22s,box-shadow .22s;position:relative;overflow:hidden}
+.ccard:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 12px 28px rgba(0,0,0,.42)}
+.ccard .rk{position:absolute;top:9px;right:12px;font-size:1.05rem}
+.ccard .air{font-weight:800;font-size:.92rem;margin-bottom:1px;padding-right:28px;letter-spacing:-.01em}
+.ccard .pri{font-size:1.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;margin:4px 0 2px;line-height:1.1}
+.ccard .dt{font-size:.72rem;color:var(--mut);line-height:1.45}
+.ccard .src{font-size:.63rem;color:var(--mut2);margin-top:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.ccard .btn{margin-top:10px;width:100%;justify-content:center}
+.ccard.mini .pri{font-size:1.15rem}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.pcard{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);transition:.22s}
+.pcard:hover{transform:translateY(-3px);border-color:var(--line2)}
+.pcard .medal{font-size:1.5rem}
+.pcard .air{font-weight:800;font-size:1rem;margin:5px 0 1px}
+.pcard .pri{font-size:1.9rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;line-height:1.1;margin:4px 0}
+.pcard.first{border-color:rgba(251,191,36,.5);background:linear-gradient(165deg,rgba(251,191,36,.13),rgba(255,255,255,.03) 55%)}
+.pcard .dt{font-size:.73rem;color:var(--mut);line-height:1.5}
+.pcard .btn{margin-top:11px;width:100%;justify-content:center}
+.rlist{margin:10px 0}
+.rrow{display:flex;gap:13px;align-items:center;padding:12px 15px;margin:8px 0;background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-wrap:wrap;transition:.2s}
+.rrow:hover{border-color:var(--line2);transform:translateX(3px)}
+.rrow .rk{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--panel2);flex:0 0 auto}
+.rrow .info{flex:1;min-width:170px}
+.rrow .rp{font-size:1.15rem;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bars{margin:14px 0}
+.brow{display:grid;grid-template-columns:158px 1fr 128px;gap:11px;align-items:center;margin:10px 0}
+.bname{font-size:.8rem;font-weight:700;line-height:1.25}
+.bname .b{display:block;font-weight:600}
+.btrack{height:24px;border-radius:9px;background:rgba(255,255,255,.05);overflow:hidden;border:1px solid var(--line)}
+.bfill{height:100%;border-radius:9px;background:linear-gradient(90deg,#fb7185,#fbbf24);transition:width .7s cubic-bezier(.22,1,.36,1)}
+.bfill.good{background:var(--grad)}
+.bval{font-size:.8rem;font-weight:800;color:var(--mint);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bval .d{display:block;font-size:.68rem;font-weight:700}
+.bval .d.up{color:var(--amber)}
+.bval .d.bad{color:var(--rose)}
+details.acc{border:1px solid var(--line);border-radius:15px;background:var(--panel);margin:11px 0;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+details.acc summary{cursor:pointer;padding:13px 15px;font-size:.83rem;font-weight:700;color:var(--txt);list-style:none;display:flex;gap:9px;align-items:center;user-select:none}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::before{content:'▸';color:var(--cyan);transition:transform .2s;font-size:.9rem}
+details.acc[open] summary::before{transform:rotate(90deg)}
+details.acc summary:hover{background:rgba(255,255,255,.03)}
+details.acc .inner{padding:0 12px 13px}
+.tl{position:relative;margin:16px 0;padding-left:24px}
+.tl::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--cyan),rgba(34,211,238,.05));border-radius:1px}
+.tlev{position:relative;margin:0 0 13px;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:12px 15px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.tlev::before{content:'';position:absolute;left:-21px;top:17px;width:10px;height:10px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px rgba(110,231,183,.8)}
+.tlev .pct{font-size:1.4rem;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums}
+.tlev .ser{font-weight:800;font-size:.85rem}
+.code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(34,211,238,.1);border:1px dashed rgba(34,211,238,.55);color:var(--cyan);border-radius:9px;padding:4px 11px;font-size:.82rem;font-weight:700;letter-spacing:.05em}
+.wcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin:11px 0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow)}
+.wtop{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.wtop .wdate{font-weight:800;font-size:.92rem}
+.wtop .wpri{margin-left:auto;font-size:1.35rem;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums}
+.wrows{margin-top:9px;display:grid;gap:6px}
+.wrow{display:flex;gap:10px;align-items:center;font-size:.78rem;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);flex-wrap:wrap}
+.wrow .wa{font-weight:700;min-width:110px}
+.wrow .wp{margin-left:auto;color:var(--mint);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:720px){
+ .cals{grid-template-columns:1fr}
+ .podium{grid-template-columns:1fr}
+ .brow{grid-template-columns:112px 1fr 100px}
+ .cday{min-height:42px}
+ .cday .pr{font-size:.58rem}
+}
+[v-cloak]{display:none}
+
 </style></head><body>
 <div class="aurora3"></div><div class="grain"></div>
 <div id="app">
@@ -132,17 +220,18 @@ footer a{color:var(--mut)}
    <div class="htop">
     <div class="logo"><div class="plane">✈️</div>
      <div><h1><span class="route">SCL ⇄ Río de Janeiro</span> · ene–feb 2027</h1>
-     <div class="sub">Regreso ≤ 23-feb · CLP por persona · <span class="spin"></span>refresco automático cada ~5 min</div></div>
+     <div class="sub">9 pasajeros · regreso ≤ 23-feb · <span class="spin"></span>precios vivos, refresco cada ~5 min</div></div>
     </div>
     <span class="live">En vivo</span>
    </div>
    <div class="badges">
-    <span class="badge info">🔄 Verificado {{DATA?.updated||'—'}}</span>
-    <span class="badge info">💾 Último cambio {{DATA?.last_price_change||DATA?.updated||'—'}}</span>
+    <span class="badge info">🔄 {{DATA?.updated||'cargando…'}}</span>
+    <span class="badge info">💾 {{DATA?.last_price_change||'—'}}</span>
     <span v-for="(v,k) in (DATA?.fuentes||{})" :key="k" class="badge" :class="{warn:!v.ok}">{{NAMES[k]||k}}</span>
    </div>
    <div class="paxrow"><span class="b">Pasajeros</span>
     <div class="seg"><button v-for="n in PAXOPTS" :key="n" :class="{on:pax===n}" @click="pax=n">{{n}}</button></div>
+    <span class="b" v-if="campeon">· grupo ≈ <b style="color:var(--mint)">{{fmt(campeon.total*pax)}}</b></span>
    </div>
   </div>
  </header>
@@ -150,180 +239,277 @@ footer a{color:var(--mut)}
   <button v-for="(t,i) in TABS" :key="i" :class="{on:cur===i}" @click="cur=i">{{t}}</button>
  </div></nav>
  <main>
-  <!-- 0 Consolidado -->
+  <!-- 0 HOY -->
   <section :class="{on:cur===0}">
+   <div class="ticker" v-if="ticker.length"><div class="track">
+    <template v-for="n in 2"><span class="tk" v-for="t in ticker" :key="n+t.k">{{t.k}} <b>{{fmt(t.v)}}</b></span></template>
+   </div></div>
    <div class="bento">
     <div class="tile champ" v-if="campeon">
-     <div class="kicker">🏆 La opción más barata encontrada ahora · ida y vuelta por persona</div>
+     <svg class="arc" viewBox="0 0 600 84" aria-hidden="true">
+      <defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6ee7b7"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+      <path d="M30,64 Q300,-4 570,64" fill="none" stroke="url(#ga)" stroke-width="2" stroke-dasharray="6 7" opacity=".85"/>
+      <circle cx="30" cy="64" r="4.5" fill="#6ee7b7"/><circle cx="570" cy="64" r="4.5" fill="#22d3ee"/>
+      <text x="12" y="81" fill="#9aa7c7" font-size="12" font-weight="700">SCL</text><text x="548" y="81" fill="#9aa7c7" font-size="12" font-weight="700">GIG</text>
+      <g class="flyg"><text font-size="15">✈️</text></g>
+     </svg>
+     <div class="kicker">🏆 Lo más barato encontrado ahora · ida y vuelta por persona</div>
      <div class="big">{{fmt(campeon.total)}}</div>
-     <div class="gtot">{{pax}} pasajeros ≈ <b>{{fmt(campeon.total*pax)}}</b> total grupo</div>
+     <div class="gtot">{{pax}} pasajeros ≈ <b>{{fmt(campeon.total*pax)}}</b></div>
      <div class="ctitle">{{campeon.titulo}}</div>
      <div class="cdates">{{dw(campeon.ida)}} {{campeon.ida}} → {{dw(campeon.vuelta)}} {{campeon.vuelta}} · {{campeon.noches}} noches</div>
      <div class="cdet" v-if="campeon.tipo==='mix'">Ida: {{campeon.ref.ida.det}} ({{fmt(campeon.ref.ida.clp)}}) · Vuelta: {{campeon.ref.vuelta.det}} ({{fmt(campeon.ref.vuelta.clp)}})</div>
      <div class="cdet" v-else>{{campeon.ref.det}} · fuente: {{campeon.ref.fuente}}</div>
      <div class="cta"><a v-for="b in campeon.botones" :key="b.texto" class="btn" :class="b.cls" :href="b.href" target="_blank" rel="noopener">{{b.texto}}</a></div>
     </div>
-    <div class="tile" v-if="rtPorAerolinea.length">
-     <div class="kicker">✈️ Mejor ida+vuelta · misma compañía</div>
-     <div class="big">{{fmt(rtPorAerolinea[0].clp)}} <span class="pp">pp</span></div>
-     <div class="ctitle">{{rtPorAerolinea[0].airline}}</div>
-     <div class="cdates">{{dw(rtPorAerolinea[0].ida)}} {{rtPorAerolinea[0].ida}} → {{dw(rtPorAerolinea[0].vuelta)}} {{rtPorAerolinea[0].vuelta}}</div>
-     <div class="cdet">{{rtPorAerolinea[0].det}} · {{rtPorAerolinea[0].fuente}} · {{pax}} pax ≈ {{fmt(rtPorAerolinea[0].clp*pax)}}</div>
-     <div class="cta"><a class="btn" :class="rtPorAerolinea[0].cls" :href="rtPorAerolinea[0].link" target="_blank" rel="noopener">Comprar ↗</a></div>
+   </div>
+   <h2>Las mejores opciones del momento</h2>
+   <div class="b" style="margin:-4px 0 2px">Una tarjeta por compañía (la mejor fecha de cada una) + la mejor mezcla. Nada más: el listado completo está en 🔬 al final.</div>
+   <div class="cgrid">
+    <div class="ccard" v-for="(r,i) in rtPorAerolinea.slice(0,6)" :key="r.cod">
+     <div class="rk">{{['🥇','🥈','🥉','4','5','6'][i]||i+1}}</div>
+     <div class="air">{{r.airline}}</div>
+     <div class="pri">{{fmt(r.clp)}}</div>
+     <div class="dt">{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}} · {{noches(r.ida,r.vuelta)}} noches<br>{{r.det}}</div>
+     <div class="src">{{r.fuente}} · {{pax}} pax ≈ {{fmt(r.clp*pax)}}</div>
+     <a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
     </div>
-    <div class="tile" v-if="mezclas">
-     <div class="kicker">🔀 Mejor mezcla entre compañías · compras por separado</div>
-     <div class="big">{{fmt(mezclas.total)}} <span class="pp">pp</span></div>
-     <div class="ctitle">Ida {{nomAer(mezclas.ida.cod)}} + vuelta {{nomAer(mezclas.vuelta.cod)}}</div>
-     <div class="cdates">{{dw(mezclas.ida.fecha)}} {{mezclas.ida.fecha}} → {{dw(mezclas.vuelta.fecha)}} {{mezclas.vuelta.fecha}} · {{mezclas.noches}} noches</div>
-     <div class="cdet">{{mezclas.ida.det}} ({{fmt(mezclas.ida.clp)}}) + {{mezclas.vuelta.det}} ({{fmt(mezclas.vuelta.clp)}}) · {{pax}} pax ≈ {{fmt(mezclas.total*pax)}}</div>
-     <div class="cta"><a class="btn ghost" :href="mezclas.ida.link" target="_blank" rel="noopener">Comprar ida ↗</a><a class="btn ghost" :href="mezclas.vuelta.link" target="_blank" rel="noopener">Comprar vuelta ↗</a></div>
+    <div class="ccard" v-if="mezclas">
+     <div class="rk">🔀</div>
+     <div class="air">{{nomAer(mezclas.ida.cod)}} + {{nomAer(mezclas.vuelta.cod)}}</div>
+     <div class="pri">{{fmt(mezclas.total)}}</div>
+     <div class="dt">{{dw(mezclas.ida.fecha)}} {{mezclas.ida.fecha}} → {{dw(mezclas.vuelta.fecha)}} {{mezclas.vuelta.fecha}} · {{mezclas.noches}} noches<br>{{mezclas.ida.det}} + {{mezclas.vuelta.det}}</div>
+     <div class="src">Mezcla entre compañías · compras por separado</div>
+     <a class="btn ghost" :href="mezclas.ida.link" target="_blank" rel="noopener">Ida ↗</a>
+     <a class="btn ghost" :href="mezclas.vuelta.link" target="_blank" rel="noopener" style="margin-left:6px">Vuelta ↗</a>
     </div>
    </div>
-   <h2>🥇 Ranking ida y vuelta por compañía (la mejor opción de cada una, buscando en todas las fuentes)</h2>
-   <div class="tbl"><table><tr><th>#</th><th>Compañía</th><th>Fechas</th><th>Detalle</th><th>CLP pp</th><th>{{pax}} pax</th><th>Fuente</th><th>Comprar</th></tr>
-    <tr v-for="(r,i) in rtPorAerolinea" :key="r.cod"><td>{{i+1}}</td><td><b>{{r.airline}}</b></td><td>{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}}</td><td class="b">{{r.det}}</td><td class="p"><b>{{fmt(r.clp)}}</b></td><td class="p">{{fmt(r.clp*pax)}}</td><td class="b">{{r.fuente}}</td><td><a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Ir ↗</a></td></tr>
-   </table></div>
-
-   <h2>📋 Lo mejor de cada portal/fuente (detalle)</h2>
-   <div class="ok">🏅 <b>Lo mejor de cada empresa ahora mismo</b>, ordenado del más barato al más caro (por persona). Se recalcula solo cada ~5 min con el refresco automático.</div>
-   <div class="tbl"><table><tr><th>#</th><th>Empresa</th><th>Mejor opción</th><th>Fechas</th><th>CLP pp</th><th>{{pax}} pax</th><th>Ir a comprar</th></tr>
-    <tr v-for="(r,i) in consol" :key="r.emp"><td>{{i+1}}</td><td><b>{{r.emp}}</b><br><span class="b">{{r.tipo}}</span></td><td>{{r.det}}</td><td><template v-if="r.ida==='—'">fechas flexibles</template><template v-else>{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}}</template></td><td class="p"><b>{{fmt(r.pp)}}</b></td><td class="p">{{fmt(r.pp*pax)}}</td><td><a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
-   </table></div>
-   <div class="warnbox">⚠️ Solo fuentes vivas: APIs oficiales (SKY/JetSMART/LATAM), cotización real de Cocha y metasearch Skiplagged. Las referencias OTA (Falabella/Despegar) entran únicamente si fueron verificadas en las últimas 24 h. La mezcla entre compañías son compras SEPARADAS: si un vuelo se retrasa y pierdes el otro, no hay protección de conexión — compárala con la opción de misma compañía. Confirma siempre en el checkout.</div>
+   <div class="ok">💡 ¿Cómo leer esto? <b>Elige una fecha en 📅 Calendario</b> para ver el mejor precio de cada día del verano; compara compañías en ✈️; y si el destino es flexible, 🇧🇷 Brasil muestra alternativas más baratas que Río. Todo se recalcula solo cada ~5 min.</div>
+   <details class="acc"><summary>📋 Detalle técnico: lo mejor de cada portal/fuente</summary><div class="inner">
+    <div class="tbl"><table><tr><th>#</th><th>Fuente</th><th>Mejor opción</th><th>Fechas</th><th>CLP pp</th><th>{{pax}} pax</th><th>Ir</th></tr>
+     <tr v-for="(r,i) in consol" :key="r.emp"><td>{{i+1}}</td><td><b>{{r.emp}}</b><br><span class="b">{{r.tipo}}</span></td><td>{{r.det}}</td><td><template v-if="r.ida==='—'">flexibles</template><template v-else>{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}}</template></td><td class="p"><b>{{fmt(r.pp)}}</b></td><td class="p">{{fmt(r.pp*pax)}}</td><td><a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Ir ↗</a></td></tr>
+    </table></div>
+    <div class="b">Solo fuentes vivas: APIs oficiales + Cocha real + Skiplagged. Falabella/Despegar solo si fueron verificados en 24 h. La mezcla entre compañías son compras separadas (sin protección de conexión).</div>
+   </div></details>
   </section>
-  <!-- 1 combos JetSMART -->
+  <!-- 1 CALENDARIO -->
   <section :class="{on:cur===1}">
-   <div class="ok">✅ <b>API oficial de disponibilidad JetSMART</b> — el botón verde abre el checkout real con esas fechas cargadas. Elige cuántos pasajeros cotizan: el precio pp se recalcula con la <b>asignación real de asientos por cubo de tarifa</b> (por eso 5 pax puede salir más caro que 1).</div>
-
-   <div class="hero" v-if="combosPax.length">🏆 Mejor combinación para {{pax}} pax: <b>{{dw(combosPax[0].ida)}} {{combosPax[0].ida}} → {{dw(combosPax[0].vuelta)}} {{combosPax[0].vuelta}}</b> ({{combosPax[0].noches}} noches)<br>
-    {{combosPax[0].v_ida}} + {{combosPax[0].v_vue}} · <b>{{fmt(combosPax[0].clp)}}</b> pp · total {{pax}} pax = <b>{{fmt(combosPax[0].tot??combosPax[0].clp*pax)}}</b>
-    &nbsp;<a class="btn" :href="jsRT(combosPax[0].ida,combosPax[0].vuelta)" target="_blank" rel="noopener">Comprar ↗</a></div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp ({{pax}} pax)</th><th>Total grupo</th><th>Comprar</th></tr>
-    <tr v-for="c in combosPax.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.tot??c.clp*pax)}}</td><td><a class="btn" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
-   </table></div>
+   <div class="ok">📅 <b>El precio más bajo de cada día</b> (ida o vuelta, según el modo), comparando JetSMART + LATAM + Skiplagged a la vez. Toca un día para ver quién lo vende y con qué vuelo. Los colores van de <b style="color:#6ee7b7">barato</b> a <b style="color:#fb7185">caro</b>.</div>
+   <div class="paxrow"><span class="b">Mostrar precios de</span>
+    <div class="seg"><button :class="{on:calMode==='ida'}" @click="calMode='ida';selDate=''">✈️ Ida SCL→Río</button><button :class="{on:calMode==='vuelta'}" @click="calMode='vuelta';selDate=''">🏠 Vuelta Río→SCL</button></div>
+   </div>
+   <div class="legend"><span>{{kfmt(calRange.lo)}}</span><div class="lbar"></div><span>{{kfmt(calRange.hi)}}</span><span class="b">· mínimo del día entre JetSMART+LATAM+Skiplagged · atenuado = sin precio o no calza un viaje ≥9 noches con regreso ≤23-feb</span></div>
+   <div class="cals">
+    <div class="month" v-for="mm in [{t:'Enero 2027',c:calCells.ene},{t:'Febrero 2027',c:calCells.feb}]" :key="mm.t">
+     <div class="mtitle">{{mm.t}}</div>
+     <div class="dows"><span>lu</span><span>ma</span><span>mi</span><span>ju</span><span>vi</span><span>sá</span><span>do</span></div>
+     <div class="dgrid">
+      <template v-for="(c,i) in mm.c" :key="mm.t+i">
+       <button v-if="c" class="cday" :class="{sel:selDate===c.fecha}" :style="[heat(dayMin(c.fecha)),heatTxt(dayMin(c.fecha))]" :disabled="!dayOk(c.fecha)" @click="selDate=c.fecha" :title="c.fecha">
+        <span class="dn">{{c.d}}</span>
+        <span class="pr" v-if="dayMin(c.fecha)>0">{{kfmt(dayMin(c.fecha))}}</span>
+       </button>
+       <span v-else class="cempty"></span>
+      </template>
+     </div>
+    </div>
+   </div>
+   <div class="tile" v-if="selInfo">
+    <div class="kicker">{{calMode==='ida'?'✈️ IDAS':'🏠 VUELTAS'}} · {{dw(selDate)}} {{selDate}} · toca otro día para cambiar</div>
+    <div class="cgrid" v-if="selInfo.opts.length">
+     <div class="ccard mini" v-for="(o,i) in selInfo.opts" :key="o.src+i">
+      <div class="air">{{o.src}}</div>
+      <div class="pri">{{fmt(o.clp)}}</div>
+      <div class="dt">{{o.det}}</div>
+      <a class="btn" :class="o.cls" :href="o.link" target="_blank" rel="noopener">Ver este vuelo ↗</a>
+     </div>
+    </div>
+    <div class="warnbox" v-else>Ninguna fuente tiene precio publicado exactamente para ese día. Prueba el día anterior/siguiente (el calendario solo muestra días con precio real).</div>
+    <h2>Mejores {{calMode==='ida'?'vueltas':'idas'}} para combinar <span class="b">(viaje ≥ 9 noches, regreso ≤ 23-feb)</span></h2>
+    <div class="cgrid">
+     <div class="ccard mini" v-for="s in selInfo.sugg" :key="s.fecha">
+      <div class="air">{{dw(s.fecha)}} {{s.fecha}}</div>
+      <div class="pri">{{kfmt(s.min)}}</div>
+      <div class="dt">{{calMode==='ida'?'vuelta':'ida'}} más barata · {{s.src}} · {{s.noches}} noches<br>RT estimado ≈ <b>{{fmt(s.min+dayMin(selDate))}}</b> pp</div>
+      <a class="btn" :href="rtLinks(s.ida,s.vuelta)[0].href" target="_blank" rel="noopener">JetSMART ↗</a>
+      <a class="btn ghost" :href="rtLinks(s.ida,s.vuelta)[3].href" target="_blank" rel="noopener" style="margin-left:6px">Skiplagged ↗</a>
+     </div>
+    </div>
+    <div class="b">RT estimado = mejor {{calMode==='ida'?'ida':'vuelta'}} del día elegido + mejor contraparte. Los botones abren la búsqueda real con ambas fechas cargadas (JetSMART, SKY, Cocha y Skiplagged aceptan fechas libres).</div>
+   </div>
   </section>
-  <!-- 1 y 2 vuelos JetSMART -->
+  <!-- 2 AEROLÍNEAS -->
   <section :class="{on:cur===2}">
-   <div class="ok">✅ API oficial JetSMART · ida SCL→GIG.</div>
-   <input class="filt" v-model="fi" placeholder="Filtrar por fecha (ej: 2027-01-22 o 2027-01)">
-   <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr>
-    <tr v-for="x in fI" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'SCL','GIG')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
-    <tr v-if="!fI.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
-   </table></div>
+   <div class="ok">✈️ <b>Podio del verano</b>: la mejor tarifa ida-vuelta de cada compañía, buscada en todas las fuentes a la vez (gana la más barata). Sin listados eternos: solo lo que sirve para decidir.</div>
+   <div class="podium">
+    <div class="pcard" v-for="(r,i) in rtPorAerolinea.slice(0,3)" :key="r.cod" :class="{first:i===0}">
+     <div class="medal">{{['🥇','🥈','🥉'][i]}}</div>
+     <div class="air">{{r.airline}}</div>
+     <div class="pri">{{fmt(r.clp)}}</div>
+     <div class="dt">{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}} · {{noches(r.ida,r.vuelta)}} noches<br>{{r.det}}<br><span class="b">{{r.fuente}} · {{pax}} pax ≈ {{fmt(r.clp*pax)}}</span></div>
+     <a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
+    </div>
+   </div>
+   <div class="rlist">
+    <div class="rrow" v-for="(r,i) in rtPorAerolinea.slice(3)" :key="r.cod">
+     <div class="rk">{{i+4}}</div>
+     <div class="info"><b>{{r.airline}}</b><div class="b">{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}} · {{r.det}} · {{r.fuente}}</div></div>
+     <div class="rp">{{fmt(r.clp)}} <span class="b">pp · {{pax}} pax {{fmt(r.clp*pax)}}</span></div>
+     <a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
+    </div>
+   </div>
+   <details class="acc"><summary>🥇 Combos JetSMART oficiales (API, {{pax}} pax con asignación real de asientos)</summary><div class="inner">
+    <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp</th><th>Total grupo</th><th>Comprar</th></tr>
+     <tr v-for="c in combosPax.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.tot??c.clp*pax)}}</td><td><a class="btn" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+    </table></div>
+   </div></details>
+   <details class="acc"><summary>🔎 Todos los vuelos JetSMART por día (idas y vueltas, con filtro)</summary><div class="inner">
+    <input class="filt" v-model="fi" placeholder="Filtrar idas por fecha (ej: 2027-01-22)">
+    <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde pp</th><th>Clases</th><th>Comprar</th></tr>
+     <tr v-for="x in fI" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'SCL','GIG')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+     <tr v-if="!fI.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
+    </table></div>
+    <input class="filt" v-model="fv" placeholder="Filtrar vueltas por fecha (ej: 2027-02-01)">
+    <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde pp</th><th>Clases</th><th>Comprar</th></tr>
+     <tr v-for="x in fV" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'GIG','SCL')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+     <tr v-if="!fV.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
+    </table></div>
+   </div></details>
+   <details class="acc"><summary>🟣 Todas las tarifas SKY (API oficial, RT directos 9–12 noches)</summary><div class="inner">
+    <div class="b" style="margin-bottom:6px">Verificado {{sky.ts||'—'}} · el precio de compra puede variar según familia tarifaria y stock.</div>
+    <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax</th><th>Reservar</th></tr>
+     <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*pax)}}</td><td><a class="btn sky" :href="skyLink(s)" target="_blank" rel="noopener">Reservar ↗</a></td></tr>
+    </table></div>
+   </div></details>
+   <details class="acc"><summary>🔵 Todo LATAM (API oficial: combos + mínimo por día, solo directos)</summary><div class="inner">
+    <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax</th><th>Ir</th></tr>
+     <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
+    </table></div>
+    <div class="tbl"><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>
+     <tr v-for="(row,i) in latRows" :key="i"><td>{{row.a?dw(row.a.fecha)+' '+row.a.fecha:''}}</td><td class="p">{{row.a?fmt(row.a.clp):''}}</td><td>{{row.b?dw(row.b.fecha)+' '+row.b.fecha:''}}</td><td class="p">{{row.b?fmt(row.b.clp):''}}</td></tr>
+    </table></div>
+   </div></details>
   </section>
+  <!-- 3 BRASIL -->
   <section :class="{on:cur===3}">
-   <div class="ok">✅ API oficial JetSMART · vuelta GIG→SCL.</div>
-   <input class="filt" v-model="fv" placeholder="Filtrar por fecha (ej: 2027-02-01 o 2027-02)">
-   <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde (pp)</th><th>Clases</th><th>Comprar</th></tr>
-    <tr v-for="x in fV" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'GIG','SCL')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
-    <tr v-if="!fV.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
-   </table></div>
+   <div class="ok">🇧🇷 <b>¿Y si el destino fuera otro?</b> Cotización real Cocha para la ventana {{cocha.brasil_ventana||'—'}}. Cada barra es un destino: mientras más corta y verde, más conveniente vs. Río <b>({{fmt(cochaMejor.min_clp||0)}} pp)</b>.</div>
+   <div class="bars">
+    <div class="brow"><div class="bname">🏖 Río de Janeiro<span class="b">GIG · referencia</span></div><div class="btrack"><div class="bfill good" style="width:100%"></div></div><div class="bval">{{fmt(cochaMejor.min_clp||0)}}<span class="d">base</span></div></div>
+    <div class="brow" v-for="b in brasilBars" :key="b.cod">
+     <div class="bname">{{b.destino}}<span class="b">{{b.cod}} · {{b.aerolinea}} · {{b.escalas===0?'directo':b.escalas+' escalas'}}</span></div>
+     <div class="btrack"><div class="bfill" :class="{good:b.good}" :style="{width:b.w+'%'}"></div></div>
+     <div class="bval">{{fmt(b.min_clp)}}<span class="d" :class="{up:b.delta_pct>20,bad:b.delta_pct>50}">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}% vs Río</span></div>
+    </div>
+   </div>
+   <div class="cgrid">
+    <div class="ccard mini" v-for="b in brasilBars.filter(x=>x.good)" :key="'g'+b.cod">
+     <div class="air">{{b.destino}}</div>
+     <div class="pri">{{fmt(b.min_clp)}}</div>
+     <div class="dt">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}% vs Río · {{b.aerolinea}} · {{b.escalas===0?'directo':b.escalas+' escalas'}}<br>{{pax}} pax ≈ {{fmt(b.min_clp*pax)}}</div>
+     <a class="btn" :href="b.link" target="_blank" rel="noopener">Cotizar ↗</a>
+    </div>
+   </div>
+   <details class="acc"><summary>📋 Tabla completa de destinos Brasil</summary><div class="inner">
+    <div class="tbl"><table><tr><th>#</th><th>Destino</th><th>Aerolínea</th><th>Escalas</th><th>RT pp</th><th>{{pax}} pax</th><th>Δ vs Río</th><th>Cotizar</th></tr>
+     <tr v-for="(b,i) in cocha.brasil||[]" :key="b.cod"><td>{{i+1}}</td><td><b>{{b.destino}}</b> ({{b.cod}})</td><td>{{b.aerolinea}}</td><td>{{b.escalas===0?'Directo ✈️':b.escalas}}</td><td class="p"><b>{{fmt(b.min_clp)}}</b></td><td class="p">{{fmt(b.min_clp*pax)}}</td><td class="p">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}%</td><td><a class="btn fal" :href="b.link" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+    </table></div>
+    <div class="b">Búzios se vuela vía Río (GIG), ya cubierto en las demás pestañas. Δ verde = dentro de +20% o más barato que Río.</div>
+   </div></details>
   </section>
-  <!-- 3 SKY -->
+  <!-- 4 AGENCIAS -->
   <section :class="{on:cur===4}">
-   <div class="ok">✅ <b>API oficial SKY</b> (histograma de skyairline.com) · RT 9–12 noches · mínimo oficial por fechas (1 adulto) · verificado {{sky.ts||'—'}}.<br>ℹ️ El botón <b>"Reservar estas fechas ↗"</b> abre SKY con tus fechas y pasajeros ya cargados. El precio de compra puede variar vs. el mínimo mostrado: depende de la familia tarifaria y de los asientos que queden (stock cambia rápido).</div>
-   <div class="hero" v-if="sky.pairs?.length">🏆 Mejor tarifa SKY: <b>{{dw(sky.pairs[0].ida)}} {{sky.pairs[0].ida}} → {{dw(sky.pairs[0].vuelta)}} {{sky.pairs[0].vuelta}}</b> ({{sky.pairs[0].noches}} noches) · <b>{{fmt(sky.pairs[0].clp)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(sky.pairs[0].clp*pax)}}</b> &nbsp;<a class="btn sky" :href="skyLink(sky.pairs[0])" target="_blank" rel="noopener">Reservar estas fechas ↗</a></div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
-    <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*pax)}}</td><td><a class="btn sky" :href="skyLink(s)" target="_blank" rel="noopener">Reservar estas fechas ↗</a></td></tr>
-   </table></div>
+   <div class="ok">🏬 <b>Agencias y metasearch en vivo</b>: Cocha (cotización real multi-aerolínea) y Skiplagged (10+ aerolíneas del mundo). Solo el top de cada búsqueda a la vista; el detalle completo se despliega.</div>
+   <div class="warnbox" v-if="!esFresca(cocha.ts)">🕘 Última cotización Cocha exitosa: {{cocha.ts||'—'}} (UTC). El sistema reintenta cada ciclo y conserva el último dato real.</div>
+   <div class="wcard" v-for="v in cocha.ventanas||[]" :key="'c'+v.ida">
+    <div class="wtop"><span class="wdate">🧭 Cocha · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}}</span><span class="wpri">{{fmt(v.min_clp)}} <span class="b">pp</span></span></div>
+    <div class="wrows">
+     <div class="wrow" v-for="(r,i) in (v.resultados||[]).slice(0,3)" :key="r.det"><span class="wa">{{r.aerolinea}}</span><span class="b">{{r.det}} · {{r.escalas===0?'directo':r.escalas+' escalas'}}</span><span class="wp">{{fmt(r.clp)}}</span></div>
+    </div>
+    <details class="acc" style="margin:9px 0 0"><summary>Ver los {{(v.resultados||[]).length}} resultados de esta ventana</summary><div class="inner">
+     <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle</th><th>Escalas</th><th>CLP pp</th><th>{{pax}} pax</th></tr>
+      <tr v-for="(r,i) in v.resultados" :key="v.ida+r.det"><td>{{i+1}}</td><td><b>{{r.aerolinea}}</b></td><td class="b">{{r.det}}</td><td>{{r.escalas===0?'Directo ✈️':r.escalas}}</td><td class="p">{{fmt(r.clp)}}</td><td class="p">{{fmt(r.clp*pax)}}</td></tr>
+     </table></div>
+    </div></details>
+    <a class="btn fal" :href="v.link" target="_blank" rel="noopener" style="margin-top:10px">Abrir esta búsqueda en Cocha ↗</a>
+   </div>
+   <template v-for="v in sk.ventanas||[]" :key="'s'+v.ida">
+    <div class="wcard">
+     <div class="wtop"><span class="wdate">🌎 Skiplagged · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}}</span><span class="wpri">{{fmt(v.min_clp)}} <span class="b">pp</span></span></div>
+     <div class="b" style="margin-top:3px">CLP vía dólar observado (${{Math.round(v.fx||0).toLocaleString('es-CL')}}) · todas las aerolíneas del mundo</div>
+     <div class="wrows">
+      <div class="wrow" v-for="(x,i) in (v.resultados||[]).slice(0,3)" :key="x.det+i"><span class="wa">{{x.aerolinea}}</span><span class="b">{{x.det}} · {{x.escalas===0?'directo':x.escalas+' escalas'}}</span><span class="wp">{{fmt(x.clp)}}</span></div>
+     </div>
+     <details class="acc" style="margin:9px 0 0"><summary>Ver los {{(v.resultados||[]).length}} itinerarios top</summary><div class="inner">
+      <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle ida</th><th>Escalas</th><th>CLP pp RT</th><th>{{pax}} pax</th></tr>
+       <tr v-for="(x,i) in v.resultados" :key="x.det+i"><td>{{i+1}}</td><td><b>{{x.aerolinea}}</b></td><td>{{x.det}}</td><td>{{x.escalas===0?'Directo ✈️':x.escalas}}</td><td class="p"><b>{{fmt(x.clp)}}</b></td><td class="p">{{fmt(x.clp*pax)}}</td></tr>
+      </table></div>
+     </div></details>
+     <a class="btn" :href="v.link" target="_blank" rel="noopener" style="margin-top:10px">Abrir en Skiplagged ↗</a>
+    </div>
+   </template>
+   <div class="warnbox" v-if="!(sk.ventanas||[]).length">⏳ Skiplagged sin datos por ahora — el sistema reintenta automáticamente cada ciclo.</div>
+   <h2>Referencias OTA (lectura bloqueada por sus portales)</h2>
+   <div class="wcard">
+    <div class="warnbox" v-if="!esFresca(fal.ts)" style="margin:0 0 8px">🕘 <b>Falabella · referencia antigua del {{fal.ts||'—'}} (UTC)</b> — NO es el precio de hoy; excluida del ranking hasta renovarse.</div>
+    <div class="ok" v-else style="margin:0 0 8px">✅ <b>Falabella · referencia verificada</b> — {{fal.ts}}</div>
+    <div class="wtop" v-if="falBest"><span class="wdate">💡 Mejor ida+vuelta referencial</span><span class="wpri">{{fmt(falBest.tot)}} <span class="b">pp · {{falBest.ida.fecha}} → {{falBest.vuelta.fecha}}</span></span></div>
+    <details class="acc"><summary>Ver tramos Falabella</summary><div class="inner">
+     <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mín. pp</th><th>{{pax}} pax</th><th>Detalle</th><th>Ver</th></tr>
+      <template v-for="d in fal.dias" :key="d.sentido+d.fecha">
+       <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn fal" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+       <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="falOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+      </template>
+     </table></div>
+    </div></details>
+   </div>
+   <div class="wcard">
+    <div class="warnbox" v-if="!esFresca(des.ts)" style="margin:0 0 8px">🕘 <b>Despegar · referencia antigua del {{des.ts||'—'}} (UTC)</b> — NO es el precio de hoy; excluida del ranking hasta renovarse.</div>
+    <div class="ok" v-else style="margin:0 0 8px">✅ <b>Despegar · referencia verificada</b> — {{des.ts}}</div>
+    <div class="wtop" v-if="desBest"><span class="wdate">💡 Mejor ida+vuelta referencial</span><span class="wpri">{{fmt(desBest.tot)}} <span class="b">pp · {{desBest.ida.fecha}} → {{desBest.vuelta.fecha}}</span></span></div>
+    <details class="acc"><summary>Ver tramos Despegar</summary><div class="inner">
+     <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mín. pp</th><th>{{pax}} pax</th><th>Detalle</th><th>Ver</th></tr>
+      <template v-for="d in des.dias||[]" :key="d.sentido+d.fecha">
+       <tr><td>{{d.sentido==='SCL-GIG'?'Ida SCL→Río (GIG)':'Vuelta Río (GIG)→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+       <tr v-for="vv in d.vuelos||[]" :key="d.fecha+vv.det"><td class="b">· cotización</td><td class="b">{{vv.det}}</td><td class="p b">{{fmt(vv.clp)}}</td><td class="p b">{{fmt(vv.clp*pax)}}</td><td>{{vv.nota||''}}</td><td><a :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Ver ↗</a></td></tr>
+       <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="desOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+      </template>
+     </table></div>
+    </div></details>
+   </div>
   </section>
-  <!-- 4 LATAM oficial -->
+  <!-- 5 ALERTAS -->
   <section :class="{on:cur===5}">
-   <div class="ok">✅ <b>API oficial web de LATAM</b> (calendario de latamairlines.com, solo directos). Combos = ida + vuelta.</div>
-   <div class="hero" v-if="lat.combos?.length">🏆 Mejor combo LATAM: <b>{{dw(lat.combos[0].ida)}} {{lat.combos[0].ida}} → {{dw(lat.combos[0].vuelta)}} {{lat.combos[0].vuelta}}</b> ({{lat.combos[0].noches}} noches) · <b>{{fmt(lat.combos[0].clp)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(lat.combos[0].clp*pax)}}</b> &nbsp;<a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">Comprar en LATAM ↗</a></div>
-   <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax (est.)</th><th>Verificar</th></tr>
-    <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
-   </table></div>
-   <h2>Mínimo por día · solo directos</h2>
-   <div class="tbl"><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>
-    <tr v-for="(row,i) in latRows" :key="i"><td>{{row.a?dw(row.a.fecha)+' '+row.a.fecha:''}}</td><td class="p">{{row.a?fmt(row.a.clp):''}}</td><td>{{row.b?dw(row.b.fecha)+' '+row.b.fecha:''}}</td><td class="p">{{row.b?fmt(row.b.clp):''}}</td></tr>
-   </table></div>
+   <div class="ok">🔔 <b>Alertas de bajada de precio.</b> Cada ~5 min el sistema compara los mínimos de JetSMART, SKY, LATAM, Cocha y Skiplagged. Cuando algo baja ≥ $1.000 (≥0,5%), queda registrado aquí (y se enviará por correo cuando se configure SMTP).</div>
+   <div class="wcard">
+    <div class="kicker" style="margin-bottom:8px">📧 SUSCRIBIR MI CORREO</div>
+    <input v-model="mail" type="email" placeholder="tucorreo@ejemplo.com">
+    <div class="cta" style="justify-content:flex-start">
+     <a class="btn" :href="subUrl('ALTA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.4'">Suscribirme ↗</a>
+     <a class="btn ghost" :href="subUrl('BAJA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.4'">Desuscribirme</a>
+    </div>
+    <div class="b" style="margin-top:8px">Se abrirá GitHub con un issue prellenado: solo presiona "Submit new issue" (cuenta GitHub gratis). En ~1 minuto quedas suscrito y el issue se cierra solo. Suscritos ahora: <b>{{SUBS.length}}</b><template v-if="SUBS.length"> ({{SUBS.map(maskMail).join(', ')}})</template>.</div>
+   </div>
+   <h2>Bajadas detectadas ({{(DATA?.alerts||[]).length}})</h2>
+   <div class="tl" v-if="(DATA?.alerts||[]).length">
+    <div class="tlev" v-for="a in [...(DATA?.alerts||[])].reverse()" :key="a.ts+a.serie">
+     <div class="ser">{{a.serie}} <span class="b">· {{a.ts}} UTC</span></div>
+     <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap"><span class="pct">−{{a.pct}}%</span><span class="b" style="font-size:.8rem">{{fmt(a.antes)}} → <b style="color:var(--mint)">{{fmt(a.ahora)}}</b> · bajó {{fmt(a.baja)}}</span></div>
+    </div>
+   </div>
+   <div class="warnbox" v-else>Todavía no se registran bajadas desde la activación del sistema.</div>
   </section>
-  <!-- 6 Falabella -->
+  <!-- 6 CUPONES -->
   <section :class="{on:cur===6}">
-   <div class="warnbox" v-if="!esFresca(fal.ts)">🕘 <b>Referencia antigua del {{fal.ts||'—'}} (UTC)</b> — Falabella bloquea la lectura automática (DataDome), así que este dato NO es el precio de hoy. Se excluyó del consolidado; el sistema reintenta cada ciclo y lo repone cuando logra leerlo. Tramos por separado (1 adulto, tasas incl.).</div>
-   <div class="warnbox" v-else>⚠️ <b>Referencia verificada</b> — {{fal.ts}}. DataDome bloquea el auto-refresco de Falabella; estos mínimos llevan sello de hora. Tramos por separado (1 adulto, tasas incl.); el checkout real manda.</div>
-   <div class="hero" v-if="falBest">💡 Mejor ida+y+vuelta referencial Falabella: <b>{{falBest.ida.fecha}} → {{falBest.vuelta.fecha}}</b> ≈ <b>{{fmt(falBest.tot)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(falBest.tot*pax)}}</b></div>
-   <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp (1 ad.)</th><th>{{pax}} pax (est.)</th><th>Detalle</th><th>Ver en vivo</th></tr>
-    <template v-for="d in fal.dias" :key="d.sentido+d.fecha">
-     <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn fal" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-     <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="falOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-    </template>
-   </table></div>
-  </section>
-  <!-- 7 Despegar -->
-  <section :class="{on:cur===7}">
-   <div class="warnbox" v-if="!esFresca(des.ts)">🕘 <b>Referencia antigua del {{des.ts||'—'}} (UTC)</b> — Despegar bloquea la lectura automática (DataDome), así que este dato NO es el precio de hoy. Se excluyó del consolidado; el sistema reintenta cada ciclo. Tasas incl., 1 adulto.</div>
-   <div class="warnbox" v-else>✅ <b>Cotizaciones reales del buscador de Despegar leídas hoy</b> ({{des.ts}}), ordenadas del más barato hacia arriba. Tasas incl., 1 adulto; el total por grupo es estimación.</div>
-   <div class="hero" v-if="desBest">💡 Mejor ida+y+vuelta referencial Despegar: <b>{{desBest.ida.fecha}} → {{desBest.vuelta.fecha}}</b> ≈ <b>{{fmt(desBest.tot)}}</b> pp · {{pax}} pax ≈ <b>{{fmt(desBest.tot*pax)}}</b> (con tarjeta BCI la ida baja ~$20.000)</div>
-   <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mínimo pp (1 ad.)</th><th>{{pax}} pax (est.)</th><th>Detalle</th><th>Ver en vivo</th></tr>
-    <template v-for="d in des.dias||[]" :key="d.sentido+d.fecha">
-     <tr><td>{{d.sentido==='SCL-GIG'?'Ida SCL→Río (GIG)':'Vuelta Río (GIG)→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-     <tr v-for="v in d.vuelos||[]" :key="d.fecha+v.det"><td class="b">· cotización</td><td class="b">{{v.det}}</td><td class="p b">{{fmt(v.clp)}}</td><td class="p b">{{fmt(v.clp*pax)}}</td><td>{{v.nota||''}}</td><td><a :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Ver ↗</a></td></tr>
-     <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="desOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-    </template>
-   </table></div>
-  </section>
-  <!-- 8 Cocha -->
-  <section :class="{on:cur===8}">
-   <div class="ok">✅ <b>Cotización REAL automática</b> — {{cocha.ts||'sin fecha'}}. Resultados vivos del buscador de Cocha (ida y vuelta, 1 adulto, tasas incl.), ordenados del más barato hacia arriba; se refrescan solos cada ciclo.</div>
-   <template v-for="v in cocha.ventanas||[]" :key="v.ida+v.vuelta">
-    <h2>SCL ⇄ Río · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}} · mejor RT <span class="p">{{fmt(v.min_clp)}}</span> &nbsp;<a class="btn fal" :href="v.link" target="_blank" rel="noopener">Abrir en Cocha ↗</a></h2>
-    <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle</th><th>Escalas</th><th>CLP pp RT</th><th>{{pax}} pax (est.)</th><th>Cotizar</th></tr>
-     <tr v-for="(r,i) in v.resultados" :key="v.ida+r.det"><td>{{i+1}}</td><td><b>{{r.aerolinea}}</b></td><td class="b">{{r.det}}</td><td>{{r.escalas===0?'Directo ✈️':r.escalas}}</td><td class="p">{{fmt(r.clp)}}</td><td class="p">{{fmt(r.clp*pax)}}</td><td><a class="btn fal" :href="v.link" target="_blank" rel="noopener">Ver ↗</a></td></tr>
-    </table></div>
-   </template>
-   <div class="warnbox" v-if="!esFresca(cocha.ts)">🕘 Última cotización exitosa: {{cocha.ts||'—'}} (UTC). Cocha puede bloquear temporalmente el servidor; el sistema reintenta cada ciclo y conserva el último dato real.</div>
-   <div class="hero" v-if="(cocha.ventanas||[]).length">🧭 Cotización real Cocha (API automática): mejor ventana <b>{{dw(cochaMejor.ida)}} {{cochaMejor.ida}} → {{dw(cochaMejor.vuelta)}} {{cochaMejor.vuelta}}</b> desde <b>{{fmt(cochaMejor.min_clp)}}</b> pp &nbsp;<a class="btn fal" :href="cochaMejor.link" target="_blank" rel="noopener">Abrir en Cocha ↗</a></div>
-   <div class="hero" v-else-if="cocha.rio">🧭 Portada Cocha: SCL⇄Río <b>desde {{fmt(cocha.rio.clp)}}</b> pp (precio publicado, fechas de Cocha) &nbsp;<a class="btn fal" :href="cocha.link||'https://www.cocha.com/vuelos'" target="_blank" rel="noopener">Buscar en Cocha ↗</a></div>
-  </section>
-  <!-- 9 Skiplagged -->
-  <section :class="{on:cur===9}">
-   <div class="ok">🌎 <b>Skiplagged — metasearch global EN VIVO</b>: busca a la vez en todas las aerolíneas del mundo que vuelan SCL→Río (LATAM, SKY, JetSMART, GOL, Azul, Avianca, Aerolíneas Argentinas, Copa, Emirates, Turkish…). Precio RT por adulto convertido a CLP con dólar observado del día. Se refresca solo cada ~5 min.</div>
-   <template v-for="v in sk.ventanas||[]" :key="v.ida">
-    <div class="hero">🗓 {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}} · mejor RT <b>{{fmt(v.min_clp)}}</b> pp · {{pax}} pax (est.) <b>{{fmt(v.min_clp*pax)}}</b> · dólar ${{Math.round(v.fx||0).toLocaleString('es-CL')}} &nbsp;<a class="btn" :href="v.link" target="_blank" rel="noopener">Abrir en Skiplagged ↗</a></div>
-    <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle ida</th><th>Escalas</th><th>CLP pp RT</th><th>{{pax}} pax (est.)</th></tr>
-     <tr v-for="(x,i) in v.resultados" :key="x.det+i"><td>{{i+1}}</td><td><b>{{x.aerolinea}}</b></td><td>{{x.det}}</td><td>{{x.escalas===0?'Directo ✈️':x.escalas}}</td><td class="p"><b>{{fmt(x.clp)}}</b></td><td class="p">{{fmt(x.clp*pax)}}</td></tr>
-    </table></div>
-   </template>
-   <div class="warnbox" v-if="!(sk.ventanas||[]).length">⏳ Sin datos por ahora — el sistema reintenta automáticamente cada ciclo.</div>
-   <div class="warnbox">💡 Skiplagged muestra el precio total ida+vuelta por adulto. Las aerolíneas low-cost (JetSMART/SKY) a veces venden más barato directo en su propio sitio: compara con las pestañas oficiales. El botón abre la búsqueda exacta en skiplagged.com para verificar y comprar.</div>
-  </section>
-  <!-- 10 Brasil alternativas -->
-  <section :class="{on:cur===10}">
-   <div class="ok">🇧🇷 <b>Otros destinos en Brasil</b> para la ventana {{cocha.brasil_ventana||'—'}} — cotización real Cocha (API automática), ordenada por precio. Δ% = diferencia vs. el mejor RT a Río de Janeiro cotizado en el mismo ciclo.</div>
-   <div class="warnbox" v-if="!(cocha.brasil||[]).length">⏳ El comparador de destinos se está cotizando (Cocha responde por lotes cada ciclo de 5 min). Aparecerá aquí automáticamente.</div>
-   <div class="tbl" v-if="(cocha.brasil||[]).length"><table><tr><th>#</th><th>Destino</th><th>Aerolínea</th><th>Escalas</th><th>Mejor RT pp</th><th>{{pax}} pax (est.)</th><th>Δ vs Río</th><th>Cotizar</th></tr>
-    <tr v-for="(b,i) in cocha.brasil||[]" :key="b.cod" :style="(b.delta_pct??99)<=20?'background:rgba(110,231,183,.1)':''"><td>{{i+1}}</td><td><b>{{b.destino}}</b> ({{b.cod}})</td><td>{{b.aerolinea}}</td><td>{{b.escalas===0?'Directo ✈️':b.escalas}}</td><td class="p"><b>{{fmt(b.min_clp)}}</b></td><td class="p">{{fmt(b.min_clp*pax)}}</td><td class="p">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}%</td><td><a class="btn fal" :href="b.link" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-   </table></div>
-   <div class="warnbox">💡 Filas destacadas = dentro de +20% (o más baratas) respecto a Río. Búzios se vuela vía Río (GIG), ya cubierto en las demás pestañas.</div>
-  </section>
-  <!-- 11 Alertas -->
-  <section :class="{on:cur===11}">
-   <div class="ok">📧 <b>Alertas de bajada de precio por correo.</b> Cada ciclo (~5 min) el sistema compara los mejores precios de JetSMART, SKY, LATAM y Cocha; cuando una combinación baja, envía un correo a todos los suscritos.</div>
-   <div class="tbl"><table><tr><td>
-    <b>Paso 1.</b> Escribe tu correo: <input v-model="mail" type="email" placeholder="tucorreo@ejemplo.com">
-    &nbsp;<a class="btn" :href="subUrl('ALTA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.4'">Suscribir ↗</a>
-    &nbsp;<a class="btn fal" :href="subUrl('BAJA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.4'">Desuscribir</a><br>
-    <span class="b">Paso 2. Se abrirá GitHub con un issue prellenado: solo presiona "Submit new issue" (necesitas cuenta GitHub, gratis). En ~1 minuto quedas suscrito y el issue se cierra solo.</span>
-   </td></tr></table></div>
-   <h2>Suscritos actualmente ({{SUBS.length}})</h2>
-   <div class="tbl" v-if="SUBS.length"><table><tr v-for="s in SUBS" :key="s"><td>{{maskMail(s)}}</td></tr></table></div>
-   <div class="warnbox" v-else>Aún no hay correos suscritos.</div>
-   <h2>Últimas bajadas detectadas</h2>
-   <div class="tbl" v-if="(DATA?.alerts||[]).length"><table><tr><th>Cuándo</th><th>Serie</th><th>Antes</th><th>Ahora</th><th>Bajó</th></tr>
-    <tr v-for="a in [...(DATA?.alerts||[])].reverse()" :key="a.ts+a.serie"><td class="b">{{a.ts}}</td><td>{{a.serie}}</td><td class="p">{{fmt(a.antes)}}</td><td class="p"><b>{{fmt(a.ahora)}}</b></td><td class="p">−{{fmt(a.baja)}} (−{{a.pct}}%)</td></tr>
-   </table></div>
-   <div class="warnbox" v-else>Todavía no se registran bajadas desde la activación del sistema de alertas.</div>
-  </section>
-  <!-- 12 Cupones -->
-  <section :class="{on:cur===12}">
-   <div class="warnbox">⏰ <b>CyberMonday Chile termina HOY 7-oct 23:59.</b> Cupones verificados en las páginas oficiales; stock limitado, un uso por cliente en la mayoría. Pruébalos en el checkout ("¿Tienes un cupón?").</div>
-   <div class="tbl"><table><tr><th>Código</th><th>Descuento</th><th>Dónde</th><th>Ir</th></tr>
-    <tr v-for="c in COUPONS" :key="c.code"><td><b>{{c.code}}</b></td><td>{{c.desc}}</td><td class="b">{{c.where}}</td><td><a class="btn fal" :href="c.url" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-   </table></div>
-   <div class="ok">💳 Además: JetSMART hasta 60% dcto a Brasil con promos extra para clientes <b>BancoEstado y BCI</b>; LATAM hasta 71% dcto internacional (vuelo hasta dic-2027); SKY Cyber hasta 70% en rutas seleccionadas.</div>
+   <div class="warnbox">⏰ <b>CyberMonday Chile terminó el 7-oct.</b> Estos cupones se mantienen como referencia: varios siguen activos en las páginas oficiales (stock limitado, generalmente un uso por cliente). Pruébalos en el checkout ("¿Tienes un cupón?").</div>
+   <div class="cgrid">
+    <div class="ccard mini" v-for="c in COUPONS" :key="c.code">
+     <div class="code">{{c.code}}</div>
+     <div class="dt" style="margin-top:8px">{{c.desc}}</div>
+     <div class="src">{{c.where}}</div>
+     <a class="btn fal" :href="c.url" target="_blank" rel="noopener">Abrir ↗</a>
+    </div>
+   </div>
+   <div class="ok">💳 Además (sin código): JetSMART hasta 60% dcto a Brasil con promos extra para clientes <b>BancoEstado y BCI</b>; LATAM hasta 71% dcto internacional (vuelo hasta dic-2027); SKY Cyber hasta 70% en rutas seleccionadas.</div>
   </section>
  </main>
  <footer>Datos en vivo: APIs oficiales JetSMART · SKY · LATAM + cotizaciones reales Cocha + metasearch global Skiplagged · Actualización automática cada ~5 min vía GitHub Actions<br>
@@ -338,13 +524,48 @@ const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
 const NOMS={JA:'JetSMART',H2:'SKY Airline',LA:'LATAM',LU:'LATAM',G3:'GOL',AD:'Azul',CM:'Copa Airlines',AV:'Avianca',AR:'Aerolíneas Argentinas',AM:'Aeroméxico',EK:'Emirates',TK:'Turkish Airlines',IB:'Iberia',DL:'Delta',UA:'United',AA:'American',AF:'Air France',KL:'KLM',LH:'Lufthansa'};
 const {createApp}=Vue;
 createApp({
- data:()=>({DATA:null,SUBS:[],mail:'',cur:0,fi:'',fv:'',fatal:false,
-  TABS:['🏅 Consolidado por empresa','🥇 Combos JetSMART','JetSMART · Idas','JetSMART · Vueltas','🥈 SKY · RT','🥉 LATAM (API oficial)','⚠️ Falabella (ref.)','🏬 Despegar (ref.)','🧭 Cocha (real)','🌎 Skiplagged global','🇧🇷 Brasil alternativas','📧 Alertas correo','🎟️ Cyber HOY'],
+ data:()=>({DATA:null,SUBS:[],mail:'',cur:0,fi:'',fv:'',fatal:false,selDate:'',calMode:'ida',
+  TABS:['🏆 Hoy','📅 Calendario de precios','✈️ Aerolíneas','🇧🇷 Brasil','🏬 Agencias','🔔 Alertas','🎟️ Cupones'],
   COUPONS:[{code:'SUD10SKY',desc:'10% dcto en vuelos y paquetes a Brasil vía SKY',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWAM',desc:'hasta $100.000 dcto hoteles/paquetes WAM (Búzios, Fortaleza, Porto Seguro)',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'RITZ2X',desc:'hasta $70.000 dcto hoteles Rede Ritz Brasil',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWISH',desc:'$80.000 dcto paquetes hoteles Wish/Prodigy/Linx',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XBEACHPARK',desc:'$200.000 dcto paquetes Beach Park',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'CAMBORIU2X',desc:'hasta $100.000 dcto hotel Marambaia Camboriú',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'Cupón CMR Sudamérica',desc:'$60.000 web / $80.000 presencial en paquetes (mín $900K web, aplica Brasil)',where:'Falabella Oportunidad Única',url:'https://www.viajesfalabella.cl/ofertas-viajes/oportunidad-unica'},{code:'CYBERPAQ',desc:'$100.000 dcto viajes internacionales',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'SKY + cyber.cl',desc:'$80.000 dcto paquetes a Sudamérica',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'Iberostar cyber.cl',desc:'$150.000 dcto paquetes Caribe y Brasil',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'CYBERASISTENCIA20',desc:'20% dcto asistencia Universal Assistance (tope $50K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/asistencia-al-viajero'},{code:'LOCALIZA25',desc:'15% dcto autos en Brasil (tope $25K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/autos'}],
  NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha',skiplagged:'Skiplagged'},
   pax:1,PAXOPTS:[1,2,4,5,9]}),
  computed:{
   F(){return this.DATA?.fuentes||{}},
+  ticker(){const t=[];const cp=this.combosPax[0];if(cp)t.push({k:'JetSMART oficial',v:cp.clp});const sp=this.sky.pairs?.[0];if(sp)t.push({k:'SKY oficial',v:sp.clp});const lc=this.lat.combos?.[0];if(lc)t.push({k:'LATAM oficial',v:lc.clp});const cv=(this.cocha.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];if(cv&&this.esFresca(this.cocha.ts))t.push({k:'Cocha real',v:cv.min_clp});const sv=(this.sk.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];if(sv&&this.esFresca(this.sk.ts))t.push({k:'Skiplagged global',v:sv.min_clp});const mx=this.mezclas;if(mx)t.push({k:'Mezcla compañías',v:mx.total});return t},
+  calOut(){const m={};const put=(f,clp,src)=>{if(!(clp>0))return;if(!/^2027-0[12]-/.test(f))return;if(!m[f]||clp<m[f].min)m[f]={min:clp,src};};
+   for(const x of this.js.idas||[])put(x.fecha,x.clp,'JetSMART');
+   for(const x of this.lat.dias_out||[])put(x.fecha,x.clp,'LATAM');
+   if(this.esFresca(this.sk.ts))for(const v of this.sk.ventanas||[])for(const r of v.ow_out||[])put(r.fecha,r.clp,'Skiplagged');
+   return m},
+  calIn(){const m={};const put=(f,clp,src)=>{if(!(clp>0))return;if(!/^2027-0[12]-/.test(f))return;if(!m[f]||clp<m[f].min)m[f]={min:clp,src};};
+   for(const x of this.js.vueltas||[])put(x.fecha,x.clp,'JetSMART');
+   for(const x of this.lat.dias_in||[])put(x.fecha,x.clp,'LATAM');
+   if(this.esFresca(this.sk.ts))for(const v of this.sk.ventanas||[])for(const r of v.ow_in||[])put(r.fecha,r.clp,'Skiplagged');
+   return m},
+  calRange(){const vals=[...Object.values(this.calOut),...Object.values(this.calIn)].map(x=>x.min).filter(v=>v>0);return vals.length?{lo:Math.min(...vals),hi:Math.max(...vals)}:{lo:0,hi:1}},
+  calCells(){const mk=(y,m)=>{const pad=(new Date(y,m,1).getDay()+6)%7;const days=new Date(y,m+1,0).getDate();const cells=[];for(let i=0;i<pad;i++)cells.push(null);for(let d=1;d<=days;d++)cells.push({d,fecha:y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')});return cells;};
+   return {ene:mk(2027,0),feb:mk(2027,1)}},
+  selInfo(){const f=this.selDate;if(!f)return null;const ida=this.calMode==='ida';const opts=[];
+   if(ida){
+    for(const x of (this.js.idas||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,4))opts.push({src:'JetSMART',det:x.vuelo+' · sale '+x.hora,clp:x.clp,link:this.jsOW(f,'SCL','GIG'),cls:''});
+    const l=(this.lat.dias_out||[]).find(z=>z.fecha===f);if(l&&l.clp)opts.push({src:'LATAM',det:l.directo?'vuelo directo':'con escala',clp:l.clp,link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
+    if(this.esFresca(this.sk.ts))for(const v of this.sk.ventanas||[])for(const r of (v.ow_out||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,3))opts.push({src:'Skiplagged · '+r.aerolinea,det:r.det,clp:r.clp,link:v.link,cls:'ghost'});
+   }else{
+    for(const x of (this.js.vueltas||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,4))opts.push({src:'JetSMART',det:x.vuelo+' · sale '+x.hora,clp:x.clp,link:this.jsOW(f,'GIG','SCL'),cls:''});
+    const l=(this.lat.dias_in||[]).find(z=>z.fecha===f);if(l&&l.clp)opts.push({src:'LATAM',det:l.directo?'vuelo directo':'con escala',clp:l.clp,link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
+    if(this.esFresca(this.sk.ts))for(const v of this.sk.ventanas||[])for(const r of (v.ow_in||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,3))opts.push({src:'Skiplagged · '+r.aerolinea,det:r.det,clp:r.clp,link:v.link,cls:'ghost'});
+   }
+   opts.sort((a,b)=>a.clp-b.clp);
+   const map=ida?this.calIn:this.calOut;const sugg=[];
+   for(const g of Object.keys(map)){
+    const n=ida?this.noches(f,g):this.noches(g,f);
+    if(n<9)continue;
+    const ret=ida?g:f;if(ret>'2027-02-23')continue;
+    sugg.push({fecha:g,min:map[g].min,src:map[g].src,noches:n,ida:ida?f:g,vuelta:ida?g:f});
+   }
+   sugg.sort((a,b)=>a.min-b.min);
+   return {opts:opts.slice(0,8),sugg:sugg.slice(0,6)}},
+  brasilBars(){const b=this.cocha.brasil||[];if(!b.length)return[];const mx=Math.max(...b.map(x=>x.min_clp));return b.map(x=>({...x,w:Math.max(6,Math.round(x.min_clp/mx*100)),good:(x.delta_pct??99)<=20}))},
   js(){return this.F.jetsmart||{}},
   sky(){return this.F.sky||{}},
   lat(){return this.F.latam||{}},
@@ -427,6 +648,12 @@ createApp({
   jsRT(i,v){return `https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=true&cur=CLP&culture=es-CL&dd1=${i}&o1=SCL&d1=GIG&dd2=${v}`},
   skyLink(s){const m={1:[1,0],2:[2,0],4:[4,0],5:[4,1],9:[8,1]}[this.pax]||[this.pax,0];return `https://initial-sale.skyairline.com/es/chile?origin=SCL&destination=GIG&departureDate=${s.ida}&arrivalDate=${s.vuelta}&flightType=RT&ADT=${m[0]}`+(m[1]?`&CHD=${m[1]}`:'')},
   subUrl(acc){const repo=location.pathname.includes('qwen_vuelos_rio')?'qwen_vuelos_rio':'vuelos-rio-live';return `https://github.com/Xacox01/${repo}/issues/new?title=${encodeURIComponent(acc+' '+this.mail.trim())}&body=${encodeURIComponent('Solicitud automatica desde el dashboard vuelos-rio-live.')}`},
+  dayMin(f){const x=this.calMode==='ida'?this.calOut[f]:this.calIn[f];return x&&x.min>0?x.min:0},
+  dayOk(f){if(!(this.dayMin(f)>0))return false;if(this.calMode==='vuelta')return f<='2027-02-23';return f<='2027-02-14'},
+  heat(p){const r=this.calRange;if(!(p>0))return{};const t=Math.min(1,Math.max(0,(p-r.lo)/((r.hi-r.lo)||1)));const h=Math.round(158-158*t);return{background:'hsla('+h+',72%,46%,.2)',borderColor:'hsla('+h+',72%,55%,.45)'}},
+  heatTxt(p){const r=this.calRange;if(!(p>0))return{};const t=Math.min(1,Math.max(0,(p-r.lo)/((r.hi-r.lo)||1)));const h=Math.round(158-158*t);return{color:'hsl('+h+',85%,72%)'}},
+  kfmt(n){return n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+Math.round(n/1000)+'K'},
+  rtLinks(i,v){return [{label:'JetSMART ↗',href:this.jsRT(i,v),cls:''},{label:'SKY ↗',href:this.skyLink({ida:i,vuelta:v}),cls:'sky'},{label:'Cocha ↗',href:'https://www.cocha.com/resultado/vuelos/SCL/GIG/'+i+'/1/Y?origin2=GIG&destination2=SCL&date2='+v,cls:'fal'},{label:'Skiplagged ↗',href:'https://skiplagged.com/flights/SCL/GIG/'+i+'/'+v+'?sort=cost',cls:'ghost'}]},
   noches(a,b){return Math.round((Date.parse(b)-Date.parse(a))/864e5)},
   nomAer(c){return NOMS[c]||c},
   esFresca(ts){if(!ts)return false;const t=Date.parse(String(ts).replace(' ','T')+'Z');return isFinite(t)&&(Date.now()-t)<864e5},
