@@ -133,6 +133,18 @@ ok(typeof DATA.minimos === 'object' && DATA.minimos !== null, 'minimos presente'
 ok(typeof vm.maskMail('abc@x.com') === 'string' && vm.maskMail('abc@x.com').indexOf('\u2022') >= 0, 'maskMail funciona');
 ok(vm.subUrl('ALTA').includes('issues/new'), 'subUrl funciona');
 
+
+console.log('== Estructura de documento ==');
+ok(html.trimStart().startsWith('<!DOCTYPE html>'), 'documento empieza con <!DOCTYPE html>');
+for (const tag of ['<html', '<head>', '</head>', '<style>', '</style>', '<body>', '</body>', '</html>', '<div id="app">', 'unpkg.com/vue@3']) {
+  ok(html.includes(tag), 'contiene ' + tag);
+}
+ok(html.indexOf('</style>') < html.indexOf('<div id="app">'), 'el CSS está antes del #app');
+ok(html.indexOf('<style>') < html.indexOf('</style>'), 'bloque <style> cerrado correctamente');
+ok(html.includes('aurora3') && html.includes('grain'), 'capas de fondo aurora presentes');
+ok((html.match(/<style>/g) || []).length === 1, 'un solo bloque <style>');
+ok((html.match(/<div id="app">/g) || []).length === 1, 'un solo #app');
+
 console.log('== Estructura HTML ==');
 const secs = [...html.matchAll(/cur===(\d+)\}/g)].map(m => +m[1]);
 const tabsLine = [...html.matchAll(/TABS\s*[:=]\s*\[([^\]]*)\]/g)];
