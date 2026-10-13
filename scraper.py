@@ -370,7 +370,7 @@ def cocha_rt(ida, vuelta, dst="GIG"):
 COCHA_BRASIL = [("FLN", "Florianópolis"), ("GRU", "São Paulo"), ("SSA", "Salvador"),
                 ("CNF", "Belo Horizonte"), ("CWB", "Curitiba"), ("FOR", "Fortaleza"), ("REC", "Recife")]
 
-def fetch_cocha_live():
+def fetch_cocha_live(prev=None):
     ventanas = []
     for ida, vuelta in COCHA_VENTANAS:
         res = cocha_rt(ida, vuelta)
@@ -392,7 +392,7 @@ def fetch_cocha_live():
     # destinos alternativos en Brasil (misma ventana más barata de Río)
     base = min(ventanas, key=lambda v: v["min_clp"])
     rio_min = base["min_clp"]
-    brasil_prev = {b["cod"]: b for b in (LIVE["fuentes"].get("cocha") or {}).get("brasil", []) if isinstance(b, dict)}
+    brasil_prev = {b["cod"]: b for b in ((prev or {}).get("brasil") or []) if isinstance(b, dict)}
     orden = ([c for c, _ in COCHA_BRASIL if c not in brasil_prev] or [c for c, _ in COCHA_BRASIL])
     lote = orden[:3]
     brasil = [b for c, b in brasil_prev.items() if c not in lote]
@@ -406,6 +406,8 @@ def fetch_cocha_live():
                                "link": f"https://www.cocha.com/resultado/vuelos/SCL/{cod}/{base['ida']}/1/Y?origin2={cod}&destination2=SCL&date2={base['vuelta']}"})
         except Exception:
             continue
+    for b in brasil:
+        b["delta_pct"] = round((b["min_clp"] / rio_min - 1) * 100, 1)
     brasil.sort(key=lambda b: b["min_clp"])
     return {"ventanas": ventanas, "brasil": brasil,
             "brasil_ventana": f"{base['ida']} → {base['vuelta']}"}
@@ -467,6 +469,73 @@ def signature(live):
         int((co.get("rio") or {}).get("clp") or 0),
     ])
 
+# ---------------- Skiplagged (metasearch global en vivo) ----------------
+def usd_clp():
+    """Dólar observado (mindicador.cl) con fallback open.er-api.com."""
+    for url, path in (("https://mindicador.cl/api/dolar", ("dolar", "valor")),
+                      ("https://open.er-api.com/v6/latest/USD", ("rates", "CLP"))):
+        try:
+            r = cr.get(url, impersonate="chrome", timeout=30)
+            d = r.json()
+            for k in path:
+                d = d[k]
+            v = float(str(d).replace(".", "").replace(",", ".")) if isinstance(d, str) else float(d)
+            if 300 < v < 3000:
+                return v
+        except Exception:
+            continue
+    return 950.0
+
+def fetch_skiplagged():
+    fx = usd_clp()
+    ventanas = []
+    for ida, vuelta in COCHA_VENTANAS:
+        u = f"https://skiplagged.com/api/search.php?from=SCL&to=GIG&depart={ida}&return={vuelta}&format=v3"
+        try:
+            r = cr.get(u, impersonate="chrome", timeout=90, headers={"Accept": "application/json"})
+            r.raise_for_status()
+            d = r.json()
+        except Exception as e:
+            print(f"skiplagged {ida} FAIL: {str(e)[:70]}", flush=True)
+            continue
+        flights = d.get("flights") or {}
+        airlines = d.get("airlines") or {}
+        rows = []
+        for it in (d.get("itineraries") or {}).get("outbound") or []:
+            try:
+                cents = it.get("min_round_trip_price") or 0
+                if not cents:
+                    continue
+                fl = flights.get(it.get("flight")) or {}
+                segs = fl.get("segments") or []
+                if not segs or (segs[0].get("departure") or {}).get("airport") != "SCL":
+                    continue
+                cod = segs[0].get("airline", "?")
+                nombre = (airlines.get(cod) or {}).get("name", cod)
+                escalas = max(len(segs) - 1, 0)
+                hora = ((segs[0].get("departure") or {}).get("time") or "")[11:16]
+                rows.append({"aerolinea": nombre, "cod": cod, "escalas": escalas,
+                             "clp": round(cents / 100.0 * fx),
+                             "det": f"{cod}{segs[0].get('flight_number','')} {hora} salida · {escalas} escala(s) ida"})
+            except Exception:
+                continue
+        if not rows:
+            continue
+        rows.sort(key=lambda x: x["clp"])
+        top = rows[:8]
+        extras = []
+        for x in rows:
+            if x["aerolinea"] not in {y["aerolinea"] for y in top + extras}:
+                extras.append(x)
+            if len(extras) >= 5:
+                break
+        ventanas.append({"ida": ida, "vuelta": vuelta, "min_clp": rows[0]["clp"], "fx": round(fx, 2),
+                         "link": f"https://skiplagged.com/flights/SCL/GIG/{ida}/{vuelta}?sort=cost",
+                         "resultados": top + extras})
+    if not ventanas:
+        raise RuntimeError("skiplagged sin resultados")
+    return {"ventanas": ventanas}
+
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
     f = live.get("fuentes", {})
@@ -479,6 +548,8 @@ def minimos_de(live):
             m[serie] = mn(f[k].get(key))
     if (f.get("cocha") or {}).get("ok"):
         m["Cocha SCL-Río"] = mn(f["cocha"].get("ventanas"), "min_clp")
+    if (f.get("skiplagged") or {}).get("ok"):
+        m["Skiplagged SCL-Río"] = mn(f["skiplagged"].get("ventanas"), "min_clp")
     return m
 
 def main():
@@ -541,7 +612,7 @@ def main():
         print(f"Despegar FAIL: {str(e)[:80]}", flush=True)
     # 7) Cocha: cotización REAL por API + tarjetas SSR de respaldo
     try:
-        co_live = fetch_cocha_live()
+        co_live = fetch_cocha_live(LIVE["fuentes"].get("cocha") or {})
         old = LIVE["fuentes"].get("cocha") or {}
         LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True,
             "nota": "Cotización real automática vía API de cocha.com, ordenada del más barato (1 adulto, tasas incl.)",
@@ -561,6 +632,16 @@ def main():
                 print(f"Cocha SSR OK: Río {co['rio']['clp']:,}", flush=True)
         except Exception as e2:
             print(f"Cocha SSR FAIL: {str(e2)[:80]}", flush=True)
+    # 8) Skiplagged: metasearch global en vivo (todas las aerolíneas)
+    try:
+        skl = fetch_skiplagged()
+        LIVE["fuentes"]["skiplagged"] = {"ts": now_iso(), "ok": True,
+            "nota": "Metasearch en vivo · CLP vía dólar observado · ordenado del más barato",
+            **skl}
+        print("Skiplagged OK: " + " | ".join(
+            f"{v['ida']}→{v['vuelta']} ${v['min_clp']:,}" for v in skl["ventanas"]), flush=True)
+    except Exception as e:
+        print(f"Skiplagged FAIL: {str(e)[:90]}", flush=True)
     # (espejo Google eliminado por pedido del usuario)
     LIVE["fuentes"].pop("google", None)
 

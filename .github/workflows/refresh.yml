@@ -47,6 +47,23 @@ jobs:
             git push
           fi
 
+      - name: verificar-modulos
+        if: always()
+        continue-on-error: true
+        run: |
+          cd deploy-github
+          node verify.js index.html data.json || echo "::warning::Verificación de módulos detectó problemas"
+
+      - name: enviar-alertas-email
+        if: always()
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          cd deploy-github
+          python3 send_alerts.py || true
+
       - name: encadenar siguiente ciclo (~5 min)
         if: always()
         run: |
