@@ -1,0 +1,42 @@
+name: camoufox-diag
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: camoufox-diag
+  cancel-in-progress: true
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/camoufox
+          key: camoufox-browser-v156
+
+      - name: instalar
+        run: |
+          pip install -q camoufox
+          python -m camoufox fetch || (python -m camoufox sync && python -m camoufox fetch)
+
+      - name: diagnosticar
+        run: python diag_otas.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diag-otas
+          path: |
+            diag.json
+            diag_*.png
