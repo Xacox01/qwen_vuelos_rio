@@ -232,5 +232,39 @@ for (const m of ['class="ticker"', 'class="cals"', 'class="podium"', 'class="rli
 ok((html.match(/details class="acc"/g) || []).length >= 8, '>=8 acordeones de detalle', (html.match(/details class="acc"/g) || []).length);
 ok(html.includes("calMode==='ida'") && html.includes("calMode==='vuelta'"), 'selector ida/vuelta presente');
 
+console.log('== P22. Playas LatAm ==');
+for (const m2 of ['class="ruler"', 'class="bp"', 'class="stub"', 'barcode', 'rbud', 'playasRows', 'playasAxis', 'Playas <$500K']) {
+  ok(html.includes(m2), 'plantilla contiene ' + m2);
+}
+const pl = f.playas || {};
+if (pl.ok && (pl.destinos || []).length) {
+  const budget = pl.budget || 500000;
+  const rows = vm.playasRows;
+  ok(rows.length >= 10, 'playasRows >= 10 destinos con precio', rows.length);
+  ok(rows.every((r, i) => i === 0 || rows[i - 1].mejor.clp <= r.mejor.clp), 'playas ordenado por precio');
+  ok(vm.playasOk.every(d => d.mejor.clp < budget), 'playasOk todos bajo presupuesto');
+  ok(vm.playasNo.every(d => d.mejor.clp >= budget), 'playasNo todos sobre presupuesto');
+  ok(vm.playasOk.length + vm.playasNo.length === rows.length, 'Ok + No == total filas');
+  ok(rows.every(d => money(d.mejor.clp)), 'playas precios validos');
+  ok(rows.every(d => (d.mejor.link || '').startsWith('http')), 'playas links http');
+  ok(rows.every(d => d.mejor.noches >= 9), 'playas >= 9 noches', rows.filter(d => d.mejor.noches < 9).map(d => d.cod));
+  ok(rows.every(d => d.mejor.vuelta <= '2027-02-23'), 'playas vuelta <= 23-feb');
+  let wbad = [];
+  for (const d of rows) for (const w of d.windows || []) {
+    if (!(money(w.min_clp) && w.ida < w.vuelta && (w.link || '').includes('skiplagged.com'))) wbad.push(d.cod + ':' + w.ida);
+  }
+  ok(wbad.length === 0, 'ventanas skiplagged validas (precio/fechas/link)', wbad);
+  const ax = vm.playasAxis;
+  ok(ax && ax.lo < ax.hi && ax.budPct > 0 && ax.budPct < 100, 'eje de ruler coherente', ax && [Math.round(ax.lo), Math.round(ax.hi), Math.round(ax.budPct)]);
+  ok(ax && ax.pos(Math.round(ax.lo)) >= 1 && ax.pos(Math.round(ax.hi)) <= 99, 'posiciones de ruler dentro del rango');
+  const coP = rows.filter(d => d.cocha && d.cocha.min_clp);
+  ok(coP.every(d => money(d.cocha.min_clp) && (d.cocha.link || '').includes('cocha.com')), 'cocha playas precios/links validos');
+  console.log('     bajo presupuesto: ' + (vm.playasOk.map(d => d.cod + ' $' + Math.round(d.mejor.clp).toLocaleString('es-CL')).join(' · ') || 'ninguno'));
+} else {
+  console.log('  -- playas aun sin datos en data.json (primer ciclo) — solo checks de plantilla');
+  ok((vm.playasRows || []).length === 0, 'playasRows vacio sin datos');
+  ok(vm.playasAxis === null, 'playasAxis null sin datos');
+}
+
 console.log('\n' + (fails === 0 ? 'TODO OK' : 'HAY FALLOS') + ': ' + (checks - fails) + '/' + checks + ' checks pasaron');
 process.exit(fails === 0 ? 0 : 1);

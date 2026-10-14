@@ -467,6 +467,7 @@ def signature(live):
         [int(c["clp"]) for c in (la.get("combos") or [])[:5]],
         [int(d.get("min_clp") or 0) for d in (de.get("dias") or [])],
         int((co.get("rio") or {}).get("clp") or 0),
+        [int((d.get("mejor") or {}).get("clp") or 0) for d in ((F.get("playas") or {}).get("destinos") or [])],
     ])
 
 # ---------------- Skiplagged (metasearch global en vivo) ----------------
@@ -565,6 +566,125 @@ def fetch_skiplagged():
         raise RuntimeError("skiplagged sin resultados")
     return {"ventanas": ventanas}
 
+# ---------------- Playas LatAm: destinos de playa bajo presupuesto ----------------
+PLAYAS_DEST = [("GIG", "Río de Janeiro", "Brasil", "🇧🇷"),
+               ("FLN", "Florianópolis", "Brasil", "🇧🇷"),
+               ("SSA", "Salvador de Bahía", "Brasil", "🇧🇷"),
+               ("REC", "Recife · Porto de Galinhas", "Brasil", "🇧🇷"),
+               ("FOR", "Fortaleza", "Brasil", "🇧🇷"),
+               ("MCZ", "Maceió · Maragogi", "Brasil", "🇧🇷"),
+               ("NAT", "Natal · Pipa", "Brasil", "🇧🇷"),
+               ("BPS", "Porto Seguro · Arraial", "Brasil", "🇧🇷"),
+               ("CTG", "Cartagena · Bocagrande", "Colombia", "🇨🇴"),
+               ("ADZ", "San Andrés Isla", "Colombia", "🇨🇴"),
+               ("PUJ", "Punta Cana · Bávaro", "Rep. Dominicana", "🇩🇴"),
+               ("CUN", "Cancún · Riviera Maya", "México", "🇲🇽"),
+               ("HAV", "La Habana · Varadero", "Cuba", "🇨🇺"),
+               ("LIR", "Liberia · Guanacaste", "Costa Rica", "🇨🇷"),
+               ("SJO", "San José · Jacó/Manuel Antonio", "Costa Rica", "🇨🇷"),
+               ("PTY", "Panamá · Playa Blanca", "Panamá", "🇵🇦")]
+PLAYAS_WIN = [("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20"), ("2027-01-02", "2027-02-01")]
+PLAYAS_BUDGET = 500000
+
+def skiplagged_rt(dest, ida, vuelta, fx):
+    """RT en vivo SCL→dest para una ventana. Devuelve dict o None si no hay itinerarios."""
+    u = f"https://skiplagged.com/api/search.php?from=SCL&to={dest}&depart={ida}&return={vuelta}&format=v3"
+    r = cr.get(u, impersonate="chrome", timeout=90, headers={"Accept": "application/json"})
+    r.raise_for_status()
+    d = r.json()
+    flights = d.get("flights") or {}
+    airlines = d.get("airlines") or {}
+    rows = []
+    for it in (d.get("itineraries") or {}).get("outbound") or []:
+        try:
+            cents = it.get("min_round_trip_price") or 0
+            if not cents:
+                continue
+            fl = flights.get(it.get("flight")) or {}
+            segs = fl.get("segments") or []
+            if not segs or (segs[0].get("departure") or {}).get("airport") != "SCL":
+                continue
+            arrF = (segs[-1].get("arrival") or {}).get("airport")
+            if arrF != dest:
+                continue
+            cod = segs[0].get("airline", "?")
+            nombre = (airlines.get(cod) or {}).get("name", cod)
+            escalas = max(len(segs) - 1, 0)
+            hora = ((segs[0].get("departure") or {}).get("time") or "")[11:16]
+            rows.append({"aerolinea": nombre, "cod": cod, "escalas": escalas,
+                         "clp": round(cents / 100.0 * fx),
+                         "det": f"{cod}{segs[0].get('flight_number','')} {hora} salida · {escalas} escala(s) ida"})
+        except Exception:
+            continue
+    if not rows:
+        return None
+    rows.sort(key=lambda x: x["clp"])
+    return {"min_clp": rows[0]["clp"], "aerolinea": rows[0]["aerolinea"], "cod_al": rows[0]["cod"],
+            "escalas": rows[0]["escalas"], "det": rows[0]["det"], "top": rows[:5],
+            "link": f"https://skiplagged.com/flights/SCL/{dest}/{ida}/{vuelta}?sort=cost"}
+
+def fetch_playas(prev, cycle):
+    """Escaneo de destinos de playa: Skiplagged (1 ventana rotativa por ciclo, todas al arrancar)
+    + Cocha real (rotación de N destinos por ciclo). Fusiona con la caché anterior."""
+    prev = prev or {}
+    prev_dest = {d["cod"]: d for d in (prev.get("destinos") or []) if isinstance(d, dict)}
+    full = os.environ.get("PLAYAS_FULL") == "1" or not prev_dest
+    wins = list(PLAYAS_WIN) if full else [PLAYAS_WIN[cycle % len(PLAYAS_WIN)]]
+    fx = usd_clp()
+    out = []
+    for cod, ciudad, pais, flag in PLAYAS_DEST:
+        pd = prev_dest.get(cod) or {}
+        wprev = {f"{w['ida']}_{w['vuelta']}": w for w in (pd.get("windows") or [])}
+        for ida, vuelta in wins:
+            try:
+                res = skiplagged_rt(cod, ida, vuelta, fx)
+                if res:
+                    wprev[f"{ida}_{vuelta}"] = {"ida": ida, "vuelta": vuelta, "ts": now_iso(), **res}
+                    print(f"playas {cod} {ida}: ${res['min_clp']:,}", flush=True)
+                else:
+                    print(f"playas {cod} {ida}: sin itinerarios", flush=True)
+            except Exception as e:
+                print(f"playas {cod} {ida} FAIL: {str(e)[:60]}", flush=True)
+        out.append({"cod": cod, "ciudad": ciudad, "pais": pais, "flag": flag,
+                    "windows": sorted(wprev.values(), key=lambda w: w["min_clp"]),
+                    "cocha": pd.get("cocha")})
+    # Cocha real: sin escanear primero, luego los más antiguos; lote por ciclo
+    lote_n = int(os.environ.get("PLAYAS_COCHA", "2"))
+    rot = [d for d in out if not d.get("cocha")][:lote_n]
+    if not rot:
+        rot = sorted([d for d in out if d.get("cocha")], key=lambda d: (d["cocha"] or {}).get("ts") or "")[:lote_n]
+    for d in rot:
+        ida, vuelta = wins[0]
+        try:
+            r = cocha_rt(ida, vuelta, dst=d["cod"])
+            if r:
+                d["cocha"] = {"ida": ida, "vuelta": vuelta, "min_clp": r[0]["clp"], "aerolinea": r[0]["aerolinea"],
+                              "escalas": r[0]["escalas"], "det": r[0]["det"], "ts": now_iso(),
+                              "link": f"https://www.cocha.com/resultado/vuelos/SCL/{d['cod']}/{ida}/1/Y?origin2={d['cod']}&destination2=SCL&date2={vuelta}"}
+                print(f"playas cocha {d['cod']}: ${r[0]['clp']:,}", flush=True)
+        except Exception as e:
+            print(f"playas cocha {d['cod']} FAIL: {str(e)[:60]}", flush=True)
+    # mejor opción por destino (Skiplagged + Cocha)
+    for d in out:
+        cands = [(w["min_clp"], "Skiplagged", w["ida"], w["vuelta"], w["aerolinea"], w["escalas"], w["det"], w["link"])
+                 for w in d["windows"]]
+        c = d.get("cocha")
+        if c and c.get("min_clp"):
+            cands.append((c["min_clp"], "Cocha real", c["ida"], c["vuelta"], c["aerolinea"], c["escalas"], c["det"], c["link"]))
+        if cands:
+            b = min(cands, key=lambda t: t[0])
+            d["mejor"] = {"clp": b[0], "src": b[1], "ida": b[2], "vuelta": b[3], "aerolinea": b[4],
+                          "escalas": b[5], "det": b[6], "link": b[7],
+                          "noches": (datetime.date.fromisoformat(b[3]) - datetime.date.fromisoformat(b[2])).days}
+        else:
+            d["mejor"] = None
+    out.sort(key=lambda d: (d["mejor"] is None, (d["mejor"] or {}).get("clp") or 0))
+    if not any(d.get("mejor") for d in out):
+        raise RuntimeError("playas sin resultados")
+    return {"destinos": out, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
+            "ventanas": [f"{a} → {b}" for a, b in PLAYAS_WIN],
+            "nota": "Metasearch en vivo Skiplagged (todas las aerolíneas, CLP vía dólar observado) + cotización real Cocha. Mismas reglas del viaje: ene–feb 2027, ≥9 noches, regreso ≤ 23-feb."}
+
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
     f = live.get("fuentes", {})
@@ -579,6 +699,11 @@ def minimos_de(live):
         m["Cocha SCL-Río"] = mn(f["cocha"].get("ventanas"), "min_clp")
     if (f.get("skiplagged") or {}).get("ok"):
         m["Skiplagged SCL-Río"] = mn(f["skiplagged"].get("ventanas"), "min_clp")
+    if (f.get("playas") or {}).get("ok"):
+        for d in (f["playas"].get("destinos") or []):
+            mj = d.get("mejor")
+            if mj and mj.get("clp"):
+                m[f"Playas {d['cod']}"] = mj["clp"]
     return m
 
 def main():
@@ -671,6 +796,18 @@ def main():
             f"{v['ida']}→{v['vuelta']} ${v['min_clp']:,}" for v in skl["ventanas"]), flush=True)
     except Exception as e:
         print(f"Skiplagged FAIL: {str(e)[:90]}", flush=True)
+    # 9) Playas LatAm: destinos de playa bajo presupuesto $500K (Skiplagged + Cocha real)
+    try:
+        pl = fetch_playas(LIVE["fuentes"].get("playas") or {}, cycle)
+        LIVE["fuentes"]["playas"] = {"ts": now_iso(), "ok": True, **pl}
+        bajos = [d for d in pl["destinos"] if d.get("mejor") and d["mejor"]["clp"] < pl["budget"]]
+        print(f"Playas OK: {len(bajos)}/{len(pl['destinos'])} bajo ${pl['budget']:,}" +
+              (f" | mejor: {bajos[0]['flag']} {bajos[0]['ciudad']} ${bajos[0]['mejor']['clp']:,}" if bajos else ""), flush=True)
+    except Exception as e:
+        print(f"Playas FAIL: {str(e)[:90]}", flush=True)
+        cur = LIVE["fuentes"].get("playas")
+        if cur is not None:
+            cur["ok"] = False
     # (espejo Google eliminado por pedido del usuario)
     LIVE["fuentes"].pop("google", None)
 

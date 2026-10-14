@@ -18,7 +18,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -65,7 +65,7 @@ jobs:
       - name: encadenar siguiente ciclo (~5 min)
         if: always()
         run: |
-          sleep 240
+          sleep 200
           CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
             -H "Authorization: token ${{ secrets.PUSH_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \

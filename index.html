@@ -210,6 +210,47 @@ details.acc .inner{padding:0 12px 13px}
 }
 [v-cloak]{display:none}
 
+/* ===== Playas LatAm: regla de precios + pases de abordar ===== */
+.ruler{margin:18px 0 8px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:34px 20px 10px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.rtrack{position:relative;height:92px}
+.rtrack::before{content:'';position:absolute;left:0;right:0;top:45px;height:2px;border-radius:1px;background:linear-gradient(90deg,rgba(110,231,183,.75),rgba(251,191,36,.6),rgba(251,113,133,.75))}
+.rbud{position:absolute;top:2px;bottom:26px;border-left:2px dashed var(--rose);z-index:2}
+.rbud span{position:absolute;top:-26px;left:-34px;font-size:.64rem;font-weight:800;color:var(--rose);white-space:nowrap;background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.4);border-radius:999px;padding:2px 9px}
+.rdot{position:absolute;top:38px;width:16px;height:16px;transform:translateX(-50%);cursor:default;z-index:1}
+.rdot::before{content:'';position:absolute;inset:1px;border-radius:50%;background:var(--rose);border:2px solid #12121b;box-shadow:0 0 10px rgba(251,113,133,.65)}
+.rdot.ok::before{background:var(--mint);box-shadow:0 0 12px rgba(110,231,183,.85)}
+.rdot .rf{position:absolute;left:50%;transform:translateX(-50%);top:-25px;font-size:.95rem;line-height:1;filter:drop-shadow(0 2px 5px rgba(0,0,0,.6))}
+.rdot .rl{position:absolute;left:50%;transform:translateX(-50%);top:17px;font-size:.58rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--mut)}
+.rdot.ok .rl{color:var(--mint)}
+.rdot.alt .rf{top:-46px}
+.rdot.alt .rl{top:33px}
+.raxis{display:flex;justify-content:space-between;align-items:center;font-size:.62rem;color:var(--mut2);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;border-top:1px solid var(--line);padding-top:7px}
+.bplist{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:13px;margin:14px 0}
+.bp{display:grid;grid-template-columns:120px 1fr;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;position:relative;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow);transition:transform .22s,border-color .22s,box-shadow .22s}
+.bp:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.bp .stub{position:relative;padding:14px 9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(165deg,rgba(110,231,183,.15),rgba(34,211,238,.07));border-right:2px dashed rgba(255,255,255,.25)}
+.bp .stub::before,.bp .stub::after{content:'';position:absolute;right:-10px;width:18px;height:18px;border-radius:50%;background:#0f0f17;border:1px solid var(--line)}
+.bp .stub::before{top:-10px}
+.bp .stub::after{bottom:-10px}
+.sroute{font-size:.58rem;font-weight:800;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
+.bpri{font-size:1.18rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;text-align:center;line-height:1.15}
+.bsrc{font-size:.55rem;color:var(--mut2);text-transform:uppercase;letter-spacing:.07em;font-weight:700;text-align:center}
+.barcode{width:74%;height:26px;margin-top:8px;border-radius:2px;opacity:.5;background:repeating-linear-gradient(90deg,var(--txt) 0 2px,transparent 2px 4px,var(--txt) 4px 5px,transparent 5px 9px,var(--txt) 9px 12px,transparent 12px 14px)}
+.bpbody{padding:13px 15px;min-width:0}
+.bpcity{font-size:1.02rem;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.bpcty{font-size:.62rem;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-left:7px}
+.bpdates{font-size:.73rem;color:var(--mut);margin:6px 0 4px;line-height:1.55}
+.bptot{font-size:.72rem;color:var(--mint);font-weight:700}
+.bp .cta{justify-content:flex-start;margin-top:10px;flex-wrap:wrap}
+.bp .acc summary{padding:10px 12px;font-size:.74rem}
+.rrow.over .rp{color:var(--rose)}
+@media(max-width:720px){
+ .bplist{grid-template-columns:1fr}
+ .bp{grid-template-columns:100px 1fr}
+ .ruler{padding:30px 12px 8px}
+ .rdot .rl{font-size:.52rem}
+}
+
 </style></head><body>
 <div class="aurora3"></div><div class="grain"></div>
 <div id="app">
@@ -416,8 +457,65 @@ details.acc .inner{padding:0 12px 13px}
     <div class="b">Búzios se vuela vía Río (GIG), ya cubierto en las demás pestañas. Δ verde = dentro de +20% o más barato que Río.</div>
    </div></details>
   </section>
-  <!-- 4 AGENCIAS -->
+  <!-- 4 PLAYAS LATAM -->
   <section :class="{on:cur===4}">
+   <div class="ok">🌎 <b>Playas de Latinoamérica bajo {{kfmt(playas.budget||500000)}} CLP</b> ida y vuelta por persona, con las mismas reglas del viaje (ene–feb 2027, ≥9 noches, regreso ≤ 23-feb). Escaneo en vivo: Skiplagged (todas las aerolíneas del mundo) + cotización real Cocha. <b>{{playasOk.length}} destinos califican</b> de {{playasRows.length}} con precio.</div>
+   <template v-if="playasAxis">
+   <div class="ruler">
+    <div class="rtrack">
+     <div class="rbud" :style="{left:playasAxis.budPct+'%'}"><span>💰 {{kfmt(playas.budget||500000)}}</span></div>
+     <div v-for="(d,i) in playasRows" :key="'r'+d.cod" class="rdot" :class="{ok:d.califica,alt:i%2}" :style="{left:playasAxis.pos(d.mejor.clp)+'%'}" :title="d.flag+' '+d.ciudad+' · '+fmt(d.mejor.clp)+' pp · '+d.mejor.aerolinea+' · '+d.mejor.src">
+      <span class="rf">{{d.flag}}</span><span class="rl">{{kfmt(d.mejor.clp)}}</span>
+     </div>
+    </div>
+    <div class="raxis"><span>{{kfmt(playasAxis.lo)}}</span><span class="b">◀ más barato · más caro ▶ · línea roja = presupuesto</span><span>{{kfmt(playasAxis.hi)}}</span></div>
+   </div>
+   <h2>🎫 Pases de abordar bajo presupuesto</h2>
+   <div class="b" style="margin:-4px 0 2px">Cada pase = la opción más barata encontrada para ese destino (mejor ventana entre las 3 cotizadas y la mejor fuente). Tócalo para ver las demás ventanas.</div>
+   <div class="bplist">
+    <div class="bp" v-for="d in playasOk" :key="'bp'+d.cod">
+     <div class="stub">
+      <div class="sroute">SCL ✈ {{d.cod}}</div>
+      <div class="bpri">{{fmt(d.mejor.clp)}}</div>
+      <div class="bsrc">{{d.mejor.src}} · pp RT</div>
+      <div class="barcode"></div>
+     </div>
+     <div class="bpbody">
+      <div class="bpcity">{{d.flag}} {{d.ciudad}}<span class="bpcty">{{d.pais}}</span></div>
+      <div class="bpdates">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.noches}} noches<br>{{d.mejor.escalas===0?'✈️ directo':d.mejor.escalas+' escala(s)'}} · {{d.mejor.aerolinea}}</div>
+      <div class="bptot">{{pax}} pax ≈ {{fmt(d.mejor.clp*pax)}} · ahorras {{fmt(d.ahorro)}} pp vs presupuesto</div>
+      <div class="cta">
+       <a class="btn" :href="d.mejor.link" target="_blank" rel="noopener">Comprar ↗</a>
+       <a class="btn ghost" v-if="d.cocha&&d.cocha.min_clp&&d.mejor.src!=='Cocha real'" :href="d.cocha.link" target="_blank" rel="noopener">Cocha {{fmt(d.cocha.min_clp)}} ↗</a>
+      </div>
+      <details class="acc" v-if="(d.windows||[]).length" style="margin-bottom:0"><summary>{{(d.windows||[]).length}} ventanas en Skiplagged{{d.cocha?' + Cocha real':''}}</summary><div class="inner"><div class="wrows">
+       <div class="wrow" v-for="w in d.windows" :key="w.ida+w.vuelta"><span class="wa">{{dw(w.ida)}} {{w.ida}} → {{dw(w.vuelta)}} {{w.vuelta}}</span><span class="b">{{w.aerolinea}} · {{w.escalas===0?'directo':w.escalas+' esc.'}}</span><span class="wp">{{fmt(w.min_clp)}}</span><a class="b" :href="w.link" target="_blank" rel="noopener">Abrir ↗</a></div>
+       <div class="wrow" v-if="d.cocha&&d.cocha.min_clp"><span class="wa">Cocha real · {{dw(d.cocha.ida)}} {{d.cocha.ida}} → {{dw(d.cocha.vuelta)}} {{d.cocha.vuelta}}</span><span class="b">{{d.cocha.aerolinea}} · {{d.cocha.escalas===0?'directo':d.cocha.escalas+' esc.'}}</span><span class="wp">{{fmt(d.cocha.min_clp)}}</span><a class="b" :href="d.cocha.link" target="_blank" rel="noopener">Abrir ↗</a></div>
+      </div></div></details>
+     </div>
+    </div>
+   </div>
+   <h2 v-if="playasNo.length">Fuera de presupuesto <span class="b">(≥ {{kfmt(playas.budget||500000)}} pp — referencia por si aparece una oferta)</span></h2>
+   <div class="rlist">
+    <div class="rrow over" v-for="d in playasNo" :key="'o'+d.cod">
+     <div class="rk">{{d.flag}}</div>
+     <div class="info"><b>{{d.ciudad}}</b> ({{d.cod}})<div class="b">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.aerolinea}} · {{d.mejor.escalas===0?'directo':d.mejor.escalas+' escalas'}} · {{d.mejor.src}}</div></div>
+     <div class="rp">{{fmt(d.mejor.clp)}} <span class="b" style="color:var(--rose)">+{{fmt(-d.ahorro)}} sobre</span></div>
+     <a class="btn ghost" :href="d.mejor.link" target="_blank" rel="noopener">Ver ↗</a>
+    </div>
+   </div>
+   <div class="warnbox" v-if="playasSin.length">⏳ Sin itinerarios publicados en este ciclo: {{playasSin.map(d=>d.flag+' '+d.ciudad).join(' · ')}} — el sistema reintenta solo.</div>
+   <details class="acc"><summary>📋 Tabla completa: todos los destinos, ventanas y fuentes</summary><div class="inner">
+    <div class="tbl"><table><tr><th>Destino</th><th>Mejor RT pp</th><th>Fuente</th><th>Ventana</th><th>Aerolínea</th><th>Escalas</th><th>{{pax}} pax</th><th>vs presupuesto</th><th>Ir</th></tr>
+     <tr v-for="d in playasRows" :key="'t'+d.cod"><td><b>{{d.flag}} {{d.ciudad}}</b> ({{d.cod}})</td><td class="p"><b>{{fmt(d.mejor.clp)}}</b></td><td class="b">{{d.mejor.src}}</td><td class="b">{{d.mejor.ida}} → {{d.mejor.vuelta}}</td><td>{{d.mejor.aerolinea}}</td><td>{{d.mejor.escalas===0?'Directo ✈️':d.mejor.escalas}}</td><td class="p">{{fmt(d.mejor.clp*pax)}}</td><td class="p">{{d.califica?'✓ −'+fmt(d.ahorro):'+'+fmt(-d.ahorro)}}</td><td><a class="btn" :class="d.califica?'':'ghost'" :href="d.mejor.link" target="_blank" rel="noopener">↗</a></td></tr>
+    </table></div>
+    <div class="b">Skiplagged = metasearch en vivo (USD→CLP dólar observado ${{Math.round(playas.fx||0).toLocaleString('es-CL')}}), precio no garantizado en checkout; Cocha = cotización real. Último escaneo: {{playas.ts||'—'}} (UTC). Ventanas: {{(playas.ventanas||[]).join(' · ')}}. Reglas: ≥9 noches, regreso ≤ 23-feb-2027.</div>
+   </div></details>
+   </template>
+   <div class="warnbox" v-else>⏳ Primer escaneo de playas en curso — en minutos aparecen aquí los destinos bajo presupuesto (se refresca solo).</div>
+  </section>
+  <!-- 5 AGENCIAS -->
+  <section :class="{on:cur===5}">
    <div class="ok">🏬 <b>Agencias y metasearch en vivo</b>: Cocha (cotización real multi-aerolínea) y Skiplagged (10+ aerolíneas del mundo). Solo el top de cada búsqueda a la vista; el detalle completo se despliega.</div>
    <div class="warnbox" v-if="!esFresca(cocha.ts)">🕘 Última cotización Cocha exitosa: {{cocha.ts||'—'}} (UTC). El sistema reintenta cada ciclo y conserva el último dato real.</div>
    <div class="wcard" v-for="v in cocha.ventanas||[]" :key="'c'+v.ida">
@@ -477,8 +575,8 @@ details.acc .inner{padding:0 12px 13px}
     </div></details>
    </div>
   </section>
-  <!-- 5 ALERTAS -->
-  <section :class="{on:cur===5}">
+  <!-- 6 ALERTAS -->
+  <section :class="{on:cur===6}">
    <div class="ok">🔔 <b>Alertas de bajada de precio.</b> Cada ~5 min el sistema compara los mínimos de JetSMART, SKY, LATAM, Cocha y Skiplagged. Cuando algo baja ≥ $1.000 (≥0,5%), queda registrado aquí (y se enviará por correo cuando se configure SMTP).</div>
    <div class="wcard">
     <div class="kicker" style="margin-bottom:8px">📧 SUSCRIBIR MI CORREO</div>
@@ -498,8 +596,8 @@ details.acc .inner{padding:0 12px 13px}
    </div>
    <div class="warnbox" v-else>Todavía no se registran bajadas desde la activación del sistema.</div>
   </section>
-  <!-- 6 CUPONES -->
-  <section :class="{on:cur===6}">
+  <!-- 7 CUPONES -->
+  <section :class="{on:cur===7}">
    <div class="warnbox">⏰ <b>CyberMonday Chile terminó el 7-oct.</b> Estos cupones se mantienen como referencia: varios siguen activos en las páginas oficiales (stock limitado, generalmente un uso por cliente). Pruébalos en el checkout ("¿Tienes un cupón?").</div>
    <div class="cgrid">
     <div class="ccard mini" v-for="c in COUPONS" :key="c.code">
@@ -525,9 +623,9 @@ const NOMS={JA:'JetSMART',H2:'SKY Airline',LA:'LATAM',LU:'LATAM',G3:'GOL',AD:'Az
 const {createApp}=Vue;
 createApp({
  data:()=>({DATA:null,SUBS:[],mail:'',cur:0,fi:'',fv:'',fatal:false,selDate:'',calMode:'ida',
-  TABS:['🏆 Hoy','📅 Calendario de precios','✈️ Aerolíneas','🇧🇷 Brasil','🏬 Agencias','🔔 Alertas','🎟️ Cupones'],
+  TABS:['🏆 Hoy','📅 Calendario de precios','✈️ Aerolíneas','🇧🇷 Brasil','🌎 Playas <$500K','🏬 Agencias','🔔 Alertas','🎟️ Cupones'],
   COUPONS:[{code:'SUD10SKY',desc:'10% dcto en vuelos y paquetes a Brasil vía SKY',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWAM',desc:'hasta $100.000 dcto hoteles/paquetes WAM (Búzios, Fortaleza, Porto Seguro)',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'RITZ2X',desc:'hasta $70.000 dcto hoteles Rede Ritz Brasil',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWISH',desc:'$80.000 dcto paquetes hoteles Wish/Prodigy/Linx',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XBEACHPARK',desc:'$200.000 dcto paquetes Beach Park',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'CAMBORIU2X',desc:'hasta $100.000 dcto hotel Marambaia Camboriú',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'Cupón CMR Sudamérica',desc:'$60.000 web / $80.000 presencial en paquetes (mín $900K web, aplica Brasil)',where:'Falabella Oportunidad Única',url:'https://www.viajesfalabella.cl/ofertas-viajes/oportunidad-unica'},{code:'CYBERPAQ',desc:'$100.000 dcto viajes internacionales',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'SKY + cyber.cl',desc:'$80.000 dcto paquetes a Sudamérica',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'Iberostar cyber.cl',desc:'$150.000 dcto paquetes Caribe y Brasil',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'CYBERASISTENCIA20',desc:'20% dcto asistencia Universal Assistance (tope $50K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/asistencia-al-viajero'},{code:'LOCALIZA25',desc:'15% dcto autos en Brasil (tope $25K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/autos'}],
- NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha',skiplagged:'Skiplagged'},
+ NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha',skiplagged:'Skiplagged',playas:'Playas LatAm'},
   pax:1,PAXOPTS:[1,2,4,5,9]}),
  computed:{
   F(){return this.DATA?.fuentes||{}},
@@ -566,6 +664,15 @@ createApp({
    sugg.sort((a,b)=>a.min-b.min);
    return {opts:opts.slice(0,8),sugg:sugg.slice(0,6)}},
   brasilBars(){const b=this.cocha.brasil||[];if(!b.length)return[];const mx=Math.max(...b.map(x=>x.min_clp));return b.map(x=>({...x,w:Math.max(6,Math.round(x.min_clp/mx*100)),good:(x.delta_pct??99)<=20}))},
+  playas(){return this.F.playas||{}},
+  playasRows(){const p=this.playas;const budget=p.budget||500000;
+   return (p.destinos||[]).filter(d=>d.mejor&&d.mejor.clp>0).map(d=>({...d,califica:d.mejor.clp<budget,ahorro:budget-d.mejor.clp})).sort((a,b)=>a.mejor.clp-b.mejor.clp)},
+  playasOk(){return this.playasRows.filter(d=>d.califica)},
+  playasNo(){return this.playasRows.filter(d=>!d.califica)},
+  playasSin(){return ((this.playas.destinos)||[]).filter(d=>!d.mejor)},
+  playasAxis(){const r=this.playasRows;const budget=this.playas.budget||500000;if(!r.length)return null;
+   const vals=r.map(d=>d.mejor.clp);const lo=Math.max(0,Math.min(...vals)*0.9),hi=Math.max(...vals,budget)*1.06;
+   return {lo,hi,budPct:(budget-lo)/(hi-lo)*100,pos:c2=>Math.max(1.5,Math.min(98.5,(c2-lo)/(hi-lo)*100))}},
   js(){return this.F.jetsmart||{}},
   sky(){return this.F.sky||{}},
   lat(){return this.F.latam||{}},
