@@ -75,6 +75,11 @@ def scan_site(pg, name, log):
             pg.wait_for_timeout(6000)
             precios = wait_prices(pg, 50000)
             html = pg.content()
+            try:
+                tsec = pg.evaluate("() => document.body ? document.body.innerText.slice(0, 220) : ''").replace("\n", " ")
+                log(f"{name} {o}->{d} {fecha}: pg[{pg.title()[:40]}] txt[{tsec[:150]}]")
+            except Exception:
+                pass
             cal = [{"fecha": m.group(3), "clp": int(m.group(4))}
                    for m in CAL_RE.finditer(html)
                    if PRICE_MIN < int(m.group(4)) < PRICE_MAX]
