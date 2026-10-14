@@ -251,7 +251,7 @@ if (pl.ok && (pl.destinos || []).length) {
   ok(rows.every(d => d.mejor.vuelta <= '2027-02-23'), 'playas vuelta <= 23-feb');
   let wbad = [];
   for (const d of rows) for (const w of d.windows || []) {
-    if (!(money(w.min_clp) && w.ida < w.vuelta && (w.link || '').includes('skiplagged.com'))) wbad.push(d.cod + ':' + w.ida);
+    if (!((w.min_clp > 30000 && isFinite(w.min_clp)) && w.ida < w.vuelta && (w.link || '').includes('skiplagged.com'))) wbad.push(d.cod + ':' + w.ida);
   }
   ok(wbad.length === 0, 'ventanas skiplagged validas (precio/fechas/link)', wbad);
   const ax = vm.playasAxis;
