@@ -732,18 +732,51 @@ def main():
     except Exception as e:
         print(f"SKY FAIL: {str(e)[:100]}", flush=True)
         LIVE["fuentes"].setdefault("sky", {})["ok"] = False
-    # 3) Falabella (conserva último dato si WAF bloquea)
-    if HAS_CURL:
-        try:
-            fa = fetch_falabella()
-            if any(r.get("min_clp") for r in fa["dias"]):
+    # 3+6) Falabella/Despegar vía navegador stealth (bypass DataDome verificado en Actions)
+    try:
+        import fetch_otas
+        if fetch_otas.HAS_CAMOUFOX:
+            otas = fetch_otas.fetch_otas(log=lambda m: print(m, flush=True))
+            fa_dias = otas.get("falabella") or {}
+            de_dias = otas.get("despegar") or {}
+            if any(d.get("min_clp") for d in fa_dias.get("dias", [])):
                 LIVE["fuentes"]["falabella"] = {"ts": now_iso(), "ok": True,
-                                                "nota": "caché SSR 1 adulto — solo referencia", **fa}
-                print("Falabella OK", flush=True)
+                    "nota": "lectura stealth 1 adulto (navegador real, DataDome bypass) — precio de referencia",
+                    **fa_dias}
+                print(f"Falabella CAMOUFOX OK: {fetch_otas.ok(fa_dias['dias'])} lecturas", flush=True)
             else:
-                print("Falabella WAF: se conserva último dato", flush=True)
-        except Exception as e:
-            print(f"Falabella FAIL: {str(e)[:80]}", flush=True)
+                print("Falabella stealth sin precios: se conserva último dato", flush=True)
+            if any(d.get("min_clp") for d in de_dias.get("dias", [])):
+                LIVE["fuentes"]["despegar"] = {"ts": now_iso(), "ok": True,
+                    "nota": "lectura stealth 1 adulto (navegador real, DataDome bypass) — precio de referencia",
+                    **de_dias}
+                print(f"Despegar CAMOUFOX OK: {fetch_otas.ok(de_dias['dias'])} lecturas", flush=True)
+            else:
+                print("Despegar stealth sin precios: se conserva último dato", flush=True)
+        else:
+            raise RuntimeError("sin camoufox")
+    except Exception as e:
+        print(f"OTAs stealth FAIL ({str(e)[:60]}) — fallback SSR", flush=True)
+        if HAS_CURL:
+            try:
+                fa = fetch_falabella()
+                if any(r.get("min_clp") for r in fa["dias"]):
+                    LIVE["fuentes"]["falabella"] = {"ts": now_iso(), "ok": True,
+                                                    "nota": "caché SSR 1 adulto — solo referencia", **fa}
+                    print("Falabella SSR OK", flush=True)
+                else:
+                    print("Falabella WAF: se conserva último dato", flush=True)
+            except Exception as e:
+                print(f"Falabella FAIL: {str(e)[:80]}", flush=True)
+            try:
+                de = fetch_despegar()
+                if any(r.get("min_clp") for r in de["dias"]):
+                    LIVE["fuentes"]["despegar"] = {"ts": now_iso(), "ok": True, "nota": "SSR público — referencia", **de}
+                    print("Despegar SSR OK", flush=True)
+                else:
+                    print("Despegar WAF: se conserva último dato", flush=True)
+            except Exception as e:
+                print(f"Despegar FAIL: {str(e)[:80]}", flush=True)
     # 5) LATAM oficial (BFF calendario)
     try:
         la = fetch_latam()
@@ -754,16 +787,6 @@ def main():
         cur = LIVE["fuentes"].get("latam")
         if cur is not None:
             cur["ok"] = False
-    # 6) Despegar SSR
-    try:
-        de = fetch_despegar()
-        if any(r.get("min_clp") for r in de["dias"]):
-            LIVE["fuentes"]["despegar"] = {"ts": now_iso(), "ok": True, "nota": "SSR público — referencia", **de}
-            print("Despegar OK", flush=True)
-        else:
-            print("Despegar WAF: se conserva último dato", flush=True)
-    except Exception as e:
-        print(f"Despegar FAIL: {str(e)[:80]}", flush=True)
     # 7) Cocha: cotización REAL por API + tarjetas SSR de respaldo
     try:
         co_live = fetch_cocha_live(LIVE["fuentes"].get("cocha") or {})

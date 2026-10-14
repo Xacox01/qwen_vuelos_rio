@@ -18,7 +18,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
 
@@ -26,8 +26,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/camoufox
+          key: camoufox-browser-v156
+
       - name: dependencias
-        run: pip install -q curl_cffi
+        run: |
+          pip install -q curl_cffi camoufox
+          python -m camoufox fetch || (python -m camoufox sync && python -m camoufox fetch) || echo "::warning::camoufox no disponible, se usará fallback SSR"
 
       - name: refrescar precios
         run: python scraper.py

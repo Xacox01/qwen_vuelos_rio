@@ -141,7 +141,7 @@ for (const tag of ['<html', '<head>', '</head>', '<style>', '</style>', '<body>'
 }
 ok(html.indexOf('</style>') < html.indexOf('<div id="app">'), 'el CSS está antes del #app');
 ok(html.indexOf('<style>') < html.indexOf('</style>'), 'bloque <style> cerrado correctamente');
-ok(html.includes('aurora3') && html.includes('grain'), 'capas de fondo aurora presentes');
+ok(html.includes('class="mark"') && html.includes('livepill'), 'logo + pill EN VIVO presentes');
 ok((html.match(/<style>/g) || []).length === 1, 'un solo bloque <style>');
 ok((html.match(/<div id="app">/g) || []).length === 1, 'un solo #app');
 
@@ -226,14 +226,14 @@ if (bb.length) {
 } else console.log('  -- brasilBars vacio (cocha.brasil pendiente esta pasada)');
 
 console.log('== P21. Marcadores de plantilla ==');
-for (const m of ['class="ticker"', 'class="cals"', 'class="podium"', 'class="rlist"', 'class="bars"', 'class="tl"', 'class="code"', 'dayMin(', 'dayOk(', 'rtLinks(', 'brasilBars', 'selInfo']) {
+for (const m of ['class="ticker"', 'class="cals"', 'class="podium"', 'class="rlist"', 'class="deals"', 'class="tl"', 'class="code"', 'dayMin(', 'dayOk(', 'rtLinks(', 'brasilBars', 'selInfo', 'class="hero"', 'class="kpi"']) {
   ok(html.includes(m), 'plantilla contiene ' + m);
 }
 ok((html.match(/details class="acc"/g) || []).length >= 8, '>=8 acordeones de detalle', (html.match(/details class="acc"/g) || []).length);
 ok(html.includes("calMode==='ida'") && html.includes("calMode==='vuelta'"), 'selector ida/vuelta presente');
 
 console.log('== P22. Playas LatAm ==');
-for (const m2 of ['class="ruler"', 'class="bp"', 'class="stub"', 'barcode', 'rbud', 'playasRows', 'playasAxis', 'Playas <$500K']) {
+for (const m2 of ['class="ruler"', 'class="deal"', 'class="dflag"', 'class="dmeter"', 'rbud', 'playasRows', 'playasAxis', 'Pases de abordar']) {
   ok(html.includes(m2), 'plantilla contiene ' + m2);
 }
 const pl = f.playas || {};
@@ -267,16 +267,17 @@ if (pl.ok && (pl.destinos || []).length) {
 }
 
 console.log('== P23. Tema claro + merchandising ==');
-ok(html.includes('--bg:#f4f7fb'), 'fondo claro definido');
+ok(html.includes('--bg:#f5f7fc'), 'fondo claro definido');
 ok(!html.includes('#070b14'), 'sin restos del fondo oscuro');
-for (const m3 of ['class="promo"', 'class="chips"', 'class="pkg"', 'alojaB(', 'alojaA(', 'gigRef', 'playasVsRio']) {
+for (const m3 of ['class="dsave"', 'class="chips"', 'class="dpkg"', 'alojaB(', 'alojaA(', 'gigRef', 'ofertas()', 'ahorroVsRio', 'mejorPlaya', 'copyCode(', 'hace(', 'ciudadCorta(']) {
   ok(html.includes(m3), 'plantilla contiene ' + m3);
 }
-ok((vm.heatTxt(400000).color || '').includes('78%,30%'), 'heatTxt oscuro legible en claro', vm.heatTxt(400000));
+ok((vm.heatTxt(400000).color || '').includes('72%,28%'), 'heatTxt oscuro legible en claro', vm.heatTxt(400000));
 if ((pl.ok) && (pl.destinos || []).length) {
   ok(vm.gigRef > 0, 'gigRef con precio de Rio', vm.gigRef);
-  const vs = vm.playasVsRio;
-  ok(vs && vs.best.cod !== 'GIG' && typeof vs.diff === 'number', 'playasVsRio compara mejor destino vs Rio', vs && [vs.best.cod, vs.diff]);
+  const of = vm.ofertas;
+  ok(Array.isArray(of) && of.length >= 1 && of.every(d => typeof d.ahorroVsRio === 'number'), 'ofertas con ahorroVsRio calculado', of.length);
+  ok(vm.mejorPlaya && vm.mejorPlaya.cod !== 'GIG', 'mejorPlaya existe y no es Rio', vm.mejorPlaya && vm.mejorPlaya.cod);
   const dTest = vm.playasOk[0];
   if (dTest) {
     ok(vm.alojaB(dTest).includes('booking.com') && vm.alojaB(dTest).includes(dTest.mejor.ida), 'alojaB Booking con fechas', vm.alojaB(dTest).slice(0, 90));

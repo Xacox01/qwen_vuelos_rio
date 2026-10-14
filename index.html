@@ -1,309 +1,325 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f4f7fb">
-<meta name="description" content="Dashboard en vivo: vuelos más baratos Santiago⇄Río de Janeiro y playas de Latinoamérica bajo $500.000, ene–feb 2027. Precios reales de APIs oficiales, Cocha y Skiplagged.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✈️%3C/text%3E%3C/svg%3E">
-<title>Vuelos SCL⇄Río y Playas LatAm · EN VIVO · ene–feb 2027</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Radar en vivo: vuelos Santiago⇄Río de Janeiro ene–feb 2027 y las mejores playas de Latinoamérica bajo $500.000. Precios reales de APIs oficiales, Cocha, Skiplagged, Falabella y Despegar.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%88%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<title>Radar Río · Vuelos SCL⇄GIG y playas LatAm en vivo · ene–feb 2027</title>
 <style>
 :root{
- --bg:#f4f7fb;--panel:#ffffff;--panel2:#f1f5f9;
- --line:#e3e9f2;--line2:#c9d6e6;
- --txt:#0f172a;--mut:#51607a;--mut2:#7c8db0;
- --mint:#047857;--cyan:#0e7490;--vio:#6d28d9;--amber:#b45309;--rose:#be123c;
- --grad:linear-gradient(92deg,#047857,#0e7490 60%,#1d4ed8);
- --r:16px;--shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px rgba(15,23,42,.07)
+ --bg:#f5f7fc;--surface:#ffffff;--soft:#f8fafd;
+ --ink:#0b1220;--mut:#54617c;--mut2:#8894ad;
+ --line:#e5eaf4;--line2:#d3dcee;
+ --brand:#4f46e5;--brand2:#0891b2;
+ --grad:linear-gradient(115deg,#4f46e5 0%,#2563eb 48%,#0891b2 100%);
+ --good:#059669;--goodbg:#ecfdf5;--goodln:#a7f3d0;
+ --warn:#b45309;--warnbg:#fffbeb;--warnln:#fde68a;
+ --bad:#e11d48;--badbg:#fff1f2;
+ --r:20px;--r2:14px;--r3:11px;
+ --sh1:0 1px 2px rgba(11,18,32,.05);
+ --sh2:0 2px 6px rgba(11,18,32,.05),0 14px 36px rgba(11,18,32,.07);
+ --sh3:0 6px 16px rgba(11,18,32,.09),0 28px 56px rgba(11,18,32,.11);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;margin:0;color:var(--txt);-webkit-font-smoothing:antialiased;background:var(--bg);min-height:100vh;overflow-x:hidden;font-size:15px}
-/* ---- lavados suaves de fondo (profesional, no distractores) ---- */
-body::before,body::after{content:'';position:fixed;z-index:-2;border-radius:50%;filter:blur(90px);pointer-events:none}
-body::before{width:56vw;height:44vw;left:-14vw;top:-16vw;background:radial-gradient(circle at 30% 30%,rgba(14,116,144,.10),transparent 65%)}
-body::after{width:48vw;height:40vw;right:-12vw;top:8vh;background:radial-gradient(circle at 60% 40%,rgba(4,120,87,.08),transparent 60%)}
-.aurora3{position:fixed;z-index:-2;left:38vw;bottom:-24vw;width:52vw;height:44vw;border-radius:50%;filter:blur(110px);background:radial-gradient(circle at 50% 50%,rgba(37,99,235,.07),transparent 62%);pointer-events:none}
-.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
-/* ---- header ---- */
-header{position:sticky;top:0;z-index:20;padding:13px 16px 11px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid var(--line)}
-.hwrap{max-width:1120px;margin:0 auto}
-.htop{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.logo{display:flex;align-items:center;gap:11px}
-.logo .plane{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:1.2rem;background:var(--grad);box-shadow:0 4px 14px rgba(14,116,144,.3);flex:0 0 auto}
-h1{margin:0;font-size:clamp(1.02rem,4vw,1.32rem);font-weight:800;letter-spacing:-.02em;color:var(--txt)}
-h1 .route{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.live{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:800;letter-spacing:.14em;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:4px 11px;border-radius:999px;text-transform:uppercase;margin-left:auto}
-.live::before{content:'';width:7px;height:7px;border-radius:50%;background:#10b981;animation:pulse 1.8s ease-out infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}70%{box-shadow:0 0 0 8px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
-.sub{color:var(--mut);font-size:clamp(.72rem,2.6vw,.82rem);margin-top:4px}
-.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.badge{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line);color:var(--mut);border-radius:999px;padding:3px 11px;font-size:.7rem;white-space:nowrap;font-weight:600}
-.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#10b981;flex:0 0 auto}
-.badge.warn{color:var(--amber);border-color:#fde68a;background:#fffbeb}
-.badge.warn::before{background:#f59e0b}
-.badge.info::before{background:#3b82f6}
-/* selector pax segmentado */
-.paxrow{display:flex;gap:9px;align-items:center;margin-top:10px;flex-wrap:wrap}
-.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
-.seg button{border:0;background:transparent;color:var(--mut);font:inherit;font-size:.78rem;font-weight:700;padding:5px 13px;border-radius:999px;cursor:pointer;transition:.18s}
-.seg button:hover{color:var(--txt)}
-.seg button.on{background:var(--grad);color:#fff;box-shadow:0 2px 8px rgba(14,116,144,.35)}
-/* ---- nav ---- */
-nav{display:flex;gap:7px;overflow-x:auto;padding:10px 12px;position:sticky;top:0;z-index:19;scrollbar-width:none;background:rgba(244,247,251,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-nav::-webkit-scrollbar{display:none}
-nav .navwrap{display:flex;gap:7px;max-width:1120px;margin:0 auto}
-nav button{flex:0 0 auto;background:#fff;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;font:inherit;font-size:.78rem;font-weight:600;transition:.2s;white-space:nowrap}
-nav button:hover{color:var(--txt);border-color:var(--line2);transform:translateY(-1px)}
-nav button.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 3px 12px rgba(14,116,144,.3);font-weight:800}
-/* ---- layout ---- */
-main{padding:16px 14px 70px;max-width:1120px;margin:0 auto}
-section{display:none}
-section.on{display:block;animation:fadeUp .38s cubic-bezier(.22,1,.36,1)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-/* ---- paneles / notas ---- */
-.ok,.warnbox{border-radius:13px;padding:11px 14px;font-size:.82rem;margin:12px 0;line-height:1.55}
-.ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
-.warnbox{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
-.ok b,.warnbox b{color:inherit;font-weight:800}
-.hero{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin:12px 0;font-size:.88rem;line-height:1.55;box-shadow:var(--shadow);overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--grad);opacity:.9}
-.hero b{color:var(--mint);font-size:1rem}
-/* ---- bento portada ---- */
-.bento{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:14px 0}
-.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);transition:.25s;position:relative;overflow:hidden}
-.tile:hover{border-color:var(--line2);transform:translateY(-2px)}
-.champ{grid-column:1/-1;text-align:center;padding:28px 22px 24px;background:linear-gradient(165deg,#f0fdf9,#f0f7ff 55%,#f5f3ff);border:1px solid #c7e5d8}
-.champ::after{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(14,116,144,.10),transparent 65%);top:-190px;left:50%;transform:translateX(-50%);filter:blur(30px);pointer-events:none}
-.kicker{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--mut2)}
-.champ .kicker{color:#0e7490}
-.big{font-size:clamp(2.1rem,7vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1.06;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;margin:5px 0 2px}
-.tile .big{font-size:1.7rem;margin:6px 0 4px}
-.pp{font-size:.72rem;color:var(--mut);font-weight:600;-webkit-text-fill-color:var(--mut)}
-.gtot{color:var(--mut);font-size:.82rem}
-.gtot b{color:var(--txt);font-size:.95rem}
-.ctitle{font-weight:800;font-size:.98rem;margin:9px 0 3px;letter-spacing:-.01em;color:var(--txt)}
-.cdates{color:#334155;font-size:.86rem;font-weight:600}
-.cdet{color:var(--mut);font-size:.75rem;margin-top:4px;line-height:1.5}
-.cta{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.tile .cta{justify-content:flex-start;margin-top:12px}
-/* ---- botones ---- */
-.btn{display:inline-flex;align-items:center;gap:5px;background:var(--grad);color:#fff!important;border-radius:999px;padding:8px 16px;font-weight:800;font-size:.76rem;text-decoration:none;transition:.2s;box-shadow:0 2px 10px rgba(14,116,144,.28);white-space:nowrap;border:0;cursor:pointer}
-.btn:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(14,116,144,.38);filter:brightness(1.06)}
-.btn:active{transform:translateY(0)}
-.btn.sky{background:linear-gradient(92deg,#7c3aed,#6366f1);box-shadow:0 2px 10px rgba(124,58,237,.3)}
-.btn.ggl{background:linear-gradient(92deg,#2563eb,#0ea5e9);box-shadow:0 2px 10px rgba(37,99,235,.3)}
-.btn.fal{background:linear-gradient(92deg,#d97706,#ea580c);box-shadow:0 2px 10px rgba(217,119,6,.3)}
-.btn.ghost{background:#fff;color:#0f172a!important;border:1px solid var(--line2);box-shadow:none;font-weight:700}
-.btn.ghost:hover{border-color:#94a3b8;background:#f8fafc}
-/* ---- tablas ---- */
-.tbl{overflow:auto;max-height:66vh;border:1px solid var(--line);border-radius:var(--r);margin:12px 0;background:#fff;overscroll-behavior:contain;box-shadow:var(--shadow)}
-table{border-collapse:separate;border-spacing:0;width:100%;font-size:.8rem;min-width:560px}
-th{background:#f6f8fc;text-align:left;padding:10px 12px;position:sticky;top:0;z-index:2;font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:#5b6b85;font-weight:800;box-shadow:inset 0 -1px 0 var(--line)}
-td{padding:9px 12px;border-top:1px solid #eef2f8;vertical-align:top;color:#1e293b}
-tbody tr,tr{transition:background .15s}
-tr:hover td{background:#f0f7ff}
-.p{color:var(--mint);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
-.b{color:var(--mut);font-size:.72rem}
-a{color:#1d4ed8;text-decoration:none;white-space:nowrap}
-a:hover{text-decoration:underline}
-h2{font-size:1rem;margin:24px 0 7px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--txt)}
-h2::after{content:'';flex:1;height:1px;min-width:20px;background:linear-gradient(90deg,var(--line2),transparent)}
-/* ---- inputs ---- */
-input.filt,input[type=email]{width:100%;margin:10px 0;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 13px;color:var(--txt);font:inherit;font-size:.85rem;transition:.2s}
-input.filt:focus,input[type=email]:focus{outline:0;border-color:#0891b2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
-input::placeholder{color:var(--mut2)}
-.spin{display:inline-block;width:9px;height:9px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;margin-right:5px;vertical-align:middle}
-@keyframes sp{to{transform:rotate(360deg)}}
-.flyg{offset-path:path('M30,64 Q300,-4 570,64');offset-rotate:0deg;animation:fly 7s linear infinite}
-@keyframes fly{from{offset-distance:0%}to{offset-distance:100%}}
-.err{margin:60px auto;max-width:560px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:var(--r);padding:20px;font-size:.9rem;text-align:center}
-footer{max-width:1120px;margin:0 auto;padding:18px 16px 40px;color:var(--mut2);font-size:.7rem;text-align:center;line-height:1.6}
-footer a{color:var(--mut)}
-.rowtop3 td:first-child{position:relative}
-/* ---- banner de venta cruzada ---- */
-.promo{display:flex;gap:13px;align-items:center;background:linear-gradient(120deg,#f0fdf9,#f0f7ff);border:1px solid #bae6d8;border-left:4px solid #059669;border-radius:14px;padding:13px 16px;margin:13px 0;cursor:pointer;transition:.2s;box-shadow:var(--shadow)}
-.promo:hover{transform:translateY(-2px);border-color:#8fd4bc}
-.promo .pemoji{font-size:1.5rem}
-.promo .ptext{flex:1;font-size:.84rem;color:#134e4a;line-height:1.5}
-.promo .ptext .save{color:#047857}
-.promo .pcta{flex:0 0 auto;background:var(--grad);color:#fff;border-radius:999px;padding:8px 15px;font-weight:800;font-size:.75rem;box-shadow:0 2px 10px rgba(14,116,144,.28)}
-@media (max-width:720px){
- .bento{grid-template-columns:1fr}
- table{min-width:520px;font-size:.76rem}
- th,td{padding:7px 9px}
- .hero{font-size:.82rem}
- main{padding:10px 10px 56px}
- .champ{padding:20px 14px 18px}
- .promo{flex-wrap:wrap}
- .promo .pcta{width:100%;text-align:center;justify-content:center}
- .live{margin-left:0}
-}
-/* ===== Componentes v2 — tema claro profesional ===== */
+body{font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;margin:0;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh;font-size:15.5px;line-height:1.5}
 [v-cloak]{display:none}
-.ticker{overflow:hidden;border:1px solid var(--line);border-radius:999px;background:#fff;margin:13px 0;position:relative;box-shadow:var(--shadow)}
-.ticker .track{display:flex;gap:36px;white-space:nowrap;padding:8px 18px;animation:mq 30s linear infinite;width:max-content}
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);border-bottom:1px solid var(--line)}
+.hwrap{max-width:1160px;margin:0 auto;padding:12px 18px}
+.htop{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{width:44px;height:44px;border-radius:14px;background:var(--grad);display:grid;place-items:center;color:#fff;flex:0 0 auto;box-shadow:0 6px 16px rgba(37,99,235,.32)}
+.mark svg{width:23px;height:23px}
+.hbrand{font-weight:800;letter-spacing:-.02em;font-size:1.06rem;line-height:1.15;white-space:nowrap}
+.hbrand .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hsub{font-size:.72rem;color:var(--mut);font-weight:600;white-space:nowrap}
+.livepill{display:inline-flex;align-items:center;gap:7px;background:var(--goodbg);border:1px solid var(--goodln);color:#065f46;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 13px;border-radius:999px;margin-left:auto;white-space:nowrap}
+.livepill i{width:7px;height:7px;border-radius:50%;background:#10b981;animation:pulse 1.9s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.45)}70%{box-shadow:0 0 0 8px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+.hstat{font-size:.72rem;color:var(--mut2);font-weight:600;white-space:nowrap}
+.paxrow{display:flex;gap:10px;align-items:center;margin-top:11px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--mut);font:inherit;font-size:.78rem;font-weight:700;padding:5px 14px;border-radius:999px;cursor:pointer;transition:.18s}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--grad);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.35)}
+.paxnote{font-size:.76rem;color:var(--mut);font-weight:600}
+.paxnote b{color:var(--good)}
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;z-index:39;background:rgba(245,247,252,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nwrap{max-width:1160px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;padding:9px 16px;scrollbar-width:none}
+.nwrap::-webkit-scrollbar{display:none}
+.nwrap button{flex:0 0 auto;background:#fff;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer;font:inherit;font-size:.79rem;font-weight:700;transition:.18s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.nwrap button:hover{color:var(--ink);border-color:var(--line2);transform:translateY(-1px)}
+.nwrap button.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 4px 14px rgba(11,18,32,.22)}
+.nwrap button .cnt{background:var(--badbg);color:var(--bad);border-radius:999px;font-size:.62rem;padding:1px 7px;font-weight:800}
+.nwrap button.on .cnt{background:rgba(255,255,255,.2);color:#fff}
+/* ---------- layout ---------- */
+main{max-width:1160px;margin:0 auto;padding:20px 16px 80px}
+section{display:none}
+section.on{display:block;animation:fadeUp .4s cubic-bezier(.22,1,.36,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+h2{font-size:1.22rem;font-weight:800;letter-spacing:-.02em;margin:30px 0 4px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2:first-child{margin-top:6px}
+.h2sub{font-size:.8rem;color:var(--mut);font-weight:600;letter-spacing:0}
+/* ---------- notas / estados ---------- */
+.note{border-radius:var(--r2);padding:13px 16px;font-size:.84rem;line-height:1.6;margin:14px 0;border:1px solid;display:flex;gap:10px;align-items:flex-start}
+.note.ok{background:var(--goodbg);border-color:var(--goodln);color:#065f46}
+.note.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.note.warn{background:var(--warnbg);border-color:var(--warnln);color:#92400e}
+.note b{font-weight:800}
+.note .ic{flex:0 0 auto;font-size:1rem;line-height:1.4}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;vertical-align:-1px;margin-right:4px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* ---------- hero ---------- */
+.hero{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:26px;box-shadow:var(--sh2);margin:16px 0 6px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0 0 auto 0;height:4px;background:var(--grad)}
+.hgrid{display:grid;grid-template-columns:1.25fr .95fr;gap:0;min-height:0}
+.hmain{padding:30px 34px 28px;position:relative}
+.kick{font-size:.7rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--brand2)}
+.bestprice{font-size:clamp(3rem,8vw,4.6rem);font-weight:800;letter-spacing:-.045em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;margin:10px 0 2px}
+.per{font-size:.85rem;color:var(--mut);font-weight:700}
+.bestroute{font-size:1.06rem;font-weight:800;margin-top:12px;letter-spacing:-.01em}
+.bestdates{font-size:.86rem;color:var(--mut);margin-top:3px;font-weight:600}
+.bestdet{font-size:.78rem;color:var(--mut2);margin-top:7px;line-height:1.55}
+.hctas{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.hside{padding:26px 26px;background:linear-gradient(170deg,#f7f9ff 0%,#f2fbfa 100%);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:12px;justify-content:center}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 16px;display:flex;align-items:center;gap:13px;box-shadow:var(--sh1);transition:.2s;cursor:pointer}
+.kpi:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--sh2)}
+.kpi .ki{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.05rem;flex:0 0 auto}
+.kpi .ki.g{background:var(--goodbg);border:1px solid var(--goodln)}
+.kpi .ki.b{background:#eff6ff;border:1px solid #bfdbfe}
+.kpi .ki.v{background:#f5f3ff;border:1px solid #ddd6fe}
+.kpi .ki.o{background:var(--warnbg);border:1px solid var(--warnln)}
+.kpi .kv{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.2}
+.kpi .kl{font-size:.68rem;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:1px}
+/* ---------- ticker ---------- */
+.ticker{overflow:hidden;border:1px solid var(--line);border-radius:999px;background:#fff;margin:14px 0;position:relative;box-shadow:var(--sh1)}
+.ticker .track{display:flex;gap:38px;white-space:nowrap;padding:9px 20px;animation:mq 32s linear infinite;width:max-content}
 .ticker:hover .track{animation-play-state:paused}
 @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tk{font-size:.73rem;color:var(--mut);font-weight:600}
-.tk b{color:var(--mint);font-variant-numeric:tabular-nums;font-size:.8rem}
-.cals{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:12px 0}
-.month{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px 13px 15px;box-shadow:var(--shadow)}
-.mtitle{font-weight:800;font-size:.9rem;margin-bottom:9px;letter-spacing:.01em;color:var(--txt)}
+.tk{font-size:.74rem;color:var(--mut);font-weight:600}
+.tk b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:.82rem;font-weight:800}
+/* ---------- botones ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--grad);color:#fff!important;border-radius:13px;padding:10px 18px;font-weight:800;font-size:.8rem;text-decoration:none;transition:.18s;box-shadow:0 3px 12px rgba(37,99,235,.28);white-space:nowrap;border:0;cursor:pointer;letter-spacing:-.01em}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.4);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn.ink{background:var(--ink);box-shadow:0 3px 12px rgba(11,18,32,.25)}
+.btn.good{background:linear-gradient(115deg,#059669,#0d9488);box-shadow:0 3px 12px rgba(5,150,105,.3)}
+.btn.amber{background:linear-gradient(115deg,#d97706,#ea580c);box-shadow:0 3px 12px rgba(217,119,6,.3)}
+.btn.rose{background:linear-gradient(115deg,#e11d48,#db2777);box-shadow:0 3px 12px rgba(225,29,72,.3)}
+.btn.ghost{background:#fff;color:var(--ink)!important;border:1px solid var(--line2);box-shadow:none;font-weight:700}
+.btn.ghost:hover{border-color:#a8b6d0;background:var(--soft)}
+.btn.sm{padding:7px 13px;font-size:.73rem;border-radius:11px}
+/* ---------- cards grid ---------- */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:13px;margin:14px 0}
+.ccard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:17px 18px;box-shadow:var(--sh1);transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.ccard:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:var(--sh2)}
+.ccard .rk{position:absolute;top:13px;right:15px;font-size:.95rem}
+.ccard .air{font-weight:800;font-size:.98rem;letter-spacing:-.015em;padding-right:34px}
+.ccard .pri{font-size:1.62rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;margin:6px 0 3px;line-height:1.08;letter-spacing:-.03em}
+.ccard .dt{font-size:.76rem;color:var(--mut);line-height:1.55;margin-top:2px}
+.ccard .src{font-size:.63rem;color:var(--mut2);margin-top:8px;text-transform:uppercase;letter-spacing:.07em;font-weight:800}
+.ccard .btn{margin-top:12px;width:100%}
+.ccard .grow{flex:1}
+/* ---------- chips ---------- */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 2px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--soft);border:1px solid var(--line);color:#47536b;border-radius:999px;padding:3px 11px;font-size:.67rem;font-weight:700}
+.chip.save{background:var(--goodbg);border-color:var(--goodln);color:#047857}
+.chip.hot{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+.chip.info{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+/* ---------- deal cards (merchandising) ---------- */
+.deals{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;margin:16px 0}
+.deal{position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh1);transition:.22s;overflow:hidden;display:flex;flex-direction:column}
+.deal:hover{transform:translateY(-4px);box-shadow:var(--sh3);border-color:var(--line2)}
+.deal.top{border:2px solid transparent;background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box}
+.deal .ribbon{position:absolute;top:14px;right:-34px;transform:rotate(38deg);background:linear-gradient(115deg,#e11d48,#db2777);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.1em;padding:5px 40px;text-transform:uppercase;box-shadow:0 3px 10px rgba(225,29,72,.35);z-index:2}
+.deal .dhead{padding:17px 19px 0;display:flex;align-items:flex-start;gap:12px}
+.deal .dflag{font-size:1.9rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(11,18,32,.15))}
+.deal .dcity{font-size:1.14rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.deal .dcountry{font-size:.68rem;color:var(--mut2);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-top:2px}
+.deal .dprice{display:flex;align-items:baseline;gap:9px;padding:13px 19px 0;flex-wrap:wrap}
+.deal .dp{font-size:2.05rem;font-weight:800;letter-spacing:-.04em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;line-height:1.05}
+.deal .dper{font-size:.72rem;color:var(--mut);font-weight:700}
+.deal .dsave{margin:10px 19px 0;display:flex;align-items:center;gap:7px;background:var(--goodbg);border:1px solid var(--goodln);color:#047857;border-radius:12px;padding:8px 12px;font-size:.76rem;font-weight:800}
+.deal .dmeter{margin:13px 19px 0}
+.deal .dmlabel{display:flex;justify-content:space-between;font-size:.64rem;font-weight:700;color:var(--mut);margin-bottom:5px}
+.deal .dmtrack{height:9px;border-radius:6px;background:#edf1f8;overflow:hidden;border:1px solid var(--line)}
+.deal .dmfill{height:100%;border-radius:6px;background:linear-gradient(90deg,#059669,#10b981);transition:width .8s cubic-bezier(.22,1,.36,1)}
+.deal .dmfill.warn{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.deal .ddates{font-size:.78rem;color:var(--mut);font-weight:600;margin:12px 19px 0;line-height:1.55}
+.deal .dchips{padding:9px 19px 0;display:flex;gap:6px;flex-wrap:wrap}
+.deal .dcta{display:flex;gap:8px;padding:14px 19px 17px;margin-top:auto;flex-wrap:wrap}
+.deal .dcta .btn{flex:1;min-width:120px}
+.deal .dmore{border-top:1px dashed var(--line2);margin:0 19px;padding:9px 0 0;font-size:.72rem;color:var(--mut)}
+.deal .dmore a{color:var(--brand);font-weight:700;text-decoration:none}
+.deal .dmore a:hover{text-decoration:underline}
+.deal .dpkg{margin:9px 19px 0;font-size:.74rem;color:var(--mut);line-height:1.6;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+.deal .dpkg a{color:var(--brand);font-weight:700;text-decoration:none;white-space:nowrap}
+.deal .dpkg a:hover{text-decoration:underline}
+/* ---------- tablas ---------- */
+.tbl{overflow:auto;max-height:66vh;border:1px solid var(--line);border-radius:var(--r);margin:13px 0;background:#fff;overscroll-behavior:contain;box-shadow:var(--sh1)}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:.8rem;min-width:560px}
+th{background:#f7f9fd;text-align:left;padding:11px 14px;position:sticky;top:0;z-index:2;font-size:.65rem;text-transform:uppercase;letter-spacing:.09em;color:#5a6885;font-weight:800;box-shadow:inset 0 -1px 0 var(--line)}
+td{padding:10px 14px;border-top:1px solid #eef2f9;vertical-align:top;color:#1c2740}
+tr{transition:background .15s}
+tr:hover td{background:#f4f8ff}
+.p{color:var(--good);font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.b{color:var(--mut);font-size:.73rem}
+a{color:#1d4ed8;text-decoration:none}
+a:hover{text-decoration:underline}
+/* ---------- inputs ---------- */
+input.filt,input[type=email]{width:100%;margin:10px 0;background:#fff;border:1px solid var(--line2);border-radius:13px;padding:12px 15px;color:var(--ink);font:inherit;font-size:.86rem;transition:.2s}
+input.filt:focus,input[type=email]:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px rgba(79,70,229,.14)}
+input::placeholder{color:var(--mut2)}
+/* ---------- calendarios ---------- */
+.cals{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.month{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--sh1)}
+.mtitle{font-weight:800;font-size:.94rem;margin-bottom:10px;letter-spacing:-.01em}
 .dows,.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .dows span{text-align:center;font-size:.6rem;color:var(--mut2);font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:2px 0}
-.cday{border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--txt);font:inherit;cursor:pointer;padding:5px 2px 4px;text-align:center;transition:transform .15s,box-shadow .15s,border-color .15s;min-height:46px;display:flex;flex-direction:column;justify-content:center;gap:1px}
-.cday:hover:not(:disabled){transform:translateY(-2px);border-color:#93c5d8;box-shadow:0 4px 12px rgba(15,23,42,.12)}
-.cday:disabled{opacity:.4;cursor:default;background:#f8fafc}
-.cday.sel{outline:2px solid #2563eb;outline-offset:1px;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
-.cday .dn{font-size:.72rem;font-weight:700;color:#334155}
+.cday{border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:inherit;cursor:pointer;padding:5px 2px 4px;text-align:center;transition:transform .15s,box-shadow .15s,border-color .15s;min-height:47px;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.cday:hover:not(:disabled){transform:translateY(-2px);border-color:#94b8d8;box-shadow:0 4px 12px rgba(11,18,32,.12)}
+.cday:disabled{opacity:.35;cursor:default;background:var(--soft)}
+.cday.sel{outline:2px solid var(--brand);outline-offset:1px;box-shadow:0 0 0 4px rgba(79,70,229,.14)}
+.cday .dn{font-size:.72rem;font-weight:700;color:#31405e}
 .cday .pr{font-size:.62rem;font-weight:800;font-variant-numeric:tabular-nums}
-.cempty{min-height:46px}
+.cempty{min-height:47px}
 .legend{display:flex;align-items:center;gap:9px;font-size:.68rem;color:var(--mut);margin:10px 0;flex-wrap:wrap}
-.legend .lbar{width:180px;height:8px;border-radius:4px;background:linear-gradient(90deg,hsl(158,65%,42%),hsl(45,85%,50%),hsl(0,72%,52%))}
-.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:11px;margin:12px 0}
-.ccard{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 14px;box-shadow:var(--shadow);transition:transform .22s,border-color .22s,box-shadow .22s;position:relative;overflow:hidden}
-.ccard:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 10px 26px rgba(15,23,42,.12)}
-.ccard .rk{position:absolute;top:9px;right:12px;font-size:1.05rem;color:var(--mut2);font-weight:800}
-.ccard .air{font-weight:800;font-size:.92rem;margin-bottom:1px;padding-right:28px;letter-spacing:-.01em;color:var(--txt)}
-.ccard .pri{font-size:1.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;margin:4px 0 2px;line-height:1.1}
-.ccard .dt{font-size:.72rem;color:var(--mut);line-height:1.5}
-.ccard .src{font-size:.63rem;color:var(--mut2);margin-top:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
-.ccard .btn{margin-top:10px;width:100%;justify-content:center}
-.ccard.mini .pri{font-size:1.15rem}
-.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
-.pcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:.22s}
-.pcard:hover{transform:translateY(-3px);border-color:var(--line2)}
-.pcard .medal{font-size:1.5rem}
-.pcard .air{font-weight:800;font-size:1rem;margin:5px 0 1px;color:var(--txt)}
-.pcard .pri{font-size:1.9rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;line-height:1.1;margin:4px 0}
-.pcard.first{border-color:#fcd34d;background:linear-gradient(165deg,#fffbeb,#fff 55%)}
-.pcard .dt{font-size:.73rem;color:var(--mut);line-height:1.55}
-.pcard .btn{margin-top:11px;width:100%;justify-content:center}
+.legend .lbar{width:190px;height:8px;border-radius:4px;background:linear-gradient(90deg,#10b981,#fbbf24,#f43f5e)}
+/* ---------- podium ---------- */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+.pcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:19px;box-shadow:var(--sh1);transition:.2s;display:flex;flex-direction:column}
+.pcard:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:var(--sh2)}
+.pcard .medal{font-size:1.35rem}
+.pcard .air{font-weight:800;font-size:1.02rem;margin:6px 0 1px;letter-spacing:-.015em}
+.pcard .pri{font-size:2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;line-height:1.1;margin:5px 0;letter-spacing:-.035em}
+.pcard.first{border:2px solid transparent;background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;box-shadow:var(--sh2)}
+.pcard .dt{font-size:.76rem;color:var(--mut);line-height:1.55}
+.pcard .btn{margin-top:auto}
+.pcard .btn+.btn{margin-top:8px}
+/* ---------- ranking rows ---------- */
 .rlist{margin:10px 0}
-.rrow{display:flex;gap:13px;align-items:center;padding:12px 15px;margin:8px 0;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);flex-wrap:wrap;transition:.2s}
+.rrow{display:flex;gap:14px;align-items:center;padding:14px 17px;margin:9px 0;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh1);flex-wrap:wrap;transition:.18s}
 .rrow:hover{border-color:var(--line2);transform:translateX(3px)}
-.rrow .rk{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--panel2);color:#334155;flex:0 0 auto}
-.rrow .info{flex:1;min-width:170px}
-.rrow .rp{font-size:1.15rem;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums;white-space:nowrap}
-.bars{margin:14px 0}
-.brow{display:grid;grid-template-columns:158px 1fr 128px;gap:11px;align-items:center;margin:10px 0}
-.bname{font-size:.8rem;font-weight:700;line-height:1.3;color:var(--txt)}
+.rrow .rk{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--soft);border:1px solid var(--line);color:#31405e;flex:0 0 auto}
+.rrow .info{flex:1;min-width:180px}
+.rrow .info b{font-size:.92rem;letter-spacing:-.01em}
+.rrow .rp{font-size:1.2rem;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.02em}
+.rrow.over .rp{color:var(--bad)}
+/* ---------- barras comparativas ---------- */
+.bars{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--sh1)}
+.brow{display:grid;grid-template-columns:172px 1fr 140px;gap:12px;align-items:center;margin:11px 0}
+.bname{font-size:.81rem;font-weight:700;line-height:1.3}
 .bname .b{display:block;font-weight:600}
-.btrack{height:24px;border-radius:9px;background:#eef2f8;overflow:hidden;border:1px solid var(--line)}
-.bfill{height:100%;border-radius:9px;background:linear-gradient(90deg,#f43f5e,#f59e0b);transition:width .7s cubic-bezier(.22,1,.36,1)}
-.bfill.good{background:linear-gradient(90deg,#059669,#0891b2)}
-.bval{font-size:.8rem;font-weight:800;color:var(--mint);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.bval .d{display:block;font-size:.68rem;font-weight:700;color:var(--mut)}
-.bval .d.up{color:var(--amber)}
-.bval .d.bad{color:var(--rose)}
-details.acc{border:1px solid var(--line);border-radius:14px;background:#fff;margin:11px 0;overflow:hidden;box-shadow:var(--shadow)}
-details.acc summary{cursor:pointer;padding:13px 15px;font-size:.83rem;font-weight:700;color:#1e293b;list-style:none;display:flex;gap:9px;align-items:center;user-select:none}
+.btrack{height:26px;border-radius:9px;background:#edf1f8;overflow:hidden;border:1px solid var(--line)}
+.bfill{height:100%;border-radius:9px;background:linear-gradient(90deg,#f43f5e,#fb923c);transition:width .7s cubic-bezier(.22,1,.36,1)}
+.bfill.good{background:linear-gradient(90deg,#059669,#0d9488)}
+.bval{font-size:.82rem;font-weight:800;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--good)}
+.bval .d{display:block;font-size:.67rem;font-weight:700;color:var(--mut)}
+.bval .d.up{color:var(--warn)}
+.bval .d.bad{color:var(--bad)}
+.bval.base{color:var(--ink)}
+/* ---------- acordeones ---------- */
+details.acc{border:1px solid var(--line);border-radius:16px;background:#fff;margin:11px 0;overflow:hidden;box-shadow:var(--sh1)}
+details.acc summary{cursor:pointer;padding:14px 17px;font-size:.84rem;font-weight:700;color:var(--ink);list-style:none;display:flex;gap:9px;align-items:center;user-select:none;transition:background .15s}
 details.acc summary::-webkit-details-marker{display:none}
-details.acc summary::before{content:'▸';color:#2563eb;transition:transform .2s;font-size:.9rem}
+details.acc summary::before{content:'▸';color:var(--brand);transition:transform .2s;font-size:.9rem}
 details.acc[open] summary::before{transform:rotate(90deg)}
-details.acc summary:hover{background:#f8fafc}
-details.acc .inner{padding:0 12px 13px}
-.tl{position:relative;margin:16px 0;padding-left:24px}
-.tl::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(#38bdf8,rgba(56,189,248,.1));border-radius:1px}
-.tlev{position:relative;margin:0 0 13px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 15px;box-shadow:var(--shadow)}
-.tlev::before{content:'';position:absolute;left:-21px;top:17px;width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.2)}
-.tlev .pct{font-size:1.4rem;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums}
-.tlev .ser{font-weight:800;font-size:.85rem;color:var(--txt)}
-.code{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#ecfeff;border:1px dashed #22d3ee;color:#155e75;border-radius:9px;padding:4px 11px;font-size:.82rem;font-weight:700;letter-spacing:.05em}
-.wcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin:11px 0;box-shadow:var(--shadow)}
+details.acc summary:hover{background:var(--soft)}
+details.acc .inner{padding:0 14px 14px}
+/* ---------- ventana cards ---------- */
+.wcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:12px 0;box-shadow:var(--sh1)}
 .wtop{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.wtop .wdate{font-weight:800;font-size:.92rem;color:var(--txt)}
-.wtop .wpri{margin-left:auto;font-size:1.35rem;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums}
-.wrows{margin-top:9px;display:grid;gap:6px}
-.wrow{display:flex;gap:10px;align-items:center;font-size:.78rem;padding:7px 10px;border-radius:10px;background:#f8fafc;border:1px solid #eef2f8;flex-wrap:wrap;color:#334155}
-.wrow .wa{font-weight:700;min-width:110px;color:var(--txt)}
-.wrow .wp{margin-left:auto;color:var(--mint);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-/* chips + paquete (pases de abordar) */
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 2px}
-.chip{display:inline-flex;align-items:center;gap:4px;background:var(--panel2);border:1px solid var(--line);color:#475569;border-radius:999px;padding:2.5px 10px;font-size:.66rem;font-weight:700}
-.chip.save{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
-.pkg{font-size:.72rem;color:var(--mut);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line2)}
-@media(max-width:720px){
- .cals{grid-template-columns:1fr}
- .podium{grid-template-columns:1fr}
- .brow{grid-template-columns:112px 1fr 100px}
- .cday{min-height:42px}
- .cday .pr{font-size:.58rem}
-}
-
-/* ===== Playas LatAm — tema claro: regla de precios + pases de abordar ===== */
-.ruler{margin:18px 0 8px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:58px 20px 10px;box-shadow:var(--shadow)}
-.rtrack{position:relative;height:142px}
+.wtop .wdate{font-weight:800;font-size:.94rem;letter-spacing:-.01em}
+.wtop .wpri{margin-left:auto;font-size:1.42rem;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums;letter-spacing:-.025em}
+.wrows{margin-top:10px;display:grid;gap:6px}
+.wrow{display:flex;gap:10px;align-items:center;font-size:.78rem;padding:8px 12px;border-radius:11px;background:var(--soft);border:1px solid #edf1f8;flex-wrap:wrap;color:#31405e}
+.wrow .wa{font-weight:700;min-width:110px}
+.wrow .wp{margin-left:auto;color:var(--good);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* ---------- timeline alertas ---------- */
+.tl{position:relative;margin:16px 0;padding-left:26px}
+.tl::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(#6366f1,rgba(99,102,241,.08));border-radius:1px}
+.tlev{position:relative;margin:0 0 13px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 16px;box-shadow:var(--sh1)}
+.tlev::before{content:'';position:absolute;left:-23px;top:18px;width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18)}
+.tlev .pct{font-size:1.45rem;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.tlev .ser{font-weight:800;font-size:.86rem}
+/* ---------- cupones ---------- */
+.code{display:inline-flex;align-items:center;gap:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef2ff;border:1.5px dashed #a5b4fc;color:#3730a3;border-radius:11px;padding:6px 12px;font-size:.82rem;font-weight:800;letter-spacing:.04em;cursor:pointer;transition:.15s;border-style:dashed}
+.code:hover{background:#e0e7ff}
+.code .cpy{font-family:inherit;font-size:.6rem;background:#4f46e5;color:#fff;border-radius:6px;padding:2px 7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+/* ---------- regla de precios (playas) ---------- */
+.ruler{margin:16px 0 8px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:56px 22px 12px;box-shadow:var(--sh1)}
+.rtrack{position:relative;height:148px}
 .rtrack::before{content:'';position:absolute;left:0;right:0;top:45px;height:3px;border-radius:2px;background:linear-gradient(90deg,#34d399,#fbbf24 55%,#fb7185)}
 .rbud{position:absolute;top:2px;bottom:26px;border-left:2px dashed #e11d48;z-index:2}
 .rbud span{position:absolute;top:-28px;left:-38px;font-size:.64rem;font-weight:800;color:#be123c;white-space:nowrap;background:#fff1f2;border:1px solid #fecdd3;border-radius:999px;padding:2px 9px}
 .rdot{position:absolute;top:38px;width:16px;height:16px;transform:translateX(-50%);cursor:default;z-index:1}
-.rdot::before{content:'';position:absolute;inset:1px;border-radius:50%;background:#f43f5e;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(15,23,42,.3)}
+.rdot::before{content:'';position:absolute;inset:1px;border-radius:50%;background:#f43f5e;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(11,18,32,.3)}
 .rdot.ok::before{background:#059669}
-.rdot .rf{position:absolute;left:50%;transform:translateX(-50%);top:-25px;font-size:.95rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.25))}
+.rdot .rf{position:absolute;left:50%;transform:translateX(-50%);top:-25px;font-size:.95rem;line-height:1}
 .rdot .rl{position:absolute;left:50%;transform:translateX(-50%);top:17px;font-size:.55rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;color:#64748b}
 .rdot.ok .rl{color:#047857}
-.rdot.alt .rf{top:-46px}
-.rdot.alt .rl{top:33px}
-.rdot.alt2 .rf{top:-67px}
-.rdot.alt2 .rl{top:49px}
-.rdot.alt3 .rf{top:-88px}
-.rdot.alt3 .rl{top:65px}
-.raxis{display:flex;justify-content:space-between;align-items:center;font-size:.62rem;color:var(--mut2);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;border-top:1px solid #eef2f8;padding-top:7px}
-.bplist{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:13px;margin:14px 0}
-.bp{display:grid;grid-template-columns:134px 1fr;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative;box-shadow:var(--shadow);transition:transform .22s,border-color .22s,box-shadow .22s}
-.bp:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 12px 28px rgba(15,23,42,.14)}
-.bp .stub{position:relative;padding:14px 9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(165deg,#f0fdf9,#f0f7ff);border-right:2px dashed #cbd5e1}
-.bp .stub::before,.bp .stub::after{content:'';position:absolute;right:-10px;width:18px;height:18px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
-.bp .stub::before{top:-10px}
-.bp .stub::after{bottom:-10px}
-.sroute{font-size:.58rem;font-weight:800;letter-spacing:.14em;color:#64748b;text-transform:uppercase}
-.bpri{font-size:1.06rem;white-space:nowrap;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;text-align:center;line-height:1.15}
-.bsrc{font-size:.55rem;color:var(--mut2);text-transform:uppercase;letter-spacing:.07em;font-weight:700;text-align:center}
-.barcode{width:74%;height:26px;margin-top:8px;border-radius:2px;opacity:.6;background:repeating-linear-gradient(90deg,#334155 0 2px,transparent 2px 4px,#334155 4px 5px,transparent 5px 9px,#334155 9px 12px,transparent 12px 14px)}
-.bpbody{padding:13px 15px;min-width:0}
-.bpcity{font-size:1.02rem;font-weight:800;letter-spacing:-.01em;line-height:1.2;color:var(--txt)}
-.bpcty{font-size:.62rem;color:var(--mut2);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-left:7px}
-.bpdates{font-size:.73rem;color:var(--mut);margin:6px 0 3px;line-height:1.55}
-.bptot{font-size:.72rem;color:var(--mint);font-weight:700}
-.bp .cta{justify-content:flex-start;margin-top:10px;flex-wrap:wrap}
-.bp .acc{box-shadow:none;border-color:var(--line);margin-bottom:0}
-.bp .acc summary{padding:10px 12px;font-size:.74rem}
-.rrow.over .rp{color:var(--rose)}
+.rdot.alt .rf{top:-46px}.rdot.alt .rl{top:33px}
+.rdot.alt2 .rf{top:-67px}.rdot.alt2 .rl{top:49px}
+.rdot.alt3 .rf{top:-88px}.rdot.alt3 .rl{top:65px}
+.raxis{display:flex;justify-content:space-between;align-items:center;font-size:.62rem;color:var(--mut2);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;border-top:1px solid #eef2f8;padding-top:8px}
+/* ---------- fuentes ---------- */
+.srcpill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2.5px 10px;font-size:.64rem;font-weight:800;letter-spacing:.04em}
+.srcpill.fresh{background:var(--goodbg);color:#047857;border:1px solid var(--goodln)}
+.srcpill.stale{background:var(--warnbg);color:var(--warn);border:1px solid var(--warnln)}
+footer{max-width:1160px;margin:0 auto;padding:22px 18px 46px;color:var(--mut2);font-size:.72rem;text-align:center;line-height:1.7;border-top:1px solid var(--line)}
+footer a{color:var(--mut);font-weight:600}
+.err{margin:60px auto;max-width:560px;background:var(--warnbg);border:1px solid var(--warnln);color:#92400e;border-radius:var(--r);padding:22px;font-size:.9rem;text-align:center}
+.flyg{offset-path:path('M30,64 Q300,-4 570,64');offset-rotate:0deg;animation:fly 7s linear infinite}
+@keyframes fly{from{offset-distance:0%}to{offset-distance:100%}}
+@media(max-width:920px){
+ .hgrid{grid-template-columns:1fr}
+ .hside{border-left:0;border-top:1px solid var(--line);flex-direction:row;flex-wrap:wrap}
+ .kpi{flex:1;min-width:200px}
+}
 @media(max-width:720px){
- .bplist{grid-template-columns:1fr}
- .bp{grid-template-columns:100px 1fr}
- .ruler{padding:32px 12px 8px}
- .rdot .rl{font-size:.52rem}
+ .hmain{padding:22px 18px}
+ .hside{padding:16px}
+ .cals{grid-template-columns:1fr}
+ .podium{grid-template-columns:1fr}
+ .deals{grid-template-columns:1fr}
+ .brow{grid-template-columns:118px 1fr 104px}
+ .cday{min-height:43px}
+ .cday .pr{font-size:.57rem}
+ table{min-width:520px;font-size:.75rem}
+ th,td{padding:8px 10px}
+ main{padding:14px 10px 64px}
+ .ruler{padding:34px 12px 8px}
  .rbud span{left:-30px}
 }
-
 </style></head><body>
-<div class="aurora3"></div><div class="grain"></div>
 <div id="app">
- <div v-if="fatal" class="err">⚠️ No se pudo cargar el motor de la interfaz (Vue). Revisa tu conexión y recarga.</div>
+ <div v-if="fatal" class="err">No se pudo cargar el motor de la interfaz (Vue). Revisa tu conexión y recarga.</div>
  <template v-else>
  <header>
   <div class="hwrap">
    <div class="htop">
-    <div class="logo"><div class="plane">✈️</div>
-     <div><h1><span class="route">SCL ⇄ Río de Janeiro</span> · ene–feb 2027</h1>
-     <div class="sub">9 pasajeros · regreso ≤ 23-feb · <span class="spin"></span>precios vivos, refresco cada ~5 min</div></div>
+    <div class="logo">
+     <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div>
+     <div>
+      <div class="hbrand"><span class="g">RADAR RÍO</span> · SCL ⇄ GIG</div>
+      <div class="hsub">Verano 2027 · ene–feb · regreso ≤ 23-feb · viaje ≥ 9 noches</div>
+     </div>
     </div>
-    <span class="live">En vivo</span>
+    <span class="livepill"><i></i>En vivo</span>
+    <span class="hstat">ciclo {{DATA?.cycle||0}} · {{hace(DATA?.updated)}}</span>
    </div>
-   <div class="badges">
-    <span class="badge info">🔄 {{DATA?.updated||'cargando…'}}</span>
-    <span class="badge info">💾 {{DATA?.last_price_change||'—'}}</span>
-    <span v-for="(v,k) in (DATA?.fuentes||{})" :key="k" class="badge" :class="{warn:!v.ok}">{{NAMES[k]||k}}</span>
-   </div>
-   <div class="paxrow"><span class="b">Pasajeros</span>
+   <div class="paxrow">
+    <span class="paxnote">Pasajeros</span>
     <div class="seg"><button v-for="n in PAXOPTS" :key="n" :class="{on:pax===n}" @click="pax=n">{{n}}</button></div>
-    <span class="b" v-if="campeon">· grupo ≈ <b style="color:var(--mint)">{{fmt(campeon.total*pax)}}</b></span>
+    <span class="paxnote" v-if="campeon">· grupo ≈ <b>{{fmt(campeon.total*pax)}}</b></span>
+    <span class="paxnote" style="margin-left:auto" v-if="DATA?.updated"><span class="spin" style="color:#10b981"></span>precios vivos · refresco ~5 min</span>
    </div>
   </div>
  </header>
- <nav><div class="navwrap">
-  <button v-for="(t,i) in TABS" :key="i" :class="{on:cur===i}" @click="cur=i">{{t}}</button>
+ <nav><div class="nwrap">
+  <button v-for="(t,i) in TABS" :key="i" :class="{on:cur===i}" @click="cur=i" v-html="t"></button>
  </div></nav>
  <main>
   <!-- 0 HOY -->
@@ -311,66 +327,129 @@ details.acc .inner{padding:0 12px 13px}
    <div class="ticker" v-if="ticker.length"><div class="track">
     <template v-for="n in 2"><span class="tk" v-for="t in ticker" :key="n+t.k">{{t.k}} <b>{{fmt(t.v)}}</b></span></template>
    </div></div>
-   <div class="bento">
-    <div class="tile champ" v-if="campeon">
-     <svg class="arc" viewBox="0 0 600 84" aria-hidden="true">
-      <defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#059669"/><stop offset="1" stop-color="#0891b2"/></linearGradient></defs>
-      <path d="M30,64 Q300,-4 570,64" fill="none" stroke="url(#ga)" stroke-width="2" stroke-dasharray="6 7" opacity=".85"/>
-      <circle cx="30" cy="64" r="4.5" fill="#059669"/><circle cx="570" cy="64" r="4.5" fill="#0891b2"/>
-      <text x="12" y="81" fill="#64748b" font-size="12" font-weight="700">SCL</text><text x="548" y="81" fill="#64748b" font-size="12" font-weight="700">GIG</text>
-      <g class="flyg"><text font-size="15">✈️</text></g>
-     </svg>
-     <div class="kicker">🏆 Lo más barato encontrado ahora · ida y vuelta por persona</div>
-     <div class="big">{{fmt(campeon.total)}}</div>
-     <div class="gtot">{{pax}} {{pax===1?'pasajero':'pasajeros'}} ≈ <b>{{fmt(campeon.total*pax)}}</b></div>
-     <div class="ctitle">{{campeon.titulo}}</div>
-     <div class="cdates">{{dw(campeon.ida)}} {{campeon.ida}} → {{dw(campeon.vuelta)}} {{campeon.vuelta}} · {{campeon.noches}} noches</div>
-     <div class="cdet" v-if="campeon.tipo==='mix'">Ida: {{campeon.ref.ida.det}} ({{fmt(campeon.ref.ida.clp)}}) · Vuelta: {{campeon.ref.vuelta.det}} ({{fmt(campeon.ref.vuelta.clp)}})</div>
-     <div class="cdet" v-else>{{campeon.ref.det}} · fuente: {{campeon.ref.fuente}}</div>
-     <div class="cta"><a v-for="b in campeon.botones" :key="b.texto" class="btn" :class="b.cls" :href="b.href" target="_blank" rel="noopener">{{b.texto}}</a></div>
+   <div class="hero" v-if="campeon">
+    <div class="hgrid">
+     <div class="hmain">
+      <div class="kick">Mejor precio encontrado · ida y vuelta por persona</div>
+      <div class="bestprice">{{fmt(campeon.total)}}</div>
+      <div class="per">{{pax}} {{pax===1?'pasajero':'pasajeros'}} ≈ <b style="color:var(--ink)">{{fmt(campeon.total*pax)}}</b> en total</div>
+      <svg viewBox="0 0 600 84" aria-hidden="true" style="width:100%;max-width:520px;margin-top:14px">
+       <defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#0891b2"/></linearGradient></defs>
+       <path d="M30,64 Q300,-4 570,64" fill="none" stroke="url(#ga)" stroke-width="2" stroke-dasharray="6 7" opacity=".8"/>
+       <circle cx="30" cy="64" r="4.5" fill="#4f46e5"/><circle cx="570" cy="64" r="4.5" fill="#0891b2"/>
+       <text x="12" y="81" fill="#8894ad" font-size="12" font-weight="700">SCL</text><text x="548" y="81" fill="#8894ad" font-size="12" font-weight="700">GIG</text>
+       <g class="flyg"><text font-size="15">✈️</text></g>
+      </svg>
+      <div class="bestroute">{{campeon.titulo}}</div>
+      <div class="bestdates">{{dw(campeon.ida)}} {{campeon.ida}} → {{dw(campeon.vuelta)}} {{campeon.vuelta}} · {{campeon.noches}} noches</div>
+      <div class="bestdet" v-if="campeon.tipo==='mix'">Ida: {{campeon.ref.ida.det}} ({{fmt(campeon.ref.ida.clp)}}) · Vuelta: {{campeon.ref.vuelta.det}} ({{fmt(campeon.ref.vuelta.clp)}})</div>
+      <div class="bestdet" v-else>{{campeon.ref.det}} · fuente: {{campeon.ref.fuente}}</div>
+      <div class="hctas"><a v-for="b in campeon.botones" :key="b.texto" class="btn" :class="b.cls||''" :href="b.href" target="_blank" rel="noopener">{{b.texto}}</a>
+       <a class="btn ghost" href="#" @click.prevent="cur=1">Comparar fechas</a></div>
+     </div>
+     <div class="hside">
+      <div class="kpi" @click="cur=1" role="button" tabindex="0">
+       <div class="ki b">📅</div>
+       <div><div class="kv">{{kfmt(calRange.lo)}} – {{kfmt(calRange.hi)}}</div><div class="kl">Rango del verano · calendario</div></div>
+      </div>
+      <div class="kpi" v-if="mezclas" @click="cur=3" role="button" tabindex="0">
+       <div class="ki v">🔀</div>
+       <div><div class="kv">{{fmt(mezclas.total)}}</div><div class="kl">Mejor mezcla 2 aerolíneas</div></div>
+      </div>
+      <div class="kpi" @click="cur=4" role="button" tabindex="0">
+       <div class="ki g">🏖</div>
+       <div><div class="kv">{{playasOk.length}} destinos</div><div class="kl">Playas bajo {{kfmt(playas.budget||500000)}} pp</div></div>
+      </div>
+      <div class="kpi" v-if="mejorPlaya" @click="cur=4" role="button" tabindex="0">
+       <div class="ki o">🔥</div>
+       <div><div class="kv">{{mejorPlaya.flag}} {{fmt(mejorPlaya.mejor.clp)}}</div><div class="kl">{{ciudadCorta(mejorPlaya)}} · alternativa top</div></div>
+      </div>
+     </div>
     </div>
    </div>
-   <div class="promo" v-if="playasVsRio&&playasVsRio.diff>0" @click="cur=4" role="button" tabindex="0" @keydown.enter="cur=4">
-    <div class="pemoji">🌎</div>
-    <div class="ptext"><b>¿Y si la playa fuera otra?</b> {{playasVsRio.best.flag}} <b>{{playasVsRio.best.ciudad}}</b> está <b class="save">{{fmt(playasVsRio.diff)}} más barato que Río</b> en las mismas fechas ({{playasVsRio.best.mejor.aerolinea}} · {{playasVsRio.best.mejor.escalas===0?'vuelo directo':playasVsRio.best.mejor.escalas+' escalas'}}). Tenemos <b>{{playasOk.length}} destinos de playa bajo $500.000</b> pp ida y vuelta.</div>
-    <div class="pcta">Ver playas →</div>
-   </div>
-   <h2>Las mejores opciones del momento</h2>
-   <div class="b" style="margin:-4px 0 2px">Una tarjeta por compañía (la mejor fecha de cada una) + la mejor mezcla. Nada más: el listado completo está en 🔬 al final.</div>
+   <div class="note warn" v-else><span class="ic">⏳</span><span>Primer ciclo de datos en curso — en segundos aparece aquí el mejor precio del verano. La página se refresca sola cada 60 s.</span></div>
+   <h2>Las mejores opciones del momento <span class="h2sub">una tarjeta por compañía + la mejor mezcla</span></h2>
    <div class="cgrid">
     <div class="ccard" v-for="(r,i) in rtPorAerolinea.slice(0,6)" :key="r.cod">
-     <div class="rk">{{['🥇','🥈','🥉','4','5','6'][i]||i+1}}</div>
+     <div class="rk">{{['🥇','🥈','🥉','4º','5º','6º'][i]||i+1}}</div>
      <div class="air">{{r.airline}}</div>
      <div class="pri">{{fmt(r.clp)}}</div>
      <div class="dt">{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}} · {{noches(r.ida,r.vuelta)}} noches<br>{{r.det}}</div>
+     <div class="grow"></div>
      <div class="src">{{r.fuente}} · {{pax}} pax ≈ {{fmt(r.clp*pax)}}</div>
-     <a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
+     <a class="btn" :class="r.cls||''" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
     </div>
     <div class="ccard" v-if="mezclas">
      <div class="rk">🔀</div>
      <div class="air">{{nomAer(mezclas.ida.cod)}} + {{nomAer(mezclas.vuelta.cod)}}</div>
      <div class="pri">{{fmt(mezclas.total)}}</div>
      <div class="dt">{{dw(mezclas.ida.fecha)}} {{mezclas.ida.fecha}} → {{dw(mezclas.vuelta.fecha)}} {{mezclas.vuelta.fecha}} · {{mezclas.noches}} noches<br>{{mezclas.ida.det}} + {{mezclas.vuelta.det}}</div>
-     <div class="src">Mezcla entre compañías · compras por separado</div>
-     <a class="btn ghost" :href="mezclas.ida.link" target="_blank" rel="noopener">Ida ↗</a>
-     <a class="btn ghost" :href="mezclas.vuelta.link" target="_blank" rel="noopener" style="margin-left:6px">Vuelta ↗</a>
+     <div class="grow"></div>
+     <div class="chips"><span class="chip info">2 compras separadas</span></div>
+     <div class="src">Mezcla entre compañías</div>
+     <div style="display:flex;gap:7px"><a class="btn ghost sm" style="flex:1" :href="mezclas.ida.link" target="_blank" rel="noopener">Ida ↗</a>
+     <a class="btn ghost sm" style="flex:1" :href="mezclas.vuelta.link" target="_blank" rel="noopener">Vuelta ↗</a></div>
     </div>
    </div>
-   <div class="ok">💡 ¿Cómo leer esto? <b>Elige una fecha en 📅 Calendario</b> para ver el mejor precio de cada día del verano; compara compañías en ✈️; y si el destino es flexible, 🇧🇷 Brasil muestra alternativas más baratas que Río. Todo se recalcula solo cada ~5 min.</div>
    <details class="acc"><summary>📋 Detalle técnico: lo mejor de cada portal/fuente</summary><div class="inner">
     <div class="tbl"><table><tr><th>#</th><th>Fuente</th><th>Mejor opción</th><th>Fechas</th><th>CLP pp</th><th>{{pax}} pax</th><th>Ir</th></tr>
-     <tr v-for="(r,i) in consol" :key="r.emp"><td>{{i+1}}</td><td><b>{{r.emp}}</b><br><span class="b">{{r.tipo}}</span></td><td>{{r.det}}</td><td><template v-if="r.ida==='—'">flexibles</template><template v-else>{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}}</template></td><td class="p"><b>{{fmt(r.pp)}}</b></td><td class="p">{{fmt(r.pp*pax)}}</td><td><a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Ir ↗</a></td></tr>
+     <tr v-for="(r,i) in consol" :key="r.emp"><td>{{i+1}}</td><td><b>{{r.emp}}</b><br><span class="b">{{r.tipo}}</span></td><td>{{r.det}}</td><td><template v-if="r.ida==='—'">flexibles</template><template v-else>{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}}</template></td><td class="p"><b>{{fmt(r.pp)}}</b></td><td class="p">{{fmt(r.pp*pax)}}</td><td><a class="btn sm" :class="r.cls||''" :href="r.link" target="_blank" rel="noopener">Ir ↗</a></td></tr>
     </table></div>
-    <div class="b">Solo fuentes vivas: APIs oficiales + Cocha real + Skiplagged. Falabella/Despegar solo si fueron verificados en 24 h. La mezcla entre compañías son compras separadas (sin protección de conexión).</div>
+    <div class="b">Solo fuentes vivas: APIs oficiales + Cocha real + Skiplagged + Falabella/Despegar cuando su lectura es fresca (&lt;24 h). La mezcla entre compañías son compras separadas (sin protección de conexión).</div>
    </div></details>
   </section>
-  <!-- 1 CALENDARIO -->
+  <!-- 1 OFERTAS (venta cruzada) -->
   <section :class="{on:cur===1}">
-   <div class="ok">📅 <b>El precio más bajo de cada día</b> (ida o vuelta, según el modo), comparando JetSMART + LATAM + Skiplagged a la vez. Toca un día para ver quién lo vende y con qué vuelo. Los colores van de <b style="color:#047857">barato</b> a <b style="color:#e11d48">caro</b>.</div>
-   <div class="paxrow"><span class="b">Mostrar precios de</span>
+   <div class="note ok" v-if="ofertas.length"><span class="ic">🔥</span><span><b>Ideas para tu grupo:</b> además de Río, escaneamos <b>{{playasRows.length}} playas de Latinoamérica</b> y <b>7 destinos de Brasil</b> con las mismas reglas del viaje (≥9 noches, regreso ≤23-feb). Estos son los que <b>más ahorro</b> te dejan contra Río en las mismas fechas. Precios de {{hace(playas.ts)}} (Skiplagged en vivo + Cocha real).</span></div>
+   <div class="note warn" v-else><span class="ic">⏳</span><span>Primer escaneo de destinos alternativos en curso. En minutos tienes aquí las mejores alternativas con su ahorro calculado.</span></div>
+   <div class="deals" v-if="ofertas.length">
+    <div class="deal" :class="{top:i===0}" v-for="(d,i) in ofertas.slice(0,6)" :key="'of'+d.cod">
+     <div class="ribbon" v-if="i===0">Mejor ahorro</div>
+     <div class="dhead">
+      <div class="dflag">{{d.flag}}</div>
+      <div><div class="dcity">{{ciudadCorta(d)}}</div><div class="dcountry">{{d.pais}} · {{d.cod}}</div></div>
+     </div>
+     <div class="dprice"><div class="dp">{{fmt(d.mejor.clp)}}</div><div class="dper">pp ida y vuelta<br>{{pax}} pax ≈ {{fmt(d.mejor.clp*pax)}}</div></div>
+     <div class="dsave" v-if="gigRef>0&&d.ahorroVsRio>0">💰 {{fmt(d.ahorroVsRio)}} pp · {{fmt(d.ahorroVsRio*pax)}} grupo menos que Río</div>
+     <div class="dsave" style="background:var(--badbg);border-color:#fecdd3;color:#be123c" v-else-if="gigRef>0">⚠️ {{fmt(-d.ahorroVsRio)}} pp más que Río</div>
+     <div class="dmeter">
+      <div class="dmlabel"><span>% del presupuesto {{kfmt(playas.budget||500000)}}</span><span>{{Math.round(d.mejor.clp/(playas.budget||500000)*100)}}%</span></div>
+      <div class="dmtrack"><div class="dmfill" :class="{warn:d.mejor.clp/(playas.budget||500000)>.8}" :style="{width:Math.min(100,d.mejor.clp/(playas.budget||500000)*100)+'%'}"></div></div>
+     </div>
+     <div class="ddates">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.noches}} noches · {{d.mejor.aerolinea}}</div>
+     <div class="dchips">
+      <span class="chip" :class="d.mejor.escalas===0?'save':''">{{d.mejor.escalas===0?'✈️ Directo':'🛬 '+d.mejor.escalas+' escala(s)'}}</span>
+      <span class="chip info">{{d.mejor.src}}</span>
+      <span class="chip save" v-if="d.ahorro>0">Queda {{fmt(d.ahorro)}} pp libre del presupuesto</span>
+     </div>
+     <div class="dpkg">🏨 <b>Paquete sugerido</b> — vuelo + hospedaje para {{pax}} ({{d.mejor.ida}} → {{d.mejor.vuelta}}): <a :href="alojaB(d)" target="_blank" rel="noopener">Booking ↗</a> · <a :href="alojaA(d)" target="_blank" rel="noopener">Airbnb ↗</a></div>
+     <div class="dcta">
+      <a class="btn" :href="d.mejor.link" target="_blank" rel="noopener">Reservar vuelo ↗</a>
+      <a class="btn ghost" v-if="d.cocha&&d.cocha.min_clp&&d.mejor.src!=='Cocha real'" :href="d.cocha.link" target="_blank" rel="noopener">Cocha {{fmt(d.cocha.min_clp)}} ↗</a>
+     </div>
+     <div class="dmore" v-if="(d.windows||[]).length>1||d.cocha"><a href="#" @click.prevent="cur=4">Ver las {{(d.windows||[]).length}} ventanas + detalle completo →</a></div>
+    </div>
+   </div>
+   <h2 v-if="brasilBars.length">Brasil con cotización real de agencia <span class="h2sub">ventana {{cocha.brasil_ventana||'—'}} · Cocha</span></h2>
+   <div class="cgrid" v-if="brasilBars.length">
+    <div class="ccard" v-for="b in brasilBars" :key="'g'+b.cod">
+     <div class="rk" v-if="b.delta_pct<=0">🔥</div>
+     <div class="air">{{b.destino}}</div>
+     <div class="pri">{{fmt(b.min_clp)}}</div>
+     <div class="dt">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}% vs Río ({{fmt(cochaMejor.min_clp||0)}}) · {{b.aerolinea}} · {{b.escalas===0?'directo':b.escalas+' escalas'}}<br>{{pax}} pax ≈ {{fmt(b.min_clp*pax)}}</div>
+     <div class="grow"></div>
+     <a class="btn" :href="b.link" target="_blank" rel="noopener">Cotizar en Cocha ↗</a>
+    </div>
+   </div>
+   <div class="note info" v-if="cuponesActivos.length"><span class="ic">🎟️</span><span><b>Combina tu reserva:</b> hay <b>{{cuponesActivos.length}} cupones y promos vigentes</b> para hoteles y paquetes de estos destinos (Falabella 2X, Cocha y más). <a href="#" @click.prevent="cur=7" style="font-weight:800">Ver cupones →</a></span></div>
+  </section>
+  <!-- 2 CALENDARIO -->
+  <section :class="{on:cur===2}">
+   <div class="note info"><span class="ic">📅</span><span><b>El precio más bajo de cada día</b> (ida o vuelta, según el modo), comparando JetSMART + LATAM + Skiplagged a la vez. Toca un día para ver quién lo vende y con qué vuelo. Los colores van de <b style="color:#059669">barato</b> a <b style="color:#e11d48">caro</b>.</span></div>
+   <div class="paxrow"><span class="paxnote">Mostrar precios de</span>
     <div class="seg"><button :class="{on:calMode==='ida'}" @click="calMode='ida';selDate=''">✈️ Ida SCL→Río</button><button :class="{on:calMode==='vuelta'}" @click="calMode='vuelta';selDate=''">🏠 Vuelta Río→SCL</button></div>
    </div>
-   <div class="legend"><span>{{kfmt(calRange.lo)}}</span><div class="lbar"></div><span>{{kfmt(calRange.hi)}}</span><span class="b">· mínimo del día entre JetSMART+LATAM+Skiplagged · atenuado = sin precio o no calza un viaje ≥9 noches con regreso ≤23-feb</span></div>
+   <div class="legend"><span>{{kfmt(calRange.lo)}}</span><div class="lbar"></div><span>{{kfmt(calRange.hi)}}</span><span class="b">· mínimo del día entre JetSMART+LATAM+Skiplagged · atenuado = sin precio o no calza (≥9 noches, regreso ≤23-feb)</span></div>
    <div class="cals">
     <div class="month" v-for="mm in [{t:'Enero 2027',c:calCells.ene},{t:'Febrero 2027',c:calCells.feb}]" :key="mm.t">
      <div class="mtitle">{{mm.t}}</div>
@@ -386,40 +465,44 @@ details.acc .inner{padding:0 12px 13px}
      </div>
     </div>
    </div>
-   <div class="tile" v-if="selInfo">
-    <div class="kicker">{{calMode==='ida'?'✈️ IDAS':'🏠 VUELTAS'}} · {{dw(selDate)}} {{selDate}} · toca otro día para cambiar</div>
+   <div class="wcard" v-if="selInfo" style="margin-top:16px">
+    <div class="kicker" style="font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--brand2)">{{calMode==='ida'?'✈️ IDAS':'🏠 VUELTAS'}} · {{dw(selDate)}} {{selDate}} · toca otro día para cambiar</div>
     <div class="cgrid" v-if="selInfo.opts.length">
-     <div class="ccard mini" v-for="(o,i) in selInfo.opts" :key="o.src+i">
+     <div class="ccard" v-for="(o,i) in selInfo.opts" :key="o.src+i">
+      <div class="rk" v-if="i===0">🥇</div>
       <div class="air">{{o.src}}</div>
       <div class="pri">{{fmt(o.clp)}}</div>
       <div class="dt">{{o.det}}</div>
-      <a class="btn" :class="o.cls" :href="o.link" target="_blank" rel="noopener">Ver este vuelo ↗</a>
+      <div class="grow"></div>
+      <a class="btn" :class="o.cls||''" :href="o.link" target="_blank" rel="noopener">Ver este vuelo ↗</a>
      </div>
     </div>
-    <div class="warnbox" v-else>Ninguna fuente tiene precio publicado exactamente para ese día. Prueba el día anterior/siguiente (el calendario solo muestra días con precio real).</div>
-    <h2>Mejores {{calMode==='ida'?'vueltas':'idas'}} para combinar <span class="b">(viaje ≥ 9 noches, regreso ≤ 23-feb)</span></h2>
+    <div class="note warn" v-else>Ninguna fuente tiene precio publicado exactamente para ese día. Prueba el día anterior/siguiente (el calendario solo muestra días con precio real).</div>
+    <h2 style="margin-top:20px">Mejores {{calMode==='ida'?'vueltas':'idas'}} para combinar <span class="h2sub">viaje ≥ 9 noches · regreso ≤ 23-feb</span></h2>
     <div class="cgrid">
-     <div class="ccard mini" v-for="s in selInfo.sugg" :key="s.fecha">
+     <div class="ccard" v-for="s in selInfo.sugg" :key="s.fecha">
       <div class="air">{{dw(s.fecha)}} {{s.fecha}}</div>
       <div class="pri">{{kfmt(s.min)}}</div>
       <div class="dt">{{calMode==='ida'?'vuelta':'ida'}} más barata · {{s.src}} · {{s.noches}} noches<br>RT estimado ≈ <b>{{fmt(s.min+dayMin(selDate))}}</b> pp</div>
-      <a class="btn" :href="rtLinks(s.ida,s.vuelta)[0].href" target="_blank" rel="noopener">JetSMART ↗</a>
-      <a class="btn ghost" :href="rtLinks(s.ida,s.vuelta)[3].href" target="_blank" rel="noopener" style="margin-left:6px">Skiplagged ↗</a>
+      <div class="grow"></div>
+      <div style="display:flex;gap:7px"><a class="btn sm" style="flex:1" :href="rtLinks(s.ida,s.vuelta)[0].href" target="_blank" rel="noopener">JetSMART ↗</a>
+      <a class="btn ghost sm" style="flex:1" :href="rtLinks(s.ida,s.vuelta)[3].href" target="_blank" rel="noopener">Skiplagged ↗</a></div>
      </div>
     </div>
-    <div class="b">RT estimado = mejor {{calMode==='ida'?'ida':'vuelta'}} del día elegido + mejor contraparte. Los botones abren la búsqueda real con ambas fechas cargadas (JetSMART, SKY, Cocha y Skiplagged aceptan fechas libres).</div>
+    <div class="b">RT estimado = mejor {{calMode==='ida'?'ida':'vuelta'}} del día elegido + mejor contraparte. Los botones abren la búsqueda real con ambas fechas cargadas.</div>
    </div>
   </section>
-  <!-- 2 AEROLÍNEAS -->
-  <section :class="{on:cur===2}">
-   <div class="ok">✈️ <b>Podio del verano</b>: la mejor tarifa ida-vuelta de cada compañía, buscada en todas las fuentes a la vez (gana la más barata). Sin listados eternos: solo lo que sirve para decidir.</div>
+  <!-- 3 AEROLÍNEAS -->
+  <section :class="{on:cur===3}">
+   <div class="note info"><span class="ic">✈️</span><span><b>Podio del verano</b>: la mejor tarifa ida-vuelta de cada compañía, buscada en todas las fuentes a la vez (gana la más barata). Sin listados eternos: solo lo que sirve para decidir.</span></div>
    <div class="podium">
     <div class="pcard" v-for="(r,i) in rtPorAerolinea.slice(0,3)" :key="r.cod" :class="{first:i===0}">
      <div class="medal">{{['🥇','🥈','🥉'][i]}}</div>
      <div class="air">{{r.airline}}</div>
      <div class="pri">{{fmt(r.clp)}}</div>
      <div class="dt">{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}} · {{noches(r.ida,r.vuelta)}} noches<br>{{r.det}}<br><span class="b">{{r.fuente}} · {{pax}} pax ≈ {{fmt(r.clp*pax)}}</span></div>
-     <a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
+     <div class="grow" style="flex:1"></div>
+     <a class="btn" :class="r.cls||''" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
     </div>
    </div>
    <div class="rlist">
@@ -427,76 +510,45 @@ details.acc .inner{padding:0 12px 13px}
      <div class="rk">{{i+4}}</div>
      <div class="info"><b>{{r.airline}}</b><div class="b">{{dw(r.ida)}} {{r.ida}} → {{dw(r.vuelta)}} {{r.vuelta}} · {{r.det}} · {{r.fuente}}</div></div>
      <div class="rp">{{fmt(r.clp)}} <span class="b">pp · {{pax}} pax {{fmt(r.clp*pax)}}</span></div>
-     <a class="btn" :class="r.cls" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
+     <a class="btn sm" :class="r.cls||''" :href="r.link" target="_blank" rel="noopener">Comprar ↗</a>
     </div>
    </div>
    <details class="acc"><summary>🥇 Combos JetSMART oficiales (API, {{pax}} pax con asignación real de asientos)</summary><div class="inner">
     <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>Vuelos</th><th>CLP pp</th><th>Total grupo</th><th>Comprar</th></tr>
-     <tr v-for="c in combosPax.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.tot??c.clp*pax)}}</td><td><a class="btn" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+     <tr v-for="c in combosPax.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td><b>{{c.v_ida}}</b> / <b>{{c.v_vue}}</b></td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.tot??c.clp*pax)}}</td><td><a class="btn sm" :href="jsRT(c.ida,c.vuelta)" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
     </table></div>
    </div></details>
    <details class="acc"><summary>🔎 Todos los vuelos JetSMART por día (idas y vueltas, con filtro)</summary><div class="inner">
     <input class="filt" v-model="fi" placeholder="Filtrar idas por fecha (ej: 2027-01-22)">
     <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde pp</th><th>Clases</th><th>Comprar</th></tr>
-     <tr v-for="x in fI" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'SCL','GIG')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+     <tr v-for="x in fI" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn sm" :href="jsOW(x.fecha,'SCL','GIG')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
      <tr v-if="!fI.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
     </table></div>
     <input class="filt" v-model="fv" placeholder="Filtrar vueltas por fecha (ej: 2027-02-01)">
     <div class="tbl"><table><tr><th>Fecha</th><th>Vuelo</th><th>Salida</th><th>Desde pp</th><th>Clases</th><th>Comprar</th></tr>
-     <tr v-for="x in fV" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn" :href="jsOW(x.fecha,'GIG','SCL')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
+     <tr v-for="x in fV" :key="x.fecha+x.vuelo+x.hora"><td>{{dw(x.fecha)}} {{x.fecha}}</td><td><b>{{x.vuelo}}</b></td><td>{{x.hora}}</td><td class="p">{{fmt(x.clp)}}</td><td class="b">{{(x.buckets||[]).join(', ')}}</td><td><a class="btn sm" :href="jsOW(x.fecha,'GIG','SCL')" target="_blank" rel="noopener">Comprar ↗</a></td></tr>
      <tr v-if="!fV.length"><td colspan="6">Sin resultados para ese filtro</td></tr>
     </table></div>
    </div></details>
    <details class="acc"><summary>🟣 Todas las tarifas SKY (API oficial, RT directos 9–12 noches)</summary><div class="inner">
     <div class="b" style="margin-bottom:6px">Verificado {{sky.ts||'—'}} · el precio de compra puede variar según familia tarifaria y stock.</div>
     <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax</th><th>Reservar</th></tr>
-     <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*pax)}}</td><td><a class="btn sky" :href="skyLink(s)" target="_blank" rel="noopener">Reservar ↗</a></td></tr>
+     <tr v-for="s in sky.pairs" :key="s.ida+s.vuelta"><td>{{dw(s.ida)}} {{s.ida}} → {{dw(s.vuelta)}} {{s.vuelta}}</td><td>{{s.noches}}</td><td class="p">{{fmt(s.clp)}}</td><td class="p">{{fmt(s.clp*pax)}}</td><td><a class="btn sm amber" :href="skyLink(s)" target="_blank" rel="noopener">Reservar ↗</a></td></tr>
     </table></div>
    </div></details>
    <details class="acc"><summary>🔵 Todo LATAM (API oficial: combos + mínimo por día, solo directos)</summary><div class="inner">
     <div class="tbl"><table><tr><th>Ida → Vuelta</th><th>Noches</th><th>CLP pp</th><th>{{pax}} pax</th><th>Ir</th></tr>
-     <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn ggl" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
+     <tr v-for="c in lat.combos?.slice(0,14)" :key="c.ida+c.vuelta"><td>{{dw(c.ida)}} {{c.ida}} → {{dw(c.vuelta)}} {{c.vuelta}}</td><td>{{c.noches}}</td><td class="p">{{fmt(c.clp)}}</td><td class="p">{{fmt(c.clp*pax)}}</td><td><a class="btn sm ink" href="https://www.latamairlines.com/cl/es" target="_blank" rel="noopener">LATAM ↗</a></td></tr>
     </table></div>
     <div class="tbl"><table><tr><th>Ida SCL→GIG</th><th>CLP</th><th>Vuelta GIG→SCL</th><th>CLP</th></tr>
      <tr v-for="(row,i) in latRows" :key="i"><td>{{row.a?dw(row.a.fecha)+' '+row.a.fecha:''}}</td><td class="p">{{row.a?fmt(row.a.clp):''}}</td><td>{{row.b?dw(row.b.fecha)+' '+row.b.fecha:''}}</td><td class="p">{{row.b?fmt(row.b.clp):''}}</td></tr>
     </table></div>
    </div></details>
   </section>
-  <!-- 3 BRASIL -->
-  <section :class="{on:cur===3}">
-   <div class="ok">🇧🇷 <b>¿Y si el destino fuera otro?</b> Cotización real Cocha para la ventana {{cocha.brasil_ventana||'—'}}. Cada barra es un destino: mientras más corta y verde, más conveniente vs. Río <b>({{fmt(cochaMejor.min_clp||0)}} pp)</b>.</div>
-   <div class="bars">
-    <div class="brow"><div class="bname">🏖 Río de Janeiro<span class="b">GIG · referencia</span></div><div class="btrack"><div class="bfill good" style="width:100%"></div></div><div class="bval">{{fmt(cochaMejor.min_clp||0)}}<span class="d">base</span></div></div>
-    <div class="brow" v-for="b in brasilBars" :key="b.cod">
-     <div class="bname">{{b.destino}}<span class="b">{{b.cod}} · {{b.aerolinea}} · {{b.escalas===0?'directo':b.escalas+' escalas'}}</span></div>
-     <div class="btrack"><div class="bfill" :class="{good:b.good}" :style="{width:b.w+'%'}"></div></div>
-     <div class="bval">{{fmt(b.min_clp)}}<span class="d" :class="{up:b.delta_pct>20,bad:b.delta_pct>50}">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}% vs Río</span></div>
-    </div>
-   </div>
-   <div class="cgrid">
-    <div class="ccard mini" v-for="b in brasilBars.filter(x=>x.good)" :key="'g'+b.cod">
-     <div class="air">{{b.destino}}</div>
-     <div class="pri">{{fmt(b.min_clp)}}</div>
-     <div class="dt">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}% vs Río · {{b.aerolinea}} · {{b.escalas===0?'directo':b.escalas+' escalas'}}<br>{{pax}} pax ≈ {{fmt(b.min_clp*pax)}}</div>
-     <a class="btn" :href="b.link" target="_blank" rel="noopener">Cotizar ↗</a>
-    </div>
-   </div>
-   <details class="acc"><summary>📋 Tabla completa de destinos Brasil</summary><div class="inner">
-    <div class="tbl"><table><tr><th>#</th><th>Destino</th><th>Aerolínea</th><th>Escalas</th><th>RT pp</th><th>{{pax}} pax</th><th>Δ vs Río</th><th>Cotizar</th></tr>
-     <tr v-for="(b,i) in cocha.brasil||[]" :key="b.cod"><td>{{i+1}}</td><td><b>{{b.destino}}</b> ({{b.cod}})</td><td>{{b.aerolinea}}</td><td>{{b.escalas===0?'Directo ✈️':b.escalas}}</td><td class="p"><b>{{fmt(b.min_clp)}}</b></td><td class="p">{{fmt(b.min_clp*pax)}}</td><td class="p">{{b.delta_pct>0?'+':''}}{{b.delta_pct}}%</td><td><a class="btn fal" :href="b.link" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
-    </table></div>
-    <div class="b">Búzios se vuela vía Río (GIG), ya cubierto en las demás pestañas. Δ verde = dentro de +20% o más barato que Río.</div>
-   </div></details>
-  </section>
-  <!-- 4 PLAYAS LATAM -->
+  <!-- 4 DESTINOS (playas) -->
   <section :class="{on:cur===4}">
-   <div class="ok">🌎 <b>Playas de Latinoamérica bajo {{kfmt(playas.budget||500000)}} CLP</b> ida y vuelta por persona, con las mismas reglas del viaje (ene–feb 2027, ≥9 noches, regreso ≤ 23-feb). Escaneo en vivo: Skiplagged (todas las aerolíneas del mundo) + cotización real Cocha. <b>{{playasOk.length}} destinos califican</b> de {{playasRows.length}} con precio.</div>
+   <div class="note info"><span class="ic">🌎</span><span><b>Playas de Latinoamérica bajo {{kfmt(playas.budget||500000)}} CLP</b> ida y vuelta por persona, con las mismas reglas del viaje (ene–feb 2027, ≥9 noches, regreso ≤ 23-feb). Escaneo en vivo: Skiplagged (todas las aerolíneas) + cotización real Cocha. <b>{{playasOk.length}} destinos califican</b> de {{playasRows.length}} con precio.</span></div>
    <template v-if="playasAxis">
-   <div class="promo" v-if="playasVsRio&&playasVsRio.diff>0" style="cursor:default">
-    <div class="pemoji">🔥</div>
-    <div class="ptext"><b>Hallazgo del día:</b> {{playasVsRio.best.flag}} {{playasVsRio.best.ciudad}} cuesta <b class="save">{{fmt(playasVsRio.diff)}} menos que Río</b> por persona ({{playasVsRio.best.mejor.aerolinea}}{{playasVsRio.best.mejor.escalas===0?', directo':' con '+playasVsRio.best.mejor.escalas+' escalas'}}, {{dw(playasVsRio.best.mejor.ida)}} {{playasVsRio.best.mejor.ida}} → {{dw(playasVsRio.best.mejor.vuelta)}} {{playasVsRio.best.mejor.vuelta}}). Para los {{pax}} pasajeros, el ahorro vs. Río sería <b class="save">≈ {{fmt(playasVsRio.diff*pax)}}</b> — suficiente para varias noches de alojamiento frente al mar.</div>
-    <div class="pcta">{{playasOk.length}} bajo $500K</div>
-   </div>
    <div class="ruler">
     <div class="rtrack">
      <div class="rbud" :style="{left:playasAxis.budPct+'%'}"><span>💰 {{kfmt(playas.budget||500000)}}</span></div>
@@ -506,108 +558,113 @@ details.acc .inner{padding:0 12px 13px}
     </div>
     <div class="raxis"><span>{{kfmt(playasAxis.lo)}}</span><span class="b">◀ más barato · más caro ▶ · línea roja = presupuesto</span><span>{{kfmt(playasAxis.hi)}}</span></div>
    </div>
-   <h2>🎫 Pases de abordar bajo presupuesto</h2>
-   <div class="b" style="margin:-4px 0 2px">Cada pase = la opción más barata encontrada para ese destino (mejor ventana entre las 3 cotizadas y la mejor fuente). Tócalo para ver las demás ventanas.</div>
-   <div class="bplist">
-    <div class="bp" v-for="d in playasOk" :key="'bp'+d.cod">
-     <div class="stub">
-      <div class="sroute">SCL ✈ {{d.cod}}</div>
-      <div class="bpri">{{fmt(d.mejor.clp)}}</div>
-      <div class="bsrc">{{d.mejor.src}} · pp RT</div>
-      <div class="barcode"></div>
+   <h2>Pases de abordar bajo presupuesto <span class="h2sub">cada pase = la mejor opción encontrada para ese destino</span></h2>
+   <div class="deals">
+    <div class="deal" v-for="d in playasOk" :key="'bp'+d.cod">
+     <div class="ribbon" v-if="d.mejor.clp===minPlaya">Precio top</div>
+     <div class="dhead">
+      <div class="dflag">{{d.flag}}</div>
+      <div><div class="dcity">{{ciudadCorta(d)}}</div><div class="dcountry">{{d.pais}} · SCL ⇄ {{d.cod}}</div></div>
      </div>
-     <div class="bpbody">
-      <div class="bpcity">{{d.flag}} {{d.ciudad}}<span class="bpcty">{{d.pais}}</span></div>
-      <div class="bpdates">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.noches}} noches<br>{{d.mejor.escalas===0?'✈️ directo':d.mejor.escalas+' escala(s)'}} · {{d.mejor.aerolinea}}</div>
-      <div class="chips"><span class="chip" v-if="d.mejor.escalas===0">✈️ Directo</span><span class="chip save" v-if="gigRef&&d.cod!=='GIG'&&d.mejor.clp<gigRef">−{{fmt(gigRef-d.mejor.clp)}} vs Río</span><span class="chip">{{d.mejor.noches}} noches</span><span class="chip">Ahorro pp: {{fmt(d.ahorro)}}</span></div>
-      <div class="bptot">{{pax}} pax ≈ {{fmt(d.mejor.clp*pax)}} · ahorras {{fmt(d.ahorro)}} pp vs presupuesto</div>
-      <div class="cta">
-       <a class="btn" :href="d.mejor.link" target="_blank" rel="noopener">Comprar ↗</a>
-       <a class="btn ghost" v-if="d.cocha&&d.cocha.min_clp&&d.mejor.src!=='Cocha real'" :href="d.cocha.link" target="_blank" rel="noopener">Cocha {{fmt(d.cocha.min_clp)}} ↗</a>
-      </div>
-      <div class="pkg">🏨 <b>Arma el paquete</b> (vuelo + estadía 9 pax, {{d.mejor.ida}} → {{d.mejor.vuelta}}): <a :href="alojaB(d)" target="_blank" rel="noopener">Booking ↗</a> · <a :href="alojaA(d)" target="_blank" rel="noopener">Airbnb ↗</a></div>
-      <details class="acc" v-if="(d.windows||[]).length" style="margin-bottom:0"><summary>{{(d.windows||[]).length}} ventanas en Skiplagged{{d.cocha?' + Cocha real':''}}</summary><div class="inner"><div class="wrows">
-       <div class="wrow" v-for="w in d.windows" :key="w.ida+w.vuelta"><span class="wa">{{dw(w.ida)}} {{w.ida}} → {{dw(w.vuelta)}} {{w.vuelta}}</span><span class="b">{{w.aerolinea}} · {{w.escalas===0?'directo':w.escalas+' esc.'}}</span><span class="wp">{{fmt(w.min_clp)}}</span><a class="b" :href="w.link" target="_blank" rel="noopener">Abrir ↗</a></div>
-       <div class="wrow" v-if="d.cocha&&d.cocha.min_clp"><span class="wa">Cocha real · {{dw(d.cocha.ida)}} {{d.cocha.ida}} → {{dw(d.cocha.vuelta)}} {{d.cocha.vuelta}}</span><span class="b">{{d.cocha.aerolinea}} · {{d.cocha.escalas===0?'directo':d.cocha.escalas+' esc.'}}</span><span class="wp">{{fmt(d.cocha.min_clp)}}</span><a class="b" :href="d.cocha.link" target="_blank" rel="noopener">Abrir ↗</a></div>
-      </div></div></details>
+     <div class="dprice"><div class="dp">{{fmt(d.mejor.clp)}}</div><div class="dper">pp RT · fuente {{d.mejor.src}}<br>{{pax}} pax ≈ {{fmt(d.mejor.clp*pax)}}</div></div>
+     <div class="dsave" v-if="gigRef>0&&d.cod!=='GIG'&&d.mejor.clp<gigRef">💰 {{fmt(gigRef-d.mejor.clp)}} pp menos que Río ({{fmt(gigRef)}})</div>
+     <div class="dsave" v-else-if="d.ahorro>0">💰 {{fmt(d.ahorro)}} pp bajo el presupuesto</div>
+     <div class="dmeter">
+      <div class="dmlabel"><span>% del presupuesto usado</span><span>{{Math.round(d.mejor.clp/(playas.budget||500000)*100)}}%</span></div>
+      <div class="dmtrack"><div class="dmfill" :class="{warn:d.mejor.clp/(playas.budget||500000)>.8}" :style="{width:Math.min(100,d.mejor.clp/(playas.budget||500000)*100)+'%'}"></div></div>
      </div>
+     <div class="ddates">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.noches}} noches · {{d.mejor.aerolinea}}</div>
+     <div class="dchips">
+      <span class="chip" :class="d.mejor.escalas===0?'save':''">{{d.mejor.escalas===0?'✈️ Directo':'🛬 '+d.mejor.escalas+' escala(s)'}}</span>
+      <span class="chip">{{d.mejor.noches}} noches</span>
+      <span class="chip info" v-if="d.ahorro>0">Sobra {{fmt(d.ahorro)}} pp</span>
+     </div>
+     <div class="dpkg">🏨 <b>Arma el paquete</b> (vuelo + estadía {{pax}} pax): <a :href="alojaB(d)" target="_blank" rel="noopener">Booking ↗</a> · <a :href="alojaA(d)" target="_blank" rel="noopener">Airbnb ↗</a></div>
+     <div class="dcta">
+      <a class="btn" :href="d.mejor.link" target="_blank" rel="noopener">Comprar ↗</a>
+      <a class="btn ghost" v-if="d.cocha&&d.cocha.min_clp&&d.mejor.src!=='Cocha real'" :href="d.cocha.link" target="_blank" rel="noopener">Cocha {{fmt(d.cocha.min_clp)}} ↗</a>
+     </div>
+     <details class="acc" v-if="(d.windows||[]).length" style="margin:0 19px 17px;box-shadow:none"><summary>{{(d.windows||[]).length}} ventanas en Skiplagged{{d.cocha?' + Cocha real':''}}</summary><div class="inner"><div class="wrows">
+      <div class="wrow" v-for="w in d.windows" :key="w.ida+w.vuelta"><span class="wa">{{dw(w.ida)}} {{w.ida}} → {{dw(w.vuelta)}} {{w.vuelta}}</span><span class="b">{{w.aerolinea}} · {{w.escalas===0?'directo':w.escalas+' esc.'}}</span><span class="wp">{{fmt(w.min_clp)}}</span><a class="b" :href="w.link" target="_blank" rel="noopener">Abrir ↗</a></div>
+      <div class="wrow" v-if="d.cocha&&d.cocha.min_clp"><span class="wa">Cocha real · {{dw(d.cocha.ida)}} {{d.cocha.ida}} → {{dw(d.cocha.vuelta)}} {{d.cocha.vuelta}}</span><span class="b">{{d.cocha.aerolinea}} · {{d.cocha.escalas===0?'directo':d.cocha.escalas+' esc.'}}</span><span class="wp">{{fmt(d.cocha.min_clp)}}</span><a class="b" :href="d.cocha.link" target="_blank" rel="noopener">Abrir ↗</a></div>
+     </div></div></details>
     </div>
    </div>
-   <h2 v-if="playasNo.length">Fuera de presupuesto <span class="b">(≥ {{kfmt(playas.budget||500000)}} pp — referencia por si aparece una oferta)</span></h2>
+   <h2 v-if="playasNo.length">Fuera de presupuesto <span class="h2sub">(≥ {{kfmt(playas.budget||500000)}} pp — referencia por si aparece una oferta)</span></h2>
    <div class="rlist">
     <div class="rrow over" v-for="d in playasNo" :key="'o'+d.cod">
-     <div class="rk">{{d.flag}}</div>
-     <div class="info"><b>{{d.ciudad}}</b> ({{d.cod}})<div class="b">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.aerolinea}} · {{d.mejor.escalas===0?'directo':d.mejor.escalas+' escalas'}} · {{d.mejor.src}}</div></div>
-     <div class="rp">{{fmt(d.mejor.clp)}} <span class="b" style="color:var(--rose)">+{{fmt(-d.ahorro)}} sobre</span></div>
-     <a class="btn ghost" :href="d.mejor.link" target="_blank" rel="noopener">Ver ↗</a>
+     <div class="rk" style="font-size:1.1rem">{{d.flag}}</div>
+     <div class="info"><b>{{ciudadCorta(d)}}</b> ({{d.cod}})<div class="b">{{dw(d.mejor.ida)}} {{d.mejor.ida}} → {{dw(d.mejor.vuelta)}} {{d.mejor.vuelta}} · {{d.mejor.aerolinea}} · {{d.mejor.escalas===0?'directo':d.mejor.escalas+' escalas'}} · {{d.mejor.src}}</div></div>
+     <div class="rp">{{fmt(d.mejor.clp)}} <span class="b" style="color:var(--bad)">+{{fmt(-d.ahorro)}} sobre</span></div>
+     <a class="btn ghost sm" :href="d.mejor.link" target="_blank" rel="noopener">Ver ↗</a>
     </div>
    </div>
-   <div class="warnbox" v-if="playasSin.length">⏳ Sin itinerarios publicados en este ciclo: {{playasSin.map(d=>d.flag+' '+d.ciudad).join(' · ')}} — el sistema reintenta solo.</div>
+   <div class="note warn" v-if="playasSin.length"><span class="ic">⏳</span><span>Sin itinerarios publicados en este ciclo: {{playasSin.map(d=>d.flag+' '+ciudadCorta(d)).join(' · ')}} — el sistema reintenta solo.</span></div>
    <details class="acc"><summary>📋 Tabla completa: todos los destinos, ventanas y fuentes</summary><div class="inner">
     <div class="tbl"><table><tr><th>Destino</th><th>Mejor RT pp</th><th>Fuente</th><th>Ventana</th><th>Aerolínea</th><th>Escalas</th><th>{{pax}} pax</th><th>vs presupuesto</th><th>Ir</th></tr>
-     <tr v-for="d in playasRows" :key="'t'+d.cod"><td><b>{{d.flag}} {{d.ciudad}}</b> ({{d.cod}})</td><td class="p"><b>{{fmt(d.mejor.clp)}}</b></td><td class="b">{{d.mejor.src}}</td><td class="b">{{d.mejor.ida}} → {{d.mejor.vuelta}}</td><td>{{d.mejor.aerolinea}}</td><td>{{d.mejor.escalas===0?'Directo ✈️':d.mejor.escalas}}</td><td class="p">{{fmt(d.mejor.clp*pax)}}</td><td class="p">{{d.califica?'✓ −'+fmt(d.ahorro):'+'+fmt(-d.ahorro)}}</td><td><a class="btn" :class="d.califica?'':'ghost'" :href="d.mejor.link" target="_blank" rel="noopener">↗</a></td></tr>
+     <tr v-for="d in playasRows" :key="'t'+d.cod"><td><b>{{d.flag}} {{ciudadCorta(d)}}</b> ({{d.cod}})</td><td class="p"><b>{{fmt(d.mejor.clp)}}</b></td><td class="b">{{d.mejor.src}}</td><td class="b">{{d.mejor.ida}} → {{d.mejor.vuelta}}</td><td>{{d.mejor.aerolinea}}</td><td>{{d.mejor.escalas===0?'Directo ✈️':d.mejor.escalas}}</td><td class="p">{{fmt(d.mejor.clp*pax)}}</td><td class="p">{{d.califica?'✓ −'+fmt(d.ahorro):'+'+fmt(-d.ahorro)}}</td><td><a class="btn sm" :class="d.califica?'':'ghost'" :href="d.mejor.link" target="_blank" rel="noopener">↗</a></td></tr>
     </table></div>
-    <div class="b">Skiplagged = metasearch en vivo (USD→CLP dólar observado ${{Math.round(playas.fx||0).toLocaleString('es-CL')}}), precio no garantizado en checkout; Cocha = cotización real. Último escaneo: {{playas.ts||'—'}} (UTC). Ventanas: {{(playas.ventanas||[]).join(' · ')}}. Reglas: ≥9 noches, regreso ≤ 23-feb-2027.</div>
+    <div class="b">Skiplagged = metasearch en vivo (USD→CLP dólar observado ${{Math.round(playas.fx||0).toLocaleString('es-CL')}}), precio no garantizado en checkout; Cocha = cotización real. Último escaneo: {{playas.ts||'—'}} UTC. Ventanas: {{(playas.ventanas||[]).join(' · ')}}. Reglas: ≥9 noches, regreso ≤ 23-feb-2027.</div>
    </div></details>
    </template>
-   <div class="warnbox" v-else>⏳ Primer escaneo de playas en curso — en minutos aparecen aquí los destinos bajo presupuesto (se refresca solo).</div>
+   <div class="note warn" v-else><span class="ic">⏳</span><span>Primer escaneo de playas en curso — en minutos aparecen aquí los destinos bajo presupuesto (se refresca solo).</span></div>
   </section>
   <!-- 5 AGENCIAS -->
   <section :class="{on:cur===5}">
-   <div class="ok">🏬 <b>Agencias y metasearch en vivo</b>: Cocha (cotización real multi-aerolínea) y Skiplagged (10+ aerolíneas del mundo). Solo el top de cada búsqueda a la vista; el detalle completo se despliega.</div>
-   <div class="warnbox" v-if="!esFresca(cocha.ts)">🕘 Última cotización Cocha exitosa: {{cocha.ts||'—'}} (UTC). El sistema reintenta cada ciclo y conserva el último dato real.</div>
+   <div class="note info"><span class="ic">🏬</span><span><b>Agencias y metasearch en vivo</b>: Cocha (cotización real multi-aerolínea), Skiplagged (10+ aerolíneas del mundo) y las referencias de Falabella/Despegar cuando su lectura es fresca.</span></div>
+   <div class="note warn" v-if="!esFresca(cocha.ts)"><span class="ic">🕘</span><span>Última cotización Cocha exitosa: {{cocha.ts||'—'}} UTC. El sistema reintenta cada ciclo y conserva el último dato real.</span></div>
    <div class="wcard" v-for="v in cocha.ventanas||[]" :key="'c'+v.ida">
-    <div class="wtop"><span class="wdate">🧭 Cocha · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}}</span><span class="wpri">{{fmt(v.min_clp)}} <span class="b">pp</span></span></div>
+    <div class="wtop"><span class="wdate">🧭 Cocha · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}}</span><span class="wpri">{{fmt(v.min_clp)}} <span class="b" style="font-weight:600;color:var(--mut);font-size:.75rem">pp</span></span></div>
     <div class="wrows">
      <div class="wrow" v-for="(r,i) in (v.resultados||[]).slice(0,3)" :key="r.det"><span class="wa">{{r.aerolinea}}</span><span class="b">{{r.det}} · {{r.escalas===0?'directo':r.escalas+' escalas'}}</span><span class="wp">{{fmt(r.clp)}}</span></div>
     </div>
-    <details class="acc" style="margin:9px 0 0"><summary>Ver los {{(v.resultados||[]).length}} resultados de esta ventana</summary><div class="inner">
+    <details class="acc" style="margin:10px 0 0"><summary>Ver los {{(v.resultados||[]).length}} resultados de esta ventana</summary><div class="inner">
      <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle</th><th>Escalas</th><th>CLP pp</th><th>{{pax}} pax</th></tr>
       <tr v-for="(r,i) in v.resultados" :key="v.ida+r.det"><td>{{i+1}}</td><td><b>{{r.aerolinea}}</b></td><td class="b">{{r.det}}</td><td>{{r.escalas===0?'Directo ✈️':r.escalas}}</td><td class="p">{{fmt(r.clp)}}</td><td class="p">{{fmt(r.clp*pax)}}</td></tr>
      </table></div>
     </div></details>
-    <a class="btn fal" :href="v.link" target="_blank" rel="noopener" style="margin-top:10px">Abrir esta búsqueda en Cocha ↗</a>
+    <a class="btn" :href="v.link" target="_blank" rel="noopener" style="margin-top:12px">Abrir esta búsqueda en Cocha ↗</a>
    </div>
    <template v-for="v in sk.ventanas||[]" :key="'s'+v.ida">
     <div class="wcard">
-     <div class="wtop"><span class="wdate">🌎 Skiplagged · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}}</span><span class="wpri">{{fmt(v.min_clp)}} <span class="b">pp</span></span></div>
-     <div class="b" style="margin-top:3px">CLP vía dólar observado (${{Math.round(v.fx||0).toLocaleString('es-CL')}}) · todas las aerolíneas del mundo</div>
+     <div class="wtop"><span class="wdate">🌎 Skiplagged · {{dw(v.ida)}} {{v.ida}} → {{dw(v.vuelta)}} {{v.vuelta}}</span><span class="wpri">{{fmt(v.min_clp)}} <span class="b" style="font-weight:600;color:var(--mut);font-size:.75rem">pp</span></span></div>
+     <div class="b" style="margin-top:4px">CLP vía dólar observado (${{Math.round(v.fx||0).toLocaleString('es-CL')}}) · todas las aerolíneas del mundo</div>
      <div class="wrows">
       <div class="wrow" v-for="(x,i) in (v.resultados||[]).slice(0,3)" :key="x.det+i"><span class="wa">{{x.aerolinea}}</span><span class="b">{{x.det}} · {{x.escalas===0?'directo':x.escalas+' escalas'}}</span><span class="wp">{{fmt(x.clp)}}</span></div>
      </div>
-     <details class="acc" style="margin:9px 0 0"><summary>Ver los {{(v.resultados||[]).length}} itinerarios top</summary><div class="inner">
+     <details class="acc" style="margin:10px 0 0"><summary>Ver los {{(v.resultados||[]).length}} itinerarios top</summary><div class="inner">
       <div class="tbl"><table><tr><th>#</th><th>Aerolínea</th><th>Detalle ida</th><th>Escalas</th><th>CLP pp RT</th><th>{{pax}} pax</th></tr>
        <tr v-for="(x,i) in v.resultados" :key="x.det+i"><td>{{i+1}}</td><td><b>{{x.aerolinea}}</b></td><td>{{x.det}}</td><td>{{x.escalas===0?'Directo ✈️':x.escalas}}</td><td class="p"><b>{{fmt(x.clp)}}</b></td><td class="p">{{fmt(x.clp*pax)}}</td></tr>
       </table></div>
      </div></details>
-     <a class="btn" :href="v.link" target="_blank" rel="noopener" style="margin-top:10px">Abrir en Skiplagged ↗</a>
+     <a class="btn" :href="v.link" target="_blank" rel="noopener" style="margin-top:12px">Abrir en Skiplagged ↗</a>
     </div>
    </template>
-   <div class="warnbox" v-if="!(sk.ventanas||[]).length">⏳ Skiplagged sin datos por ahora — el sistema reintenta automáticamente cada ciclo.</div>
-   <h2>Referencias OTA (lectura bloqueada por sus portales)</h2>
+   <div class="note warn" v-if="!(sk.ventanas||[]).length"><span class="ic">⏳</span><span>Skiplagged sin datos por ahora — el sistema reintenta automáticamente cada ciclo.</span></div>
+   <h2>Referencias OTA <span class="h2sub">Falabella y Despegar bloquean lecturas automáticas; cuando el bypass funciona, aparece aquí fresco</span></h2>
    <div class="wcard">
-    <div class="warnbox" v-if="!esFresca(fal.ts)" style="margin:0 0 8px">🕘 <b>Falabella · referencia antigua del {{fal.ts||'—'}} (UTC)</b> — NO es el precio de hoy; excluida del ranking hasta renovarse.</div>
-    <div class="ok" v-else style="margin:0 0 8px">✅ <b>Falabella · referencia verificada</b> — {{fal.ts}}</div>
-    <div class="wtop" v-if="falBest"><span class="wdate">💡 Mejor ida+vuelta referencial</span><span class="wpri">{{fmt(falBest.tot)}} <span class="b">pp · {{falBest.ida.fecha}} → {{falBest.vuelta.fecha}}</span></span></div>
+    <span class="srcpill" :class="esFresca(fal.ts)?'fresh':'stale'">{{esFresca(fal.ts)?'✓ verificado':'ref. antigua'}} · {{hace(fal.ts)}}</span>
+    <div class="wtop" style="margin-top:8px" v-if="falBest"><span class="wdate">💡 Mejor ida+vuelta referencial</span><span class="wpri">{{fmt(falBest.tot)}} <span class="b" style="font-weight:600;color:var(--mut);font-size:.75rem">pp · {{falBest.ida.fecha}} → {{falBest.vuelta.fecha}}</span></span></div>
+    <div class="note warn" v-if="!esFresca(fal.ts)" style="margin-top:10px"><span class="ic">⚠️</span><span><b>Falabella · referencia del {{fal.ts||'—'}} UTC</b> — NO es el precio de hoy; excluida del ranking hasta renovarse.</span></div>
     <details class="acc"><summary>Ver tramos Falabella</summary><div class="inner">
      <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mín. pp</th><th>{{pax}} pax</th><th>Detalle</th><th>Ver</th></tr>
       <template v-for="d in fal.dias" :key="d.sentido+d.fecha">
-       <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn fal" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+       <tr><td>{{d.sentido==='SCL-RIO'?'Ida SCL→Río':'Vuelta Río→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn sm amber" :href="falOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
        <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="falOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
       </template>
      </table></div>
     </div></details>
    </div>
    <div class="wcard">
-    <div class="warnbox" v-if="!esFresca(des.ts)" style="margin:0 0 8px">🕘 <b>Despegar · referencia antigua del {{des.ts||'—'}} (UTC)</b> — NO es el precio de hoy; excluida del ranking hasta renovarse.</div>
-    <div class="ok" v-else style="margin:0 0 8px">✅ <b>Despegar · referencia verificada</b> — {{des.ts}}</div>
-    <div class="wtop" v-if="desBest"><span class="wdate">💡 Mejor ida+vuelta referencial</span><span class="wpri">{{fmt(desBest.tot)}} <span class="b">pp · {{desBest.ida.fecha}} → {{desBest.vuelta.fecha}}</span></span></div>
+    <span class="srcpill" :class="esFresca(des.ts)?'fresh':'stale'">{{esFresca(des.ts)?'✓ verificado':'ref. antigua'}} · {{hace(des.ts)}}</span>
+    <div class="wtop" style="margin-top:8px" v-if="desBest"><span class="wdate">💡 Mejor ida+vuelta referencial</span><span class="wpri">{{fmt(desBest.tot)}} <span class="b" style="font-weight:600;color:var(--mut);font-size:.75rem">pp · {{desBest.ida.fecha}} → {{desBest.vuelta.fecha}}</span></span></div>
+    <div class="note warn" v-if="!esFresca(des.ts)" style="margin-top:10px"><span class="ic">⚠️</span><span><b>Despegar · referencia del {{des.ts||'—'}} UTC</b> — NO es el precio de hoy; excluida del ranking hasta renovarse.</span></div>
     <details class="acc"><summary>Ver tramos Despegar</summary><div class="inner">
      <div class="tbl"><table><tr><th>Sentido</th><th>Fecha</th><th>Mín. pp</th><th>{{pax}} pax</th><th>Detalle</th><th>Ver</th></tr>
       <template v-for="d in des.dias||[]" :key="d.sentido+d.fecha">
-       <tr><td>{{d.sentido==='SCL-GIG'?'Ida SCL→Río (GIG)':'Vuelta Río (GIG)→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn sky" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+       <tr><td>{{d.sentido==='SCL-GIG'?'Ida SCL→Río (GIG)':'Vuelta Río (GIG)→SCL'}}</td><td>{{dw(d.fecha)}} {{d.fecha}}</td><td class="p">{{d.min_clp?fmt(d.min_clp):'—'}}</td><td class="p">{{d.min_clp?fmt(d.min_clp*pax):'—'}}</td><td class="b">{{d.det||''}}</td><td><a class="btn sm" :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
        <tr v-for="vv in d.vuelos||[]" :key="d.fecha+vv.det"><td class="b">· cotización</td><td class="b">{{vv.det}}</td><td class="p b">{{fmt(vv.clp)}}</td><td class="p b">{{fmt(vv.clp*pax)}}</td><td>{{vv.nota||''}}</td><td><a :href="desOW(d.sentido,d.fecha)" target="_blank" rel="noopener">Ver ↗</a></td></tr>
-       <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="desOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Abrir ↗</a></td></tr>
+       <tr v-for="c in (d.calendario||[])" :key="c.fecha"><td class="b">· día vecino</td><td>{{dw(c.fecha)}} {{c.fecha}}</td><td class="p b">{{fmt(c.clp)}}</td><td></td><td></td><td><a :href="desOW(d.sentido,c.fecha)" target="_blank" rel="noopener">Ver ↗</a></td></tr>
       </template>
      </table></div>
     </div></details>
@@ -615,59 +672,62 @@ details.acc .inner{padding:0 12px 13px}
   </section>
   <!-- 6 ALERTAS -->
   <section :class="{on:cur===6}">
-   <div class="ok">🔔 <b>Alertas de bajada de precio.</b> Cada ~5 min el sistema compara los mínimos de JetSMART, SKY, LATAM, Cocha y Skiplagged. Cuando algo baja ≥ $1.000 (≥0,5%), queda registrado aquí (y se enviará por correo cuando se configure SMTP).</div>
+   <div class="note info"><span class="ic">🔔</span><span><b>Alertas de bajada de precio.</b> Cada ~5 min el sistema compara los mínimos de JetSMART, SKY, LATAM, Cocha, Skiplagged y las playas. Cuando algo baja ≥ $1.000 (≥0,5%), queda registrado aquí y se envía por correo a los suscritos.</span></div>
    <div class="wcard">
-    <div class="kicker" style="margin-bottom:8px">📧 SUSCRIBIR MI CORREO</div>
+    <div class="kick" style="margin-bottom:10px">📧 Suscribir mi correo a las alertas</div>
     <input v-model="mail" type="email" placeholder="tucorreo@ejemplo.com">
-    <div class="cta" style="justify-content:flex-start">
-     <a class="btn" :href="subUrl('ALTA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.4'">Suscribirme ↗</a>
-     <a class="btn ghost" :href="subUrl('BAJA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.4'">Desuscribirme</a>
+    <div class="hctas" style="margin-top:4px">
+     <a class="btn" :href="subUrl('ALTA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.45'">Suscribirme ↗</a>
+     <a class="btn ghost" :href="subUrl('BAJA')" target="_blank" rel="noopener" :style="mail.includes('@')?'':'pointer-events:none;opacity:.45'">Desuscribirme</a>
     </div>
-    <div class="b" style="margin-top:8px">Se abrirá GitHub con un issue prellenado: solo presiona "Submit new issue" (cuenta GitHub gratis). En ~1 minuto quedas suscrito y el issue se cierra solo. Suscritos ahora: <b>{{SUBS.length}}</b><template v-if="SUBS.length"> ({{SUBS.map(maskMail).join(', ')}})</template>.</div>
+    <div class="b" style="margin-top:9px">Se abrirá GitHub con un issue prellenado: solo presiona "Submit new issue" (cuenta GitHub gratis). En ~1 minuto quedas suscrito y el issue se cierra solo. Suscritos ahora: <b>{{SUBS.length}}</b><template v-if="SUBS.length"> ({{SUBS.map(maskMail).join(', ')}})</template>.</div>
    </div>
-   <h2>Bajadas detectadas ({{(DATA?.alerts||[]).length}})</h2>
+   <h2>Bajadas detectadas <span class="h2sub">{{(DATA?.alerts||[]).length}} desde la activación</span></h2>
    <div class="tl" v-if="(DATA?.alerts||[]).length">
     <div class="tlev" v-for="a in [...(DATA?.alerts||[])].reverse()" :key="a.ts+a.serie">
-     <div class="ser">{{a.serie}} <span class="b">· {{a.ts}} UTC</span></div>
-     <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap"><span class="pct">−{{a.pct}}%</span><span class="b" style="font-size:.8rem">{{fmt(a.antes)}} → <b style="color:var(--mint)">{{fmt(a.ahora)}}</b> · bajó {{fmt(a.baja)}}</span></div>
+     <div class="ser">{{a.serie}} <span class="b">· {{hace(a.ts)}}</span></div>
+     <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap"><span class="pct">−{{a.pct}}%</span><span class="b" style="font-size:.8rem">{{fmt(a.antes)}} → <b style="color:var(--good)">{{fmt(a.ahora)}}</b> · bajó {{fmt(a.baja)}}</span></div>
     </div>
    </div>
-   <div class="warnbox" v-else>Todavía no se registran bajadas desde la activación del sistema.</div>
+   <div class="note warn" v-else><span class="ic">🔔</span><span>Todavía no se registran bajadas desde la activación del sistema. Cuando un mínimo del verano caiga, aparecerá aquí (y en tu correo si te suscribes).</span></div>
   </section>
   <!-- 7 CUPONES -->
   <section :class="{on:cur===7}">
-   <div class="warnbox">⏰ <b>CyberMonday Chile terminó el 7-oct.</b> Estos cupones se mantienen como referencia: varios siguen activos en las páginas oficiales (stock limitado, generalmente un uso por cliente). Pruébalos en el checkout ("¿Tienes un cupón?").</div>
+   <div class="note warn"><span class="ic">⏰</span><span><b>CyberMonday Chile terminó el 7-oct.</b> Estos cupones se mantienen como referencia: varios siguen activos en las páginas oficiales (stock limitado, generalmente un uso por cliente). Toca un cupón para copiarlo y pégalo en el checkout ("¿Tienes un cupón?").</span></div>
    <div class="cgrid">
-    <div class="ccard mini" v-for="c in COUPONS" :key="c.code">
-     <div class="code">{{c.code}}</div>
-     <div class="dt" style="margin-top:8px">{{c.desc}}</div>
+    <div class="ccard" v-for="c in COUPONS" :key="c.code">
+     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <span class="code" @click="copyCode(c.code)" :title="'Copiar '+c.code">{{c.code}} <span class="cpy">{{copied===c.code?'✓ copiado':'copiar'}}</span></span>
+     </div>
+     <div class="dt" style="margin-top:10px;font-size:.8rem">{{c.desc}}</div>
+     <div class="grow"></div>
      <div class="src">{{c.where}}</div>
-     <a class="btn fal" :href="c.url" target="_blank" rel="noopener">Abrir ↗</a>
+     <a class="btn sm amber" :href="c.url" target="_blank" rel="noopener">Abrir tienda ↗</a>
     </div>
    </div>
-   <div class="ok">💳 Además (sin código): JetSMART hasta 60% dcto a Brasil con promos extra para clientes <b>BancoEstado y BCI</b>; LATAM hasta 71% dcto internacional (vuelo hasta dic-2027); SKY Cyber hasta 70% en rutas seleccionadas.</div>
+   <div class="note ok"><span class="ic">💳</span><span>Además (sin código): JetSMART hasta 60% dcto a Brasil con promos extra para clientes <b>BancoEstado y BCI</b>; LATAM hasta 71% dcto internacional (vuelo hasta dic-2027); SKY Cyber hasta 70% en rutas seleccionadas.</span></div>
   </section>
  </main>
- <footer>Datos en vivo: APIs oficiales JetSMART · SKY · LATAM + cotizaciones reales Cocha + metasearch global Skiplagged · Actualización automática cada ~5 min vía GitHub Actions<br>
- <a href="https://github.com/Xacox01/vuelos-rio-live" target="_blank" rel="noopener">Código y datos del proyecto ↗</a> · <a href="https://xacox01.github.io/qwen_vuelos_rio/" target="_blank" rel="noopener">sitio espejo</a></footer>
+ <footer>Radar Río · datos en vivo: APIs oficiales JetSMART · SKY · LATAM + cotizaciones reales Cocha + metasearch global Skiplagged + referencias Falabella/Despegar · Actualización automática cada ~5 min vía GitHub Actions<br>
+ <a href="https://github.com/Xacox01/vuelos-rio-live" target="_blank" rel="noopener">Código y datos del proyecto ↗</a></footer>
  </template>
 </div>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script>
-if(!window.Vue){document.getElementById('app').innerHTML='<div class="err">⚠️ No se pudo cargar Vue (CDN bloqueado). Recarga o revisa tu conexión.</div>';}
+if(!window.Vue){document.getElementById('app').innerHTML='<div class="err">No se pudo cargar Vue (CDN bloqueado). Recarga o revisa tu conexión.</div>';}
 else{
 const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
 const NOMS={JA:'JetSMART',H2:'SKY Airline',LA:'LATAM',LU:'LATAM',G3:'GOL',AD:'Azul',CM:'Copa Airlines',AV:'Avianca',AR:'Aerolíneas Argentinas',AM:'Aeroméxico',EK:'Emirates',TK:'Turkish Airlines',IB:'Iberia',DL:'Delta',UA:'United',AA:'American',AF:'Air France',KL:'KLM',LH:'Lufthansa'};
 const {createApp}=Vue;
 createApp({
- data:()=>({DATA:null,SUBS:[],mail:'',cur:0,fi:'',fv:'',fatal:false,selDate:'',calMode:'ida',
-  TABS:['🏆 Hoy','📅 Calendario de precios','✈️ Aerolíneas','🇧🇷 Brasil','🌎 Playas <$500K','🏬 Agencias','🔔 Alertas','🎟️ Cupones'],
+ data:()=>({DATA:null,SUBS:[],mail:'',cur:0,fi:'',fv:'',fatal:false,selDate:'',calMode:'ida',copied:'',
+  TABS:['🏆 Hoy','🔥 Ofertas','📅 Calendario','✈️ Aerolíneas','🏖 Destinos','🏬 Agencias','🔔 Alertas','🎟️ Cupones'],
   COUPONS:[{code:'SUD10SKY',desc:'10% dcto en vuelos y paquetes a Brasil vía SKY',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWAM',desc:'hasta $100.000 dcto hoteles/paquetes WAM (Búzios, Fortaleza, Porto Seguro)',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'RITZ2X',desc:'hasta $70.000 dcto hoteles Rede Ritz Brasil',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XWISH',desc:'$80.000 dcto paquetes hoteles Wish/Prodigy/Linx',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'2XBEACHPARK',desc:'$200.000 dcto paquetes Beach Park',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'CAMBORIU2X',desc:'hasta $100.000 dcto hotel Marambaia Camboriú',where:'Viajes Falabella 2X',url:'https://www.viajesfalabella.cl/2x'},{code:'Cupón CMR Sudamérica',desc:'$60.000 web / $80.000 presencial en paquetes (mín $900K web, aplica Brasil)',where:'Falabella Oportunidad Única',url:'https://www.viajesfalabella.cl/ofertas-viajes/oportunidad-unica'},{code:'CYBERPAQ',desc:'$100.000 dcto viajes internacionales',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'SKY + cyber.cl',desc:'$80.000 dcto paquetes a Sudamérica',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'Iberostar cyber.cl',desc:'$150.000 dcto paquetes Caribe y Brasil',where:'Cocha / cyber.cl',url:'https://www.cocha.com/promociones/cybermonday'},{code:'CYBERASISTENCIA20',desc:'20% dcto asistencia Universal Assistance (tope $50K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/asistencia-al-viajero'},{code:'LOCALIZA25',desc:'15% dcto autos en Brasil (tope $25K)',where:'app/asistidos',url:'https://www.viajesfalabella.cl/autos'}],
  NAMES:{jetsmart:'JetSMART',sky:'SKY',latam:'LATAM',falabella:'Falabella',despegar:'Despegar',cocha:'Cocha',skiplagged:'Skiplagged',playas:'Playas LatAm'},
   pax:1,PAXOPTS:[1,2,4,5,9]}),
  computed:{
   F(){return this.DATA?.fuentes||{}},
-  ticker(){const t=[];const cp=this.combosPax[0];if(cp)t.push({k:'JetSMART oficial',v:cp.clp});const sp=this.sky.pairs?.[0];if(sp)t.push({k:'SKY oficial',v:sp.clp});const lc=this.lat.combos?.[0];if(lc)t.push({k:'LATAM oficial',v:lc.clp});const cv=(this.cocha.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];if(cv&&this.esFresca(this.cocha.ts))t.push({k:'Cocha real',v:cv.min_clp});const sv=(this.sk.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];if(sv&&this.esFresca(this.sk.ts))t.push({k:'Skiplagged global',v:sv.min_clp});const mx=this.mezclas;if(mx)t.push({k:'Mezcla compañías',v:mx.total});return t},
+  ticker(){const t=[];const cp=this.combosPax[0];if(cp)t.push({k:'JetSMART oficial',v:cp.clp});const sp=this.sky.pairs?.[0];if(sp)t.push({k:'SKY oficial',v:sp.clp});const lc=this.lat.combos?.[0];if(lc)t.push({k:'LATAM oficial',v:lc.clp});const cv=(this.cocha.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];if(cv&&this.esFresca(this.cocha.ts))t.push({k:'Cocha real',v:cv.min_clp});const sv=(this.sk.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];if(sv&&this.esFresca(this.sk.ts))t.push({k:'Skiplagged global',v:sv.min_clp});const mx=this.mezclas;if(mx)t.push({k:'Mezcla compañías',v:mx.total});const mp=this.ofertas[0];if(mp)t.push({k:'Playa alternativa',v:mp.mejor.clp});return t},
   calOut(){const m={};const put=(f,clp,src)=>{if(!(clp>0))return;if(!/^2027-0[12]-/.test(f))return;if(!m[f]||clp<m[f].min)m[f]={min:clp,src};};
    for(const x of this.js.idas||[])put(x.fecha,x.clp,'JetSMART');
    for(const x of this.lat.dias_out||[])put(x.fecha,x.clp,'LATAM');
@@ -684,11 +744,11 @@ createApp({
   selInfo(){const f=this.selDate;if(!f)return null;const ida=this.calMode==='ida';const opts=[];
    if(ida){
     for(const x of (this.js.idas||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,4))opts.push({src:'JetSMART',det:x.vuelo+' · sale '+x.hora,clp:x.clp,link:this.jsOW(f,'SCL','GIG'),cls:''});
-    const l=(this.lat.dias_out||[]).find(z=>z.fecha===f);if(l&&l.clp)opts.push({src:'LATAM',det:l.directo?'vuelo directo':'con escala',clp:l.clp,link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
+    const l=(this.lat.dias_out||[]).find(z=>z.fecha===f);if(l&&l.clp)opts.push({src:'LATAM',det:l.directo?'vuelo directo':'con escala',clp:l.clp,link:'https://www.latamairlines.com/cl/es',cls:'ink'});
     if(this.esFresca(this.sk.ts))for(const v of this.sk.ventanas||[])for(const r of (v.ow_out||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,3))opts.push({src:'Skiplagged · '+r.aerolinea,det:r.det,clp:r.clp,link:v.link,cls:'ghost'});
    }else{
     for(const x of (this.js.vueltas||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,4))opts.push({src:'JetSMART',det:x.vuelo+' · sale '+x.hora,clp:x.clp,link:this.jsOW(f,'GIG','SCL'),cls:''});
-    const l=(this.lat.dias_in||[]).find(z=>z.fecha===f);if(l&&l.clp)opts.push({src:'LATAM',det:l.directo?'vuelo directo':'con escala',clp:l.clp,link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
+    const l=(this.lat.dias_in||[]).find(z=>z.fecha===f);if(l&&l.clp)opts.push({src:'LATAM',det:l.directo?'vuelo directo':'con escala',clp:l.clp,link:'https://www.latamairlines.com/cl/es',cls:'ink'});
     if(this.esFresca(this.sk.ts))for(const v of this.sk.ventanas||[])for(const r of (v.ow_in||[]).filter(z=>z.fecha===f).sort((a,b)=>a.clp-b.clp).slice(0,3))opts.push({src:'Skiplagged · '+r.aerolinea,det:r.det,clp:r.clp,link:v.link,cls:'ghost'});
    }
    opts.sort((a,b)=>a.clp-b.clp);
@@ -708,11 +768,17 @@ createApp({
   playasOk(){return this.playasRows.filter(d=>d.califica)},
   playasNo(){return this.playasRows.filter(d=>!d.califica)},
   playasSin(){return ((this.playas.destinos)||[]).filter(d=>!d.mejor)},
+  minPlaya(){const o=this.playasOk.filter(d=>d.cod!=='GIG');return o.length?o[0].mejor.clp:0},
+  ofertas(){const gig=this.gigRef;
+   return this.playasRows.filter(d=>d.cod!=='GIG')
+    .map(d=>({...d,ahorroVsRio:gig>0?gig-d.mejor.clp:0}))
+    .sort((a,b)=>(b.ahorroVsRio-a.ahorroVsRio)||(a.mejor.clp-b.mejor.clp))},
+  mejorPlaya(){return this.ofertas[0]||null},
+  cuponesActivos(){return this.COUPONS},
   playasAxis(){const r=this.playasRows;const budget=this.playas.budget||500000;if(!r.length)return null;
    const vals=r.map(d=>d.mejor.clp);const lo=Math.max(0,Math.min(...vals)*0.9),hi=Math.max(...vals,budget)*1.06;
    return {lo,hi,budPct:(budget-lo)/(hi-lo)*100,pos:c2=>Math.max(1.5,Math.min(98.5,(c2-lo)/(hi-lo)*100))}},
   gigRef(){const g=this.playasRows.find(d=>d.cod==='GIG');return g?g.mejor.clp:0},
-  playasVsRio(){const r=this.playasRows;const gig=r.find(d=>d.cod==='GIG');const best=r.find(d=>d.cod!=='GIG');if(!gig||!best)return null;return{best,gig,diff:gig.mejor.clp-best.mejor.clp}},
   js(){return this.F.jetsmart||{}},
   sky(){return this.F.sky||{}},
   lat(){return this.F.latam||{}},
@@ -730,21 +796,25 @@ createApp({
    const cp=this.combosPax[0];
    if(cp) add('JA','JetSMART',cp.clp,cp.ida,cp.vuelta,(cp.v_ida||'')+' / '+(cp.v_vue||'')+' · directo','API oficial',this.jsRT(cp.ida,cp.vuelta),'');
    const sp=this.sky.pairs?.[0];
-   if(sp) add('H2','SKY Airline',sp.clp,sp.ida,sp.vuelta,'RT directo oficial','API oficial',this.skyLink(sp),'sky');
+   if(sp) add('H2','SKY Airline',sp.clp,sp.ida,sp.vuelta,'RT directo oficial','API oficial',this.skyLink(sp),'amber');
    const lc=this.lat.combos?.[0];
-   if(lc) add('LA','LATAM',lc.clp,lc.ida,lc.vuelta,'suma de tramos directos','API oficial','https://www.latamairlines.com/cl/es','ggl');
+   if(lc) add('LA','LATAM',lc.clp,lc.ida,lc.vuelta,'suma de tramos directos','API oficial','https://www.latamairlines.com/cl/es','ink');
    if(this.esFresca(this.cocha.ts)) for(const v of this.cocha.ventanas||[]) for(const r of v.resultados||[])
-    add(r.cod,r.aerolinea,r.clp,v.ida,v.vuelta,r.det+(r.escalas===0?' · directo':''),'Cocha real',v.link,'fal');
+    add(r.cod,r.aerolinea,r.clp,v.ida,v.vuelta,r.det+(r.escalas===0?' · directo':''),'Cocha real',v.link,'good');
    if(this.esFresca(this.sk.ts)) for(const v of this.sk.ventanas||[]) for(const r of v.resultados||[])
     add(r.cod,r.aerolinea,r.clp,v.ida,v.vuelta,r.det+(r.escalas===0?' · directo':''),'Skiplagged',v.link,'');
+   if(this.esFresca(this.fal.ts)&&this.falBest){const fb=this.falBest;
+    add('FAL','Viajes Falabella',fb.tot,fb.ida.fecha,fb.vuelta.fecha,'suma de mínimos publicados','OTA verificada',this.falOW(fb.ida.sentido,fb.ida.fecha),'amber');}
+   if(this.esFresca(this.des.ts)&&this.desBest){const db=this.desBest;
+    add('DES','Despegar',db.tot,db.ida.fecha,db.vuelta.fecha,'suma de mínimos publicados','OTA verificada',this.desOW(db.ida.sentido,db.ida.fecha),'rose');}
    return Object.values(por).sort((a,b)=>a.clp-b.clp);
   },
   mezclas(){
    const idas=[],vueltas=[];
    for(const x of this.js.idas||[]) if(x.clp>0) idas.push({fecha:x.fecha,clp:x.clp,cod:'JA',det:'JetSMART '+x.vuelo+' '+x.hora,link:this.jsOW(x.fecha,'SCL','GIG'),cls:''});
    for(const x of this.js.vueltas||[]) if(x.clp>0) vueltas.push({fecha:x.fecha,clp:x.clp,cod:'JA',det:'JetSMART '+x.vuelo+' '+x.hora,link:this.jsOW(x.fecha,'GIG','SCL'),cls:''});
-   for(const x of this.lat.dias_out||[]) if(x.clp>0) idas.push({fecha:x.fecha,clp:x.clp,cod:'LA',det:'LATAM '+(x.directo?'directo':'con escala'),link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
-   for(const x of this.lat.dias_in||[]) if(x.clp>0) vueltas.push({fecha:x.fecha,clp:x.clp,cod:'LA',det:'LATAM '+(x.directo?'directo':'con escala'),link:'https://www.latamairlines.com/cl/es',cls:'ggl'});
+   for(const x of this.lat.dias_out||[]) if(x.clp>0) idas.push({fecha:x.fecha,clp:x.clp,cod:'LA',det:'LATAM '+(x.directo?'directo':'con escala'),link:'https://www.latamairlines.com/cl/es',cls:'ink'});
+   for(const x of this.lat.dias_in||[]) if(x.clp>0) vueltas.push({fecha:x.fecha,clp:x.clp,cod:'LA',det:'LATAM '+(x.directo?'directo':'con escala'),link:'https://www.latamairlines.com/cl/es',cls:'ink'});
    if(this.esFresca(this.sk.ts)) for(const v of this.sk.ventanas||[]){
     for(const r of v.ow_out||[]) if(r.clp>0) idas.push({fecha:r.fecha,clp:r.clp,cod:r.cod,det:(NOMS[r.cod]||r.aerolinea||r.cod)+' '+r.det,link:v.link,cls:''});
     for(const r of v.ow_in||[]) if(r.clp>0) vueltas.push({fecha:r.fecha,clp:r.clp,cod:r.cod,det:(NOMS[r.cod]||r.aerolinea||r.cod)+' '+r.det,link:v.link,cls:''});
@@ -771,15 +841,15 @@ createApp({
    return c.sort((a,b)=>a.total-b.total)[0];
   },
   consol(){const r=[];
-   const sp=this.sky.pairs?.[0]; if(sp) r.push({emp:'SKY Airline',tipo:'API oficial · RT directo',det:'Mínimo oficial ida y vuelta',ida:sp.ida,vuelta:sp.vuelta,pp:sp.clp,link:this.skyLink(sp),cls:'sky'});
+   const sp=this.sky.pairs?.[0]; if(sp) r.push({emp:'SKY Airline',tipo:'API oficial · RT directo',det:'Mínimo oficial ida y vuelta',ida:sp.ida,vuelta:sp.vuelta,pp:sp.clp,link:this.skyLink(sp),cls:'amber'});
    const cp=this.combosPax[0]; if(cp) r.push({emp:'JetSMART',tipo:'API oficial · RT directo',det:(cp.v_ida||'')+' / '+(cp.v_vue||''),ida:cp.ida,vuelta:cp.vuelta,pp:cp.clp,link:this.jsRT(cp.ida,cp.vuelta),cls:''});
-   const lc=this.lat.combos?.[0]; if(lc) r.push({emp:'LATAM',tipo:'API oficial · suma idas+vueltas directas',det:'Mínimo oficial ida y vuelta',ida:lc.ida,vuelta:lc.vuelta,pp:lc.clp,link:'https://www.latamairlines.com/cl/es',cls:'lat'});
+   const lc=this.lat.combos?.[0]; if(lc) r.push({emp:'LATAM',tipo:'API oficial · suma idas+vueltas directas',det:'Mínimo oficial ida y vuelta',ida:lc.ida,vuelta:lc.vuelta,pp:lc.clp,link:'https://www.latamairlines.com/cl/es',cls:'ink'});
    const cv=(this.cocha.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];
-   if(cv&&this.esFresca(this.cocha.ts)) r.push({emp:'Cocha',tipo:'OTA · cotización real API',det:'Mejor cotización multi-aerolínea',ida:cv.ida,vuelta:cv.vuelta,pp:cv.min_clp,link:cv.link,cls:'fal'});
+   if(cv&&this.esFresca(this.cocha.ts)) r.push({emp:'Cocha',tipo:'OTA · cotización real API',det:'Mejor cotización multi-aerolínea',ida:cv.ida,vuelta:cv.vuelta,pp:cv.min_clp,link:cv.link,cls:'good'});
    const sv=(this.sk.ventanas||[]).slice().sort((a,b)=>a.min_clp-b.min_clp)[0];
    if(sv&&this.esFresca(this.sk.ts)) r.push({emp:'Skiplagged',tipo:'Metasearch · 10+ aerolíneas',det:'Mejor RT global (CLP vía dólar observado)',ida:sv.ida,vuelta:sv.vuelta,pp:sv.min_clp,link:sv.link,cls:''});
-   const fb=this.falBest; if(fb&&this.esFresca(this.fal.ts)) r.push({emp:'Viajes Falabella',tipo:'OTA · referencia del día',det:'Mejor ida + mejor vuelta publicadas',ida:fb.ida.fecha,vuelta:fb.vuelta.fecha,pp:fb.tot,link:this.falOW(fb.ida.sentido,fb.ida.fecha),cls:'fal'});
-   const db=this.desBest; if(db&&this.esFresca(this.des.ts)) r.push({emp:'Despegar',tipo:'OTA · referencia del día',det:'Mejor ida + mejor vuelta publicadas',ida:db.ida.fecha,vuelta:db.vuelta.fecha,pp:db.tot,link:this.desOW(db.ida.sentido,db.ida.fecha),cls:'fal'});
+   const fb=this.falBest; if(fb&&this.esFresca(this.fal.ts)) r.push({emp:'Viajes Falabella',tipo:'OTA · referencia del día',det:'Mejor ida + mejor vuelta publicadas',ida:fb.ida.fecha,vuelta:fb.vuelta.fecha,pp:fb.tot,link:this.falOW(fb.ida.sentido,fb.ida.fecha),cls:'amber'});
+   const db=this.desBest; if(db&&this.esFresca(this.des.ts)) r.push({emp:'Despegar',tipo:'OTA · referencia del día',det:'Mejor ida + mejor vuelta publicadas',ida:db.ida.fecha,vuelta:db.vuelta.fecha,pp:db.tot,link:this.desOW(db.ida.sentido,db.ida.fecha),cls:'rose'});
    return r.sort((a,b)=>a.pp-b.pp)},
   desBest(){const ds=this.des.dias||[];const i=ds.filter(d=>d.sentido==='SCL-GIG'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];const v=ds.filter(d=>d.sentido==='GIG-SCL'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];return i&&v?{ida:i,vuelta:v,tot:i.min_clp+v.min_clp}:null},
   falBest(){const ds=this.fal.dias||[];const i=ds.filter(d=>d.sentido==='SCL-RIO'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];const v=ds.filter(d=>d.sentido==='RIO-SCL'&&d.min_clp).sort((a,b)=>a.min_clp-b.min_clp)[0];return i&&v?{ida:i,vuelta:v,tot:i.min_clp+v.min_clp}:null},
@@ -791,19 +861,21 @@ createApp({
  methods:{
   dw(d){if(!d)return'';const[p,m,dd]=d.split('-').map(Number);return DIA[new Date(p,m-1,dd).getDay()]},
   fmt(n){return '$ '+Math.round(n).toLocaleString('es-CL')},
+  hace(ts){if(!ts)return'—';const t=Date.parse(String(ts).replace(' ','T')+'Z');if(!isFinite(t))return ts;const m=Math.round((Date.now()-t)/60000);if(m<1)return'hace instantes';if(m<60)return'hace '+m+' min';const h=Math.round(m/60);if(h<24)return'hace '+h+' h';return'hace '+Math.round(h/24)+' d'},
+  ciudadCorta(d){return ((d.ciudad||'').split('·')[0]).trim()},
+  async copyCode(c){try{await navigator.clipboard.writeText(c);this.copied=c;setTimeout(()=>{if(this.copied===c)this.copied=''},1800)}catch(e){}},
   jsOW(f,o,dd){return `https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=false&cur=CLP&culture=es-CL&dd1=${f}&o1=${o}&d1=${dd}`},
   jsRT(i,v){return `https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=true&cur=CLP&culture=es-CL&dd1=${i}&o1=SCL&d1=GIG&dd2=${v}`},
   skyLink(s){const m={1:[1,0],2:[2,0],4:[4,0],5:[4,1],9:[8,1]}[this.pax]||[this.pax,0];return `https://initial-sale.skyairline.com/es/chile?origin=SCL&destination=GIG&departureDate=${s.ida}&arrivalDate=${s.vuelta}&flightType=RT&ADT=${m[0]}`+(m[1]?`&CHD=${m[1]}`:'')},
   subUrl(acc){const repo=location.pathname.includes('qwen_vuelos_rio')?'qwen_vuelos_rio':'vuelos-rio-live';return `https://github.com/Xacox01/${repo}/issues/new?title=${encodeURIComponent(acc+' '+this.mail.trim())}&body=${encodeURIComponent('Solicitud automatica desde el dashboard vuelos-rio-live.')}`},
   dayMin(f){const x=this.calMode==='ida'?this.calOut[f]:this.calIn[f];return x&&x.min>0?x.min:0},
   dayOk(f){if(!(this.dayMin(f)>0))return false;if(this.calMode==='vuelta')return f<='2027-02-23';return f<='2027-02-14'},
-  heat(p){const r=this.calRange;if(!(p>0))return{};const t=Math.min(1,Math.max(0,(p-r.lo)/((r.hi-r.lo)||1)));const h=Math.round(158-158*t);return{background:'hsla('+h+',72%,46%,.2)',borderColor:'hsla('+h+',72%,55%,.45)'}},
-  heatTxt(p){const r=this.calRange;if(!(p>0))return{};const t=Math.min(1,Math.max(0,(p-r.lo)/((r.hi-r.lo)||1)));const h=Math.round(158-158*t);return{color:'hsl('+h+',78%,30%)'}},
+  heat(p){const r=this.calRange;if(!(p>0))return{};const t=Math.min(1,Math.max(0,(p-r.lo)/((r.hi-r.lo)||1)));const h=Math.round(158-158*t);return{background:'hsla('+h+',68%,50%,.18)',borderColor:'hsla('+h+',68%,52%,.5)'}},
+  heatTxt(p){const r=this.calRange;if(!(p>0))return{};const t=Math.min(1,Math.max(0,(p-r.lo)/((r.hi-r.lo)||1)));const h=Math.round(158-158*t);return{color:'hsl('+h+',72%,28%)'}},
   kfmt(n){return n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+Math.round(n/1000)+'K'},
-  rtLinks(i,v){return [{label:'JetSMART ↗',href:this.jsRT(i,v),cls:''},{label:'SKY ↗',href:this.skyLink({ida:i,vuelta:v}),cls:'sky'},{label:'Cocha ↗',href:'https://www.cocha.com/resultado/vuelos/SCL/GIG/'+i+'/1/Y?origin2=GIG&destination2=SCL&date2='+v,cls:'fal'},{label:'Skiplagged ↗',href:'https://skiplagged.com/flights/SCL/GIG/'+i+'/'+v+'?sort=cost',cls:'ghost'}]},
-  cityClean(d){return ((d.ciudad||'').split('·')[0]).trim()},
-  alojaB(d){return 'https://www.booking.com/searchresults.es.html?ss='+encodeURIComponent(this.cityClean(d)+', '+d.pais)+'&checkin='+d.mejor.ida+'&checkout='+d.mejor.vuelta+'&group_adults=9&no_rooms=3'},
-  alojaA(d){return 'https://www.airbnb.com/s/'+encodeURIComponent(this.cityClean(d))+'/homes?checkin='+d.mejor.ida+'&checkout='+d.mejor.vuelta+'&adults=9'},
+  rtLinks(i,v){return [{label:'JetSMART ↗',href:this.jsRT(i,v),cls:''},{label:'SKY ↗',href:this.skyLink({ida:i,vuelta:v}),cls:'amber'},{label:'Cocha ↗',href:'https://www.cocha.com/resultado/vuelos/SCL/GIG/'+i+'/1/Y?origin2=GIG&destination2=SCL&date2='+v,cls:'good'},{label:'Skiplagged ↗',href:'https://skiplagged.com/flights/SCL/GIG/'+i+'/'+v+'?sort=cost',cls:'ghost'}]},
+  alojaB(d){return 'https://www.booking.com/searchresults.es.html?ss='+encodeURIComponent(this.ciudadCorta(d)+', '+d.pais)+'&checkin='+d.mejor.ida+'&checkout='+d.mejor.vuelta+'&group_adults='+this.pax+'&no_rooms='+(Math.ceil(this.pax/2))},
+  alojaA(d){return 'https://www.airbnb.com/s/'+encodeURIComponent(this.ciudadCorta(d))+'/homes?checkin='+d.mejor.ida+'&checkout='+d.mejor.vuelta+'&adults='+this.pax},
   noches(a,b){return Math.round((Date.parse(b)-Date.parse(a))/864e5)},
   nomAer(c){return NOMS[c]||c},
   esFresca(ts){if(!ts)return false;const t=Date.parse(String(ts).replace(' ','T')+'Z');return isFinite(t)&&(Date.now()-t)<864e5},
