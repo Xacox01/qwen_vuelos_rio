@@ -11,7 +11,7 @@ TARGETS = [
 ]
 
 out = {}
-with Camoufox(headless=True, humanize=False, geo={"latitude": -33.45, "longitude": -70.66}) as br:
+with Camoufox(headless=True, humanize=False) as br:
     pg = br.new_page()
     for name, url in TARGETS:
         cap = []
