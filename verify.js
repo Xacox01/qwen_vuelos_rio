@@ -266,5 +266,24 @@ if (pl.ok && (pl.destinos || []).length) {
   ok(vm.playasAxis === null, 'playasAxis null sin datos');
 }
 
+console.log('== P23. Tema claro + merchandising ==');
+ok(html.includes('--bg:#f4f7fb'), 'fondo claro definido');
+ok(!html.includes('#070b14'), 'sin restos del fondo oscuro');
+for (const m3 of ['class="promo"', 'class="chips"', 'class="pkg"', 'alojaB(', 'alojaA(', 'gigRef', 'playasVsRio']) {
+  ok(html.includes(m3), 'plantilla contiene ' + m3);
+}
+ok((vm.heatTxt(400000).color || '').includes('78%,30%'), 'heatTxt oscuro legible en claro', vm.heatTxt(400000));
+if ((pl.ok) && (pl.destinos || []).length) {
+  ok(vm.gigRef > 0, 'gigRef con precio de Rio', vm.gigRef);
+  const vs = vm.playasVsRio;
+  ok(vs && vs.best.cod !== 'GIG' && typeof vs.diff === 'number', 'playasVsRio compara mejor destino vs Rio', vs && [vs.best.cod, vs.diff]);
+  const dTest = vm.playasOk[0];
+  if (dTest) {
+    ok(vm.alojaB(dTest).includes('booking.com') && vm.alojaB(dTest).includes(dTest.mejor.ida), 'alojaB Booking con fechas', vm.alojaB(dTest).slice(0, 90));
+    ok(vm.alojaA(dTest).includes('airbnb.com') && vm.alojaA(dTest).includes(dTest.mejor.vuelta), 'alojaA Airbnb con fechas');
+    ok(!vm.alojaB(dTest).includes('·'), 'cityClean quita decoraciones del nombre');
+  }
+}
+
 console.log('\n' + (fails === 0 ? 'TODO OK' : 'HAY FALLOS') + ': ' + (checks - fails) + '/' + checks + ' checks pasaron');
 process.exit(fails === 0 ? 0 : 1);
