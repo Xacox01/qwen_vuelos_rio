@@ -18,9 +18,8 @@ try:
 except Exception:
     HAS_CAMOUFOX = False
 
-# (sentido, fecha) — mismas ventanas que usaba el fetcher SSR
-FAL_DATES = [("SCL", "RIO", "2027-01-06"), ("SCL", "RIO", "2027-01-20"), ("SCL", "RIO", "2027-01-22"),
-             ("RIO", "SCL", "2027-02-01"), ("RIO", "SCL", "2027-02-08")]
+# Escaneo de bajo volumen: 1 ida + 1 vuelta por sitio (DataDome banea por volumen)
+FAL_DATES = [("SCL", "RIO", "2027-01-22"), ("RIO", "SCL", "2027-02-01")]
 
 PRICE_MIN, PRICE_MAX = 40000, 2500000  # rango plausible CLP tramo one-way
 
@@ -73,8 +72,8 @@ def scan_site(pg, name, log):
         try:
             r = pg.goto(url, timeout=60000, wait_until="domcontentloaded")
             status = getattr(r, "status", 0) or 0
-            pg.wait_for_timeout(4000)
-            precios = wait_prices(pg, 42000)
+            pg.wait_for_timeout(6000)
+            precios = wait_prices(pg, 26000)
             html = pg.content()
             cal = [{"fecha": m.group(3), "clp": int(m.group(4))}
                    for m in CAL_RE.finditer(html)
@@ -95,7 +94,7 @@ def scan_site(pg, name, log):
             dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": 0, "min_clp": None,
                          "calendario": [], "via": "camoufox", "error": str(e)[:90]})
             log(f"{name} {o}->{d} {fecha}: ERR {str(e)[:70]}")
-        time.sleep(2.0)
+        time.sleep(4.0)
     return dias
 
 
@@ -104,7 +103,7 @@ def fetch_otas(log=print):
     if not HAS_CAMOUFOX:
         raise RuntimeError("camoufox no disponible")
     out = {}
-    with Camoufox(headless=True, humanize=False) as br:
+    with Camoufox(headless=True, humanize=True) as br:
         pg = br.new_page()
         # interceptar APIs internas (solo log para calibración futura)
         try:
@@ -112,6 +111,7 @@ def fetch_otas(log=print):
         except Exception:
             pass
         out["falabella"] = {"dias": scan_site(pg, "viajesfalabella.cl", log)}
+        time.sleep(4)
         out["despegar"] = {"dias": scan_site(pg, "despegar.cl", log)}
     return out
 
