@@ -37,6 +37,8 @@ jobs:
           python -m camoufox fetch || (python -m camoufox sync && python -m camoufox fetch) || echo "::warning::camoufox no disponible, se usará fallback SSR"
 
       - name: refrescar precios
+        env:
+          OTAS_GAP: "1800"
         run: python scraper.py
 
       - name: publicar si hubo cambios

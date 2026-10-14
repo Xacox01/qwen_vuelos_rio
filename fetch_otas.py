@@ -73,7 +73,7 @@ def scan_site(pg, name, log):
             r = pg.goto(url, timeout=60000, wait_until="domcontentloaded")
             status = getattr(r, "status", 0) or 0
             pg.wait_for_timeout(6000)
-            precios = wait_prices(pg, 26000)
+            precios = wait_prices(pg, 50000)
             html = pg.content()
             cal = [{"fecha": m.group(3), "clp": int(m.group(4))}
                    for m in CAL_RE.finditer(html)
