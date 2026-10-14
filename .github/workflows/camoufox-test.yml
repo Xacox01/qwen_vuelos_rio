@@ -1,0 +1,35 @@
+name: camoufox-probe
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: camoufox-probe
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/camoufox
+          key: camoufox-browser-v156
+
+      - name: instalar camoufox
+        run: |
+          pip install -q camoufox
+          python -m camoufox fetch || (python -m camoufox sync && python -m camoufox fetch)
+
+      - name: sondear WAF Falabella/Despegar
+        run: python probe_waf.py
