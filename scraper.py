@@ -734,16 +734,19 @@ def main():
         LIVE["fuentes"].setdefault("sky", {})["ok"] = False
     # 3+6) Falabella/Despegar vía navegador stealth (bypass DataDome verificado en Actions)
     # Gating anti-ban: DataDome banea IPs de Actions si se les golpea cada 5 min.
-    # Escanea solo cada OTAS_EVERY ciclos (~2.5 h) o si el último dato tiene >2 h.
-    OTAS_EVERY = int(os.environ.get("OTAS_EVERY", "30"))
-    def _ota_stale():
-        for k in ("falabella", "despegar"):
-            ts = str(((LIVE["fuentes"].get(k) or {}).get("ts")) or "")
-            t = datetime.datetime.strptime(ts[:19], "%Y-%m-%d %H:%M:%S") if ts and ts[0] == "2" else None
-            if not t or (datetime.datetime.now() - t).total_seconds() > 7200:
-                return True
-        return False
-    if cycle % OTAS_EVERY == 0 or _ota_stale():
+    # Se intenta como máximo cada OTAS_GAP segundos (~2.5 h), haya éxito o no, usando
+    # la marca ota_ts persistida en data.json (sobrevive entre ciclos).
+    OTAS_GAP = int(os.environ.get("OTAS_GAP", "9000"))
+    def _parse_ts(ts):
+        ts = str(ts or "")
+        try:
+            return datetime.datetime.strptime(ts[:19], "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return None
+    last_attempt = _parse_ts(LIVE.get("ota_ts"))
+    due = (not last_attempt) or (datetime.datetime.now() - last_attempt).total_seconds() >= OTAS_GAP
+    if due:
+        LIVE["ota_ts"] = now_iso()  # se marca ANTES de intentar (evita martilleo si falla)
         try:
             import fetch_otas
             if not fetch_otas.HAS_CAMOUFOX:
