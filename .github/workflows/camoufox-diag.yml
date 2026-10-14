@@ -38,5 +38,5 @@ jobs:
         with:
           name: diag-otas
           path: |
-            diag.json
-            diag_*.png
+            diag2.json
+            diag2.png
