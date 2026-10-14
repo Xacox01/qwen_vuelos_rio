@@ -64,16 +64,36 @@ def wait_prices(pg, max_ms=45000):
     return best
 
 
+def page_alive(pg):
+    """¿Ya hay contenido visible (challenge resuelto)?"""
+    try:
+        t = pg.evaluate("() => document.body ? document.body.innerText.trim().length : 0")
+        return t > 40
+    except Exception:
+        return False
+
+
 def scan_site(pg, name, log):
     dias = []
     for o, d, fecha in FAL_DATES:
         url = f"https://www.{name}/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
-        api_urls = []
         try:
             r = pg.goto(url, timeout=60000, wait_until="domcontentloaded")
             status = getattr(r, "status", 0) or 0
-            pg.wait_for_timeout(6000)
-            precios = wait_prices(pg, 50000)
+            # fase 1: dejar correr challenge DataDome (iframe captcha puede auto-resolverse y recargar)
+            pg.wait_for_timeout(8000)
+            precios = wait_prices(pg, 40000)
+            if not precios and not page_alive(pg):
+                log(f"{name} {o}->{d} {fecha}: challenge activo — espera extendida 45s")
+                precios = wait_prices(pg, 45000)
+            if not precios and page_alive(pg):
+                # fase 2: un reload tras challenge suele caer directo en la app
+                try:
+                    pg.reload(timeout=60000, wait_until="domcontentloaded")
+                    pg.wait_for_timeout(5000)
+                    precios = wait_prices(pg, 30000)
+                except Exception:
+                    pass
             html = pg.content()
             try:
                 tsec = pg.evaluate("() => document.body ? document.body.innerText.slice(0, 220) : ''").replace("\n", " ")
