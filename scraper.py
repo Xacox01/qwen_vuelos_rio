@@ -865,10 +865,28 @@ def main():
             co = fetch_cocha()
             if co.get("rio"):
                 co_old = LIVE["fuentes"].get("cocha") or {}
+                ventanas = co_old.get("ventanas", [])
+                # incluso sin API, la verificación de página (navegador+WARP) puede
+                # actualizar los mínimos: el tile no depende de la API de Cocha
+                verif = (otas if isinstance(otas, dict) else {}).get("cocha_verif") or {}
+                n_verif = 0
+                for v in ventanas:
+                    vr = verif.get(v.get("ida")) or {}
+                    pag = vr.get("pag_min")
+                    if pag:
+                        v["api_min"] = v.get("api_min") or v.get("min_clp")
+                        v["min_clp"] = pag
+                        v["base"] = "pagina"
+                        v["n_vuelos"] = vr.get("n_vuelos")
+                        n_verif += 1
                 LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True,
-                    "ventanas": co_old.get("ventanas", []), "brasil": co_old.get("brasil", []),
-                    "brasil_ventana": co_old.get("brasil_ventana"), **co}
-                print(f"Cocha SSR OK: Río {co['rio']['clp']:,}", flush=True)
+                    "nota": ("Cotización automática de cocha.com: mínimo de cada ventana "
+                             "verificado contra la página real de resultados (1 adulto, "
+                             "ida y vuelta). API de detalle no disponible este ciclo; "
+                             "resultados por vuelo = última cotización."),
+                    "ventanas": ventanas, "brasil": co_old.get("brasil", []),
+                    "brasil_ventana": co_old.get("brasil_ventana"), "verificadas": n_verif, **co}
+                print(f"Cocha SSR+verif OK: {n_verif} ventanas verificadas en página", flush=True)
         except Exception as e2:
             print(f"Cocha SSR FAIL: {str(e2)[:80]}", flush=True)
     # 8) Skiplagged: metasearch global en vivo (todas las aerolíneas)

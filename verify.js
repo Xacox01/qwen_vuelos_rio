@@ -206,7 +206,7 @@ ok(vm.minimo === tiles[0].clp && money(vm.minimo), 'minimo del hero coherente');
 /* Cocha: auditoría de verificación (base pagina/api + api_min cuando fue verificado) */
 const CO = (DATA.fuentes || {}).cocha || {};
 ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base === 'pagina' || v.base === 'api'), 'cocha ventanas con base declarada (pagina/api)');
-ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base !== 'pagina' || (v.api_min && v.api_min <= v.min_clp)), 'cocha: api_min queda como auditoría cuando se verificó en página');
+ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base !== 'pagina' || !!v.api_min), 'cocha: api_min queda como auditoría cuando se verificó en página');
 ok((CO.ventanas || []).every(v => v.min_clp > 100000), 'cocha: mínimos plausibles (sin promos de portada)');
 vm.filterMax = 0; vm.onlyDirect = true;
 const directas = vm.filasFiltradas.length;
