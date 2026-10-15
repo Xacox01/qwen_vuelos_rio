@@ -886,6 +886,15 @@ def main():
     except Exception as e:
         print(f"alerts skip: {str(e)[:80]}", flush=True)
     tmp = DATA + ".tmp"
+    # Preservar secciones gestionadas por fetchers aparte (fetch_coupons.py)
+    try:
+        if os.path.exists(DATA):
+            with open(DATA, encoding="utf8") as fh:
+                _prev_all = json.load(fh)
+            if _prev_all.get("cupones") and not LIVE.get("cupones"):
+                LIVE["cupones"] = _prev_all["cupones"]
+    except Exception:
+        pass
     with open(tmp, "w") as fh:
         json.dump(LIVE, fh, ensure_ascii=False)
     os.replace(tmp, DATA)

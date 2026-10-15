@@ -69,6 +69,24 @@ jobs:
           OTA_PROXY: ${{ env.OTA_PROXY }}
         run: python scraper.py
 
+      - name: refrescar cupones (gate 6 h)
+        run: |
+          DUE=$(python3 -c '
+          import json, datetime
+          try:
+              d = json.load(open("data.json"))
+              t = datetime.datetime.strptime(str((d.get("cupones") or {}).get("ts",""))[:19], "%Y-%m-%d %H:%M:%S")
+              due = (datetime.datetime.now() - t).total_seconds() >= 21600
+          except Exception:
+              due = True
+          print("yes" if due else "no")
+          ')
+          if [ "$DUE" = "yes" ]; then
+            python3 fetch_coupons.py || echo "::warning::fetch de cupones falló (se conserva el último dato)"
+          else
+            echo "Cupones vigentes (menos de 6 h) — omitido"
+          fi
+
       - name: subir diagnóstico OTA (si hubo challenge)
         if: always()
         uses: actions/upload-artifact@v4
