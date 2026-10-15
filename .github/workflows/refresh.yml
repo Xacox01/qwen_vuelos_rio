@@ -31,15 +31,53 @@ jobs:
           path: ~/.cache/camoufox
           key: camoufox-browser-v156
 
+      - uses: actions/cache@v4
+        with:
+          path: ~/.warp
+          key: warp-device-v1
+
       - name: dependencias
         run: |
-          pip install -q curl_cffi camoufox
+          pip install -q "camoufox[geoip]" curl_cffi
           python -m camoufox fetch || (python -m camoufox sync && python -m camoufox fetch) || echo "::warning::camoufox no disponible, se usará fallback SSR"
+
+      - name: activar WARP (egress IP consumidor para OTAs/DataDome)
+        run: |
+          # Solo levantar el túnel si el escaneo OTA vence en este ciclo (ahorra ~4 min/ciclo)
+          DUE=$(python3 -c '
+          import json, datetime, os
+          try:
+              d = json.load(open("data.json"))
+              t = datetime.datetime.strptime(str(d.get("ota_ts",""))[:19], "%Y-%m-%d %H:%M:%S")
+              gap = int(os.environ.get("OTAS_GAP", "1800"))
+              due = (datetime.datetime.now() - t).total_seconds() >= gap
+          except Exception:
+              due = True
+          print("yes" if due else "no")
+          ')
+          if [ "$DUE" != "yes" ]; then
+            echo "Escaneo OTA no vence este ciclo — WARP omitido"
+            exit 0
+          fi
+          chmod +x warp_boot.sh
+          timeout 260 bash warp_boot.sh || echo "::warning::bootstrap WARP excedió tiempo"
+          echo "WARP_OK=${WARP_OK:-0}"
 
       - name: refrescar precios
         env:
           OTAS_GAP: "1800"
+          OTA_PROXY: ${{ env.OTA_PROXY }}
         run: python scraper.py
+
+      - name: subir diagnóstico OTA (si hubo challenge)
+        if: always()
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: ota-diag-${{ github.run_number }}
+          path: ota_diag/
+          retention-days: 5
+          if-no-files-found: ignore
 
       - name: publicar si hubo cambios
         if: always()

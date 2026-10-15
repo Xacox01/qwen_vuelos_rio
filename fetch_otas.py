@@ -2,13 +2,17 @@
 """Fetcher stealth para Falabella Viajes y Despegar (protegidos por DataDome WAF).
 
 Metodología de ingeniería inversa (rea-style):
-  1. Navegador Firefox stealth real (Camoufox) → pasa el challenge DataDome (verificado en Actions 2026-10-14: HTTP 200).
-  2. Espera el renderizado de la app React y extrae los precios visibles del DOM.
-  3. Intercepta respuestas JSON de las APIs internas de búsqueda (para calibración futura).
-  4. Extrae días vecinos del calendario flexible (links clickedPrice en el DOM).
+  1. Egress por Cloudflare WARP (SOCKS5 via wireproxy, ver warp_boot.sh): DataDome
+     puntúa la IP; WARP entrega reputación de consumidor desde GitHub Actions.
+  2. Navegador Firefox stealth real (Camoufox) con humanize + geoip.
+  3. Espera el renderizado de la app React y extrae los precios visibles del DOM.
+  4. Intercepta respuestas JSON de las APIs internas de búsqueda (para calibración futura).
+  5. Extrae días vecinos del calendario flexible (links clickedPrice en el DOM).
+  6. Si DataDome exige challenge interactivo: diagnóstico con screenshots en ota_diag/.
 
 Contract de salida 100% compatible con data.json (fuentes.falabella / fuentes.despegar → "dias").
 """
+import os
 import re
 import time
 
@@ -18,25 +22,29 @@ try:
 except Exception:
     HAS_CAMOUFOX = False
 
+# Egress alternativo (seteado por warp_boot.sh en GitHub Actions)
+OTA_PROXY = os.environ.get("OTA_PROXY", "").strip()
+DIAG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ota_diag")
+# via que se registra en data.json (transparencia para el usuario del dashboard)
+VIA = "camoufox+warp" if OTA_PROXY else "camoufox"
+
 # Escaneo de bajo volumen: 1 ida + 1 vuelta por sitio (DataDome banea por volumen)
 FAL_DATES = [("SCL", "RIO", "2027-01-22"), ("RIO", "SCL", "2027-02-01")]
 
-PRICE_MIN, PRICE_MAX = 40000, 2500000  # rango plausible CLP tramo one-way
+# Umbral de plausibilidad: one-way SCL⇄RIO temporada alta (ene-feb 2027).
+# La página también muestra módulos promocionales ("desde $44.206") que contaminan
+# la extracción si el umbral es bajo; un vuelo real en enero no baja de ~$100k CLP.
+PRICE_MIN, PRICE_MAX = 100000, 2500000
 
 JS_EXTRACT = """
 () => {
   const out = new Set();
   const re = /[$]\\s?(\\d{1,3}(?:\\.\\d{3})+)/g;
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  let node;
-  while ((node = walker.nextNode())) {
-    const t = node.textContent;
-    if (!t || t.length > 90) continue;
-    let m; re.lastIndex = 0;
-    while ((m = re.exec(t))) {
-      const v = parseInt(m[1].replace(/\\./g, ''), 10);
-      if (v >= %d && v <= %d) out.add(v);
-    }
+  const t = document.body ? document.body.innerText : '';
+  let m;
+  while ((m = re.exec(t))) {
+    const v = parseInt(m[1].replace(/\\./g, ''), 10);
+    if (v >= %d && v <= %d) out.add(v);
   }
   return Array.from(out).sort((a, b) => a - b);
 }
@@ -73,6 +81,33 @@ def page_alive(pg):
         return False
 
 
+def challenge_active(pg):
+    """¿DataDome está mostrando su challenge/iframe?"""
+    try:
+        return bool(pg.evaluate("""() => {
+            if (document.querySelector('iframe[src*="captcha-delivery"]')) return true;
+            const m = document.body ? (document.body.innerHTML.match(/captcha-delivery|datadome/i)) : null;
+            return !!m;
+        }"""))
+    except Exception:
+        return False
+
+
+def snap_diag(pg, name, tag, log):
+    """Guarda screenshot + HTML del challenge para depuración (artifact CI)."""
+    try:
+        os.makedirs(DIAG_DIR, exist_ok=True)
+        stamp = time.strftime("%H%M%S")
+        shot = os.path.join(DIAG_DIR, f"{name}_{tag}_{stamp}.png")
+        htm = os.path.join(DIAG_DIR, f"{name}_{tag}_{stamp}.html")
+        pg.screenshot(path=shot)
+        with open(htm, "w", encoding="utf-8") as f:
+            f.write(pg.content()[:400000])
+        log(f"DIAG {name}: challenge guardado en {shot}")
+    except Exception as e:
+        log(f"DIAG {name}: no se pudo guardar ({str(e)[:60]})")
+
+
 def scan_site(pg, name, log):
     dias = []
     for o, d, fecha in FAL_DATES:
@@ -80,11 +115,14 @@ def scan_site(pg, name, log):
         try:
             r = pg.goto(url, timeout=60000, wait_until="domcontentloaded")
             status = getattr(r, "status", 0) or 0
+            if status == 403 or challenge_active(pg):
+                log(f"{name} {o}->{d} {fecha}: status {status} con DataDome — aguardando challenge")
             # fase 1: dejar correr challenge DataDome (iframe captcha puede auto-resolverse y recargar)
             pg.wait_for_timeout(8000)
             precios = wait_prices(pg, 40000)
             if not precios and not page_alive(pg):
                 log(f"{name} {o}->{d} {fecha}: challenge activo — espera extendida 45s")
+                snap_diag(pg, name, f"{o}{d}_f1", log)
                 precios = wait_prices(pg, 45000)
             if not precios and page_alive(pg):
                 # fase 2: un reload tras challenge suele caer directo en la app
@@ -94,6 +132,18 @@ def scan_site(pg, name, log):
                     precios = wait_prices(pg, 30000)
                 except Exception:
                     pass
+            if not precios:
+                # fase 3: pausa larga + nueva navegación (DataDome a veces libera a la 2ª entrada)
+                log(f"{name} {o}->{d} {fecha}: fase 3 — pausa 25s y reintento final")
+                time.sleep(25)
+                try:
+                    pg.goto(url, timeout=60000, wait_until="domcontentloaded")
+                    pg.wait_for_timeout(6000)
+                    precios = wait_prices(pg, 30000)
+                except Exception:
+                    pass
+            if not precios and challenge_active(pg):
+                snap_diag(pg, name, f"{o}{d}_f3", log)
             html = pg.content()
             try:
                 tsec = pg.evaluate("() => document.body ? document.body.innerText.slice(0, 220) : ''").replace("\n", " ")
@@ -108,27 +158,36 @@ def scan_site(pg, name, log):
             if mejor and len(precios) >= 6:
                 dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
                              "min_clp": mejor, "n_precios": len(precios),
-                             "calendario": cal[:24], "via": "camoufox"})
+                             "calendario": cal[:24], "via": VIA})
                 log(f"{name} {o}->{d} {fecha}: ${mejor:,} ({len(precios)} precios, {len(cal)} días vec.)")
             else:
                 dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
-                             "min_clp": None, "calendario": cal[:24], "via": "camoufox",
+                             "min_clp": None, "calendario": cal[:24], "via": VIA,
                              "error": f"sin precios suficientes ({len(precios)})"})
                 log(f"{name} {o}->{d} {fecha}: SIN precios ({len(precios)})")
         except Exception as e:
             dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": 0, "min_clp": None,
-                         "calendario": [], "via": "camoufox", "error": str(e)[:90]})
+                         "calendario": [], "via": VIA, "error": str(e)[:90]})
             log(f"{name} {o}->{d} {fecha}: ERR {str(e)[:70]}")
         time.sleep(4.0)
     return dias
 
 
 def fetch_otas(log=print):
-    """Escanea Falabella y Despegar en una sola sesión Camoufox (cookies DataDome calientes)."""
+    """Escanea Falabella y Despegar en una sola sesión Camoufox (cookies DataDome calientes).
+
+    Si OTA_PROXY está seteado (por warp_boot.sh), sale por WARP y activa geoip
+    (geolocalización/idioma/timezone coherentes con la IP de egress).
+    """
     if not HAS_CAMOUFOX:
         raise RuntimeError("camoufox no disponible")
+    kwargs = {"headless": True, "humanize": True}
+    if OTA_PROXY:
+        kwargs["proxy"] = {"server": OTA_PROXY}
+        kwargs["geoip"] = True
+        log(f"Camoufox saldrá por proxy WARP: {OTA_PROXY} (geoip activado)")
     out = {}
-    with Camoufox(headless=True, humanize=True) as br:
+    with Camoufox(**kwargs) as br:
         pg = br.new_page()
         # interceptar APIs internas (solo log para calibración futura)
         try:
