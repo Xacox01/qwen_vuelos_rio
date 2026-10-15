@@ -97,8 +97,16 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
 
-      - name: publicar si hubo cambios
-        if: always()
+      - name: verificar sitio (GATE de publicación — corta el despliegue si algo falla)
+        id: verify
+        run: |
+          node verify.js index.html data.json || { 
+            echo "::error::verify.js FALLÓ — no se publica data.json/index hasta corregir. Revisa los checks arriba." 
+            exit 1
+          }
+
+      - name: publicar si hubo cambios (solo si verificación OK)
+        if: always() && steps.verify.outcome == 'success'
         run: |
           git config user.name "arena-bot"
           git config user.email "arena-bot@users.noreply.github.com"
@@ -111,12 +119,6 @@ jobs:
             git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
             git push
           fi
-
-      - name: verificar-modulos
-        if: always()
-        continue-on-error: true
-        run: |
-          node verify.js index.html data.json || echo "::warning::Verificación de módulos detectó problemas"
 
       - name: enviar-alertas-email
         if: always()

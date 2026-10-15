@@ -121,5 +121,60 @@ ok(!/linear-gradient\((?![0-9]+deg,rgba\(18,33,64)/.test(html.slice(0, html.inde
 ok((html.match(/#0062e3/g) || []).length >= 3, 'color de marca azul presente');
 ok(!html.includes('CyberMonday'), 'sin cupones caducados hardcodeados');
 
+console.log('== 9. enlaces profundos por fuente (integridad de compra) ==');
+const YEAR = /2027-\d{2}-\d{2}/;
+const TIL_PAT = {
+  jetsmart: u => u.includes('booking.jetsmart.com/Flight/InternalSelect') && u.includes('dd2='),
+  sky: u => u.includes('skyairline.com') && u.includes('departureDate='),
+  latam: u => u.includes('latam.com') && u.includes('outbound='),
+  despegar: u => u.includes('despegar.cl/shop/flights/results/'),
+  falabella: u => u.includes('viajesfalabella.cl/shop/flights/results/'),
+  cocha: u => u.includes('cocha.com'),
+  skiplagged: u => u.includes('skiplagged.com/flights/')
+};
+tiles.forEach(t => {
+  const pat = TIL_PAT[t.key];
+  ok(pat && pat(t.url || ''), 'tile ' + t.nombre + ': deep link a busqueda real', t.url);
+  ok(YEAR.test(t.url || ''), 'tile ' + t.nombre + ': url con fecha 2027', t.url);
+  ok(!!t.sub && !!t.nota, 'tile ' + t.nombre + ': sub y nota presentes');
+});
+const FIL_PAT = r => {
+  if (r.src === 'Cocha') return (r.link || '').includes('cocha.com/resultado/vuelos/');
+  if (r.src === 'Skiplagged') return (r.link || '').includes('skiplagged.com/flights/');
+  if (r.al === 'JetSMART') return (r.link || '').includes('booking.jetsmart.com/Flight/InternalSelect');
+  if (r.al === 'SKY Airline') return (r.link || '').includes('skyairline.com') && (r.link || '').includes('departureDate=');
+  if (r.al === 'LATAM') return (r.link || '').includes('latam.com') && (r.link || '').includes('outbound=');
+  return (r.link || '').startsWith('http');
+};
+const filasBad = filas.filter(r => !FIL_PAT(r));
+ok(filasBad.length === 0, 'todas las filas con deep link a su fuente', filasBad.slice(0, 3).map(r => (r.al || r.src) + ' → ' + String(r.link).slice(0, 70)));
+ok(filas.every(r => YEAR.test(r.link || '')), 'filas con fecha 2027 en el enlace');
+const vw0 = vw[0] || {};
+ok((vm.sklLink(vw0.ida, vw0.vuelta) || '').includes('2027'), 'buscador hero: url con fecha');
+const dss = ds.filter(d => (d.link || '').includes('skiplagged.com/flights/')).length;
+ok(dss >= ds.length - 1, 'destinos con deep link skiplagged', dss + '/' + ds.length);
+
+console.log('== 10. interacciones del sitio ==');
+const pax0 = vm.pax;
+vm.pax = 2;
+ok(vm.skyLink({ ida: '2027-01-22', vuelta: '2027-02-01' }).includes('ADT=2'), 'skyLink respeta pasajeros');
+ok(vm.latLink({ ida: '2027-01-22', vuelta: '2027-02-01' }).includes('adults=2'), 'latLink respeta pasajeros');
+vm.pax = pax0;
+const tileKeys = new Set(tiles.map(t => t.key));
+['jetsmart', 'sky', 'latam', 'despegar', 'falabella', 'cocha', 'skiplagged'].forEach(k =>
+  ok(tileKeys.has(k), 'tile presente: ' + k));
+ok(vm.campeon && vm.campeon.key === tiles[0].key, 'campeon == tile mas barato');
+ok(vm.minimo === tiles[0].clp && money(vm.minimo), 'minimo del hero coherente');
+vm.filterMax = 0; vm.onlyDirect = true;
+const directas = vm.filasFiltradas.length;
+vm.onlyDirect = false;
+ok(directas <= vm.filasFiltradas.length, 'filtro directos reduce correctamente');
+const nav = ['#hoy', '#vuelos', '#calendario', '#ofertas', '#destinos', '#cupones', '#alertas'];
+nav.forEach(id => ok(html.includes('href="' + id + '"') && html.includes('id="' + id.slice(1) + '"'), 'navegacion y seccion: ' + id));
+ok(html.includes('Buscar vuelos'), 'CTA buscador presente');
+ok(html.includes('<details'), 'FAQ acordeon presente');
+ok(html.toLowerCase().includes('afiliad'), 'divulgacion de afiliados en footer');
+ok(html.includes('ago(') || html.includes('ago'), 'frescura visible');
+
 console.log('\n' + (checks - fails) + '/' + checks + ' checks OK' + (fails ? ' — ' + fails + ' FALLOS' : ''));
 process.exit(fails ? 1 : 0);

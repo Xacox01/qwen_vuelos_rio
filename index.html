@@ -714,24 +714,28 @@ createApp({
   computed:{
     f(){ return (this.D && this.D.fuentes) || {}; },
 
-    /* ---- consolidado de fuentes (tiles "precios hoy") ---- */
+    /* ---- consolidado de fuentes (tiles "precios hoy") — todos con deep link a la búsqueda exacta ---- */
     tiles(){
       const F=this.f, out=[];
       const jm = (F.jetsmart&&F.jetsmart.combos||[]).map(c=>c.clp);
-      if(jm.length) out.push({key:'jetsmart',cod:'JA',nombre:'JetSMART',corto:'JetSMART',clp:Math.min(...jm),sub:(F.jetsmart.combos[0].v_ida||'')+' · directo',url:'https://jetsmart.com/cl/es',ts:F.jetsmart.ts,nota:'API oficial · equipaje de mano incluido',fresco:this.fresco(F.jetsmart.ts)});
+      if(jm.length){ const c0=F.jetsmart.combos[0]; out.push({key:'jetsmart',cod:'JA',nombre:'JetSMART',corto:'JetSMART',clp:Math.min(...jm),sub:(c0.v_ida||'')+' · directo',url:this.jsRT(c0.ida,c0.vuelta),ts:F.jetsmart.ts,nota:'API oficial · equipaje de mano incluido',fresco:this.fresco(F.jetsmart.ts)}); }
       const sk = (F.sky&&F.sky.pairs||[]).map(p=>p.clp);
-      if(sk.length) out.push({key:'sky',cod:'H2',nombre:'SKY Airline',corto:'SKY',clp:Math.min(...sk),sub:'ida '+this.dshortISO(F.sky.pairs[0].ida),url:'https://www.skyairline.com',ts:F.sky.ts,nota:'API oficial · directo',fresco:this.fresco(F.sky.ts)});
+      if(sk.length){ const p0=F.sky.pairs[0]; out.push({key:'sky',cod:'H2',nombre:'SKY Airline',corto:'SKY',clp:Math.min(...sk),sub:'ida '+this.dshortISO(p0.ida),url:this.skyLink(p0),ts:F.sky.ts,nota:'API oficial · directo',fresco:this.fresco(F.sky.ts)}); }
       const la = (F.latam&&F.latam.combos||[]).map(c=>c.clp);
-      if(la.length) out.push({key:'latam',cod:'LA',nombre:'LATAM',corto:'LATAM',clp:Math.min(...la),sub:'ida '+this.dshortISO(F.latam.combos[0].ida),url:'https://www.latam.com/es_cl',ts:F.latam.ts,nota:'API oficial · cabina incluida',fresco:this.fresco(F.latam.ts)});
+      if(la.length){ const c0=F.latam.combos[0]; out.push({key:'latam',cod:'LA',nombre:'LATAM',corto:'LATAM',clp:Math.min(...la),sub:'ida '+this.dshortISO(c0.ida),url:this.latLink(c0),ts:F.latam.ts,nota:'API oficial · cabina incluida',fresco:this.fresco(F.latam.ts)}); }
       const legs = k => { const ds=((F[k]||{}).dias||[]).filter(d=>d.min_clp); const i=ds.filter(d=>(d.sentido||'').startsWith('SCL')).sort((a,b)=>a.min_clp-b.min_clp)[0]; const v=ds.filter(d=>!(d.sentido||'').startsWith('SCL')).sort((a,b)=>a.min_clp-b.min_clp)[0]; return i?{i:i,v:v||null}:null; };
       const dpl=legs('despegar');
       if(dpl) out.push({key:'despegar',cod:'DP',nombre:'Despegar',corto:'Despegar',clp:dpl.i.min_clp+(dpl.v?dpl.v.min_clp:0),sub:'ida '+this.dshortISO(dpl.i.fecha)+(dpl.v?' · vuelta '+this.dshortISO(dpl.v.fecha):' · solo ida'),url:this.otaLink('despegar',dpl.i,dpl.v),ts:F.despegar.ts,nota:'agencia · ida+vuelta sumando tramos publicados',fresco:this.fresco(F.despegar.ts)});
       const fal=legs('falabella');
       if(fal) out.push({key:'falabella',cod:'FV',nombre:'Viajes Falabella',corto:'Falabella',clp:fal.i.min_clp+(fal.v?fal.v.min_clp:0),sub:'ida '+this.dshortISO(fal.i.fecha)+(fal.v?' · vuelta '+this.dshortISO(fal.v.fecha):' · solo ida'),url:this.otaLink('falabella',fal.i,fal.v),ts:F.falabella.ts,nota:'agencia · ida+vuelta sumando tramos publicados',fresco:this.fresco(F.falabella.ts)});
-      const co = F.cocha&&F.cocha.rio&&F.cocha.rio.clp;
-      if(co) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:co,sub:'cotización final 1 adulto',url:F.cocha.link||'https://www.cocha.com',ts:F.cocha.ts,nota:'agencia chilena · asesoría incluida',fresco:this.fresco(F.cocha.ts)});
-      const sl = (F.skiplagged&&F.skiplagged.ventanas||[]).map(v=>v.min_clp).filter(x=>x);
-      if(sl.length) out.push({key:'skiplagged',cod:'SL',nombre:'Skiplagged',corto:'Skiplagged',clp:Math.min(...sl),sub:'metebuscador · tarifas ocultas',url:F.skiplagged.ventanas[0].link||'https://skiplagged.com',ts:F.skiplagged.ts,nota:'metebuscador independiente (EE.UU.)',fresco:this.fresco(F.skiplagged.ts)});
+      /* Cocha: SOLO cotizaciones reales de las ventanas (con fechas y deep link).
+         La tarjeta promocional "desde" de portada queda como fallback declarado. */
+      const cv = ((F.cocha&&F.cocha.ventanas)||[]).filter(v=>(v.resultados||[]).length&&v.link)
+        .map(v=>({v:v,clp:Math.min(...v.resultados.map(r=>r.clp))})).sort((a,b)=>a.clp-b.clp)[0];
+      if(cv) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:cv.clp,sub:'ida '+this.dshortISO(cv.v.ida)+' · vuelta '+this.dshortISO(cv.v.vuelta),url:cv.v.link,ts:F.cocha.ts,nota:'cotización real de la ventana más barata',fresco:this.fresco(F.cocha.ts)});
+      else if(F.cocha&&F.cocha.rio&&F.cocha.rio.clp) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:F.cocha.rio.clp,sub:'promoción sin fechas fijas',url:F.cocha.link||'https://www.cocha.com/vuelos',ts:F.cocha.ts,nota:'precio promo de portada — sin fechas exactas',fresco:this.fresco(F.cocha.ts)});
+      const slv = ((F.skiplagged&&F.skiplagged.ventanas)||[]).filter(v=>v.min_clp).sort((a,b)=>a.min_clp-b.min_clp);
+      if(slv.length) out.push({key:'skiplagged',cod:'SL',nombre:'Skiplagged',corto:'Skiplagged',clp:slv[0].min_clp,sub:'metebuscador · tarifas ocultas',url:slv[0].link||SKL('SCL','GIG',slv[0].ida,slv[0].vuelta),ts:F.skiplagged.ts,nota:'metebuscador independiente (EE.UU.)',fresco:this.fresco(F.skiplagged.ts)});
       return out.sort((a,b)=>a.clp-b.clp);
     },
     campeon(){ return this.tiles[0] || {key:'',nombre:'—'}; },
@@ -748,9 +752,9 @@ createApp({
     /* ---- filas de vuelos ---- */
     filas(){
       const F=this.f, out=[];
-      (F.jetsmart&&F.jetsmart.combos||[]).forEach(c=>out.push({ida:c.ida,vuelta:c.vuelta,noches:c.noches,clp:c.clp,al:'JetSMART',cod:'JA',det:(c.v_ida||'')+' · vuelta '+(c.v_vue||'').split(' ').pop(),directo:true,escalas:0,src:'JetSMART API',link:SKL('SCL','GIG',c.ida,c.vuelta)}));
-      (F.sky&&F.sky.pairs||[]).forEach(p=>out.push({ida:p.ida,vuelta:p.vuelta,noches:p.noches,clp:p.clp,al:'SKY Airline',cod:'H2',det:'H2 directo',directo:true,escalas:0,src:'SKY API',link:SKL('SCL','GIG',p.ida,p.vuelta)}));
-      (F.latam&&F.latam.combos||[]).forEach(c=>out.push({ida:c.ida,vuelta:c.vuelta,noches:c.noches,clp:c.clp,al:'LATAM',cod:'LA',det:c.directo?'LA directo':'LATAM',directo:!!c.directo,escalas:c.directo?0:1,src:'LATAM API',link:SKL('SCL','GIG',c.ida,c.vuelta)}));
+      (F.jetsmart&&F.jetsmart.combos||[]).forEach(c=>out.push({ida:c.ida,vuelta:c.vuelta,noches:c.noches,clp:c.clp,al:'JetSMART',cod:'JA',det:(c.v_ida||'')+' · vuelta '+(c.v_vue||'').split(' ').pop(),directo:true,escalas:0,src:'JetSMART API',link:this.jsRT(c.ida,c.vuelta)}));
+      (F.sky&&F.sky.pairs||[]).forEach(p=>out.push({ida:p.ida,vuelta:p.vuelta,noches:p.noches,clp:p.clp,al:'SKY Airline',cod:'H2',det:'H2 directo',directo:true,escalas:0,src:'SKY API',link:this.skyLink(p)}));
+      (F.latam&&F.latam.combos||[]).forEach(c=>out.push({ida:c.ida,vuelta:c.vuelta,noches:c.noches,clp:c.clp,al:'LATAM',cod:'LA',det:c.directo?'LA directo':'LATAM',directo:!!c.directo,escalas:c.directo?0:1,src:'LATAM API',link:this.latLink(c)}));
       (F.cocha&&F.cocha.ventanas||[]).forEach(v=>(v.resultados||[]).forEach(r=>out.push({ida:v.ida,vuelta:v.vuelta,noches:Math.round((new Date(v.vuelta)-new Date(v.ida))/864e5),clp:r.clp,al:r.aerolinea,cod:r.cod||'LA',det:r.det,directo:r.escalas===0,escalas:r.escalas,src:'Cocha',link:v.link})));
       (F.skiplagged&&F.skiplagged.ventanas||[]).forEach(v=>(v.resultados||[]).forEach(r=>out.push({ida:v.ida,vuelta:v.vuelta,noches:Math.round((new Date(v.vuelta)-new Date(v.ida))/864e5),clp:r.clp,al:r.aerolinea,cod:r.cod||'SL',det:r.det,directo:r.escalas===0,escalas:r.escalas,src:'Skiplagged',link:v.link})));
       return out.sort((a,b)=>a.clp-b.clp).slice(0,60);
@@ -833,6 +837,10 @@ createApp({
       const d=Math.round(h/24); return 'hace '+d+' d'; },
     fresco(ts){ if(!ts) return false; const t=Date.parse(String(ts).replace(' ','T')+'Z'); return isFinite(t)&&(Date.now()-t)<26*3600e3; },
     otaSub(F){ const d=((F.dias||[]).find(x=>x.min_clp&&(x.sentido||'').startsWith('SCL')))||{}; return d.fecha?('ida '+this.dshortISO(d.fecha)):'agencia'; },
+    /* deep links de aerolíneas (formatos de booking reales) */
+    jsRT(i,v){ return `https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true&r=true&cur=CLP&culture=es-CL&dd1=${i}&o1=SCL&d1=GIG&dd2=${v}`; },
+    skyLink(s){ return `https://initial-sale.skyairline.com/es/chile?origin=SCL&destination=GIG&departureDate=${s.ida}&arrivalDate=${s.vuelta}&flightType=RT&ADT=${this.pax||1}`; },
+    latLink(c){ return `https://www.latam.com/es_cl/book/shopping/flight/search/?from=SCL&to=GIG&outbound=${c.ida}&inbound=${c.vuelta}&adults=${this.pax||1}`; },
     /* deep link a la búsqueda EXACTA en la OTA (GIG: los routers de Despegar/Falabella
        redirigen "RIO" a la home — causa de los enlaces rotos reportados) */
     otaLink(site,i,v){ const fx=c=>c==='RIO'?'GIG':c; const p=String(i.sentido||'').split('-'); const b=site==='despegar'?'https://www.despegar.cl':'https://www.viajesfalabella.cl'; const o=fx(p[0]||'SCL'),d=fx(p[1]||'GIG'); return v?`${b}/shop/flights/results/roundtrip/${o}/${d}/${i.fecha}/${v.fecha}/1/0/0`:`${b}/shop/flights/results/oneway/${o}/${d}/${i.fecha}/1/0/0`; },
