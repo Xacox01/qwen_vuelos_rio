@@ -87,6 +87,13 @@ jobs:
             echo "Cupones vigentes (menos de 6 h) — omitido"
           fi
 
+      - name: procesar suscripciones de alertas (cifrado, privacy-first)
+        env:
+          ALERT_RSA_PRIV: ${{ secrets.ALERT_RSA_PRIV }}
+        run: |
+          pip install -q cryptography || true
+          python3 notificaciones.py || echo "::warning::notificaciones falló (no bloquea publicación)"
+
       - name: subir diagnóstico OTA (si hubo challenge)
         if: always()
         uses: actions/upload-artifact@v4
@@ -110,7 +117,7 @@ jobs:
         run: |
           git config user.name "arena-bot"
           git config user.email "arena-bot@users.noreply.github.com"
-          git add data.json
+          git add data.json subscribers.enc.json estado_alertas.json
           if git diff --cached --quiet; then
             echo "Sin cambios: no se publica commit."
           else

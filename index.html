@@ -268,6 +268,11 @@ section.band{background:var(--bg);border-top:1px solid var(--line);border-bottom
 .alitem .dn{background:var(--okbg);color:var(--ok);font-weight:800;font-size:.74rem;border-radius:6px;padding:5px 9px;white-space:nowrap}
 .alitem .ser{font-weight:700;font-size:.8rem;color:var(--ink)}
 .alitem .was{font-size:.7rem;color:var(--faint);font-weight:600}
+.subsbox{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
+.subsline{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:center}
+.subs-chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;font-size:.68rem;font-weight:700;color:var(--mut);padding:4px 10px}
+.subs-empty{font-size:.7rem;color:var(--faint);font-weight:600}
+.subs-tot{font-size:.7rem;color:var(--faint);font-weight:700}
 .alitem .ago{margin-left:auto;font-size:.68rem;color:var(--faint);font-weight:600;white-space:nowrap}
 
 /* ---------- FAQ ---------- */
@@ -599,13 +604,23 @@ footer .flogo b{color:#fff;font-size:1rem}
     <div class="algrid">
       <div class="panel">
         <h3>Recibe las bajadas por correo</h3>
-        <p class="pp">Cada vez que un mínimo del verano cae, te avisamos. Alta y baja automática por GitHub, sin bases de datos ni marketing.</p>
+        <p class="pp">Cada vez que un mínimo del verano cae, te avisamos. Automático, sin spam y sin marketing: solo el correo de la bajada.</p>
         <div class="subrow">
           <input v-model="mail" type="email" placeholder="tucorreo@ejemplo.com" aria-label="Correo">
+          <input v-model="obj" type="number" min="0" step="1000" placeholder="Objetivo $ opcional" aria-label="Precio objetivo en CLP" style="max-width:150px">
         </div>
         <div class="subrow" style="margin-top:9px">
-          <a class="btn org" style="flex:1;text-align:center" :href="subUrl('ALTA')" target="_blank" rel="noopener" :style="mailOk?'':'pointer-events:none;opacity:.45'">Suscribirme</a>
-          <a class="btn ghost" style="flex:1;text-align:center" :href="subUrl('BAJA')" target="_blank" rel="noopener" :style="mailOk?'':'pointer-events:none;opacity:.45'">Darme de baja</a>
+          <button class="btn org" style="flex:1" :disabled="!mailOk||susEnvio||!cfg" @click="suscribir('alta')">Suscribirme</button>
+          <button class="btn ghost" style="flex:1" :disabled="!mailOk||susEnvio||!cfg" @click="suscribir('baja')">Darme de baja</button>
+        </div>
+        <p v-if="susMsg" class="pp" :style="susOk?'color:var(--ok);font-weight:700;margin:10px 0 0':'color:#c0392b;font-weight:700;margin:10px 0 0'">{{susMsg}}</p>
+        <p class="pp" style="margin:12px 0 0;font-size:.72rem">🔒 Tu correo se cifra <b>en tu navegador</b> (RSA-2048) antes de salir de tu equipo y queda guardado cifrado: en el listado público solo se ven la primera y la última letra. Sin bases de datos de terceros.</p>
+        <div class="subsbox" v-if="subs">
+          <div class="subsline">
+            <span class="subs-chip" v-for="(m,i) in subs.muestras" :key="i">{{m}}</span>
+            <span v-if="!subs.total" class="subs-empty">Sé el primero en vigilar estos vuelos</span>
+          </div>
+          <span class="subs-tot">{{subs.total}} {{subs.total===1?'viajero vigilando':'viajeros vigilando'}} estos vuelos</span>
         </div>
       </div>
       <div class="panel">
@@ -628,6 +643,9 @@ footer .flogo b{color:#fff;font-size:1rem}
   <div class="wrap">
     <div class="shead"><h2>Preguntas frecuentes</h2></div>
     <div class="faq">
+      <details><summary>¿Cómo funciona la suscripción de alertas y qué hacen con mi correo?</summary>
+        <div class="fa-body">Tu correo se cifra con RSA-2048 dentro de tu propio navegador antes de salir de tu equipo: ni el sitio ni el bus de mensajes lo ven en claro. Queda guardado cifrado junto a los datos del panel y solo se descifra —en el momento de notificarte una bajada— dentro del servidor de envío. En el listado público solo se ven la primera y la última letra (por ejemplo <b>j•••m</b>). Para salir, usa el botón «Darme de baja» con el mismo correo con el que te suscribiste.</div>
+      </details>
       <details open><summary>¿De dónde salen los precios?</summary>
         <div class="fa-body">Consultamos directamente las APIs públicas de JetSMART, SKY y LATAM, el metebuscador Skiplagged, y las webs de Despegar, Viajes Falabella y Cocha con un navegador automatizado que corre en GitHub Actions. Todo lo que ves es el precio real devuelto por cada fuente en el último ciclo — no inventamos, no estimamos, no escondemos recargos: los montos son por persona, ida y vuelta, sumando ambos tramos.</div>
       </details>
@@ -709,7 +727,7 @@ const SKL = (from,to,ida,vta) => `https://skiplagged.com/flights/${from}/${to}/$
 createApp({
   data(){ return {
     D:null, mob:false, pax:1, selWin:0, filterMax:0, onlyDirect:false,
-    cpF:'todas', copied:null, mail:''
+    cpF:'todas', copied:null, mail:'', obj:'', susEnvio:false, susMsg:'', susOk:null, cfg:null
   }},
   computed:{
     f(){ return (this.D && this.D.fuentes) || {}; },
@@ -728,12 +746,14 @@ createApp({
       if(dpl) out.push({key:'despegar',cod:'DP',nombre:'Despegar',corto:'Despegar',clp:dpl.i.min_clp+(dpl.v?dpl.v.min_clp:0),sub:'ida '+this.dshortISO(dpl.i.fecha)+(dpl.v?' · vuelta '+this.dshortISO(dpl.v.fecha):' · solo ida'),url:this.otaLink('despegar',dpl.i,dpl.v),ts:F.despegar.ts,nota:'agencia · ida+vuelta sumando tramos publicados',fresco:this.fresco(F.despegar.ts)});
       const fal=legs('falabella');
       if(fal) out.push({key:'falabella',cod:'FV',nombre:'Viajes Falabella',corto:'Falabella',clp:fal.i.min_clp+(fal.v?fal.v.min_clp:0),sub:'ida '+this.dshortISO(fal.i.fecha)+(fal.v?' · vuelta '+this.dshortISO(fal.v.fecha):' · solo ida'),url:this.otaLink('falabella',fal.i,fal.v),ts:F.falabella.ts,nota:'agencia · ida+vuelta sumando tramos publicados',fresco:this.fresco(F.falabella.ts)});
-      /* Cocha: SOLO cotizaciones reales de las ventanas (con fechas y deep link).
-         La tarjeta promocional "desde" de portada queda como fallback declarado. */
-      const cv = ((F.cocha&&F.cocha.ventanas)||[]).filter(v=>(v.resultados||[]).length&&v.link)
-        .map(v=>({v:v,clp:Math.min(...v.resultados.map(r=>r.clp))})).sort((a,b)=>a.clp-b.clp)[0];
-      if(cv) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:cv.clp,sub:'ida '+this.dshortISO(cv.v.ida)+' · vuelta '+this.dshortISO(cv.v.vuelta),url:cv.v.link,ts:F.cocha.ts,nota:'cotización real de la ventana más barata',fresco:this.fresco(F.cocha.ts)});
-      else if(F.cocha&&F.cocha.rio&&F.cocha.rio.clp) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:F.cocha.rio.clp,sub:'promoción sin fechas fijas',url:F.cocha.link||'https://www.cocha.com/vuelos',ts:F.cocha.ts,nota:'precio promo de portada — sin fechas exactas',fresco:this.fresco(F.cocha.ts)});
+      /* Cocha: SOLO la ventana verificada (min_clp validado contra la página real de
+         resultados cuando el navegador pudo leerla — scraper marca base:'pagina';
+         si no, cotización API declarada). El fallback promocional de portada
+         (precio "desde" sin fechas + link a la home) fue eliminado: causaba
+         enlaces a la pantalla principal y precios no verificables. */
+      const cv = ((F.cocha&&F.cocha.ventanas)||[]).filter(v=>v.min_clp&&v.link)
+        .sort((a,b)=>a.min_clp-b.min_clp)[0];
+      if(cv) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:cv.min_clp,sub:'ida '+this.dshortISO(cv.ida)+' · vuelta '+this.dshortISO(cv.vuelta),url:cv.link,ts:F.cocha.ts,nota:cv.base==='pagina'?'precio verificado en resultados reales de cocha.com':'cotización API de cocha.com — puede variar al reservar',fresco:this.fresco(F.cocha.ts)});
       const slv = ((F.skiplagged&&F.skiplagged.ventanas)||[]).filter(v=>v.min_clp).sort((a,b)=>a.min_clp-b.min_clp);
       if(slv.length) out.push({key:'skiplagged',cod:'SL',nombre:'Skiplagged',corto:'Skiplagged',clp:slv[0].min_clp,sub:'metebuscador · tarifas ocultas',url:slv[0].link||SKL('SCL','GIG',slv[0].ida,slv[0].vuelta),ts:F.skiplagged.ts,nota:'metebuscador independiente (EE.UU.)',fresco:this.fresco(F.skiplagged.ts)});
       return out.sort((a,b)=>a.clp-b.clp);
@@ -818,6 +838,7 @@ createApp({
     cuponesVisibles(){ return this.cpF==='todas'?this.cupones:this.cupones.filter(c=>c.merchant===this.cpF); },
 
     alertas(){ return (this.D&&this.D.alerts||[]).slice(0,8); },
+    subs(){ return (this.D&&this.D.suscriptores)||null; },
     estado(){
       const F=this.f, nm={jetsmart:'JetSMART API',sky:'SKY API',latam:'LATAM API',cocha:'Cocha',despegar:'Despegar (WARP+Camoufox)',falabella:'Falabella (WARP+Camoufox)',skiplagged:'Skiplagged',playas:'Radar playas'};
       return Object.keys(nm).filter(k=>F[k]).map(k=>({k,nombre:nm[k],ok:!!F[k].ok,
@@ -855,13 +876,40 @@ createApp({
       else this.fallbackCopy(txt,done); },
     fallbackCopy(txt,done){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
       document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done(); },
-    subUrl(acc){ return `https://github.com/Xacox01/vuelos-rio-live/issues/new?title=${encodeURIComponent(acc+' '+this.mail.trim())}&body=${encodeURIComponent('Solicitud automatica desde el dashboard vuelos-rio-live.')}`; }
+    /* alertas por correo: el navegador cifra (RSA-OAEP) y publica un blob opaco en el bus;
+       el listado muestra solo inicial+final del correo (privacy) */
+    maskEmail(e){ e=String(e||'').trim(); const i=e.indexOf('@'); if(i<1||e.length<5) return '•••'; return e[0]+'•••'+e[e.length-1]; },
+    async suscribir(acc){
+      const mail=this.mail.trim();
+      if(!this.mailOk){ this.susOk=false; this.susMsg='Escribe un correo válido.'; return; }
+      if(!this.cfg||this.susEnvio) return;
+      this.susEnvio=true; this.susMsg='Cifrando tu correo en el navegador…';
+      try{
+        const raw=new TextEncoder().encode(JSON.stringify({e:mail,a:acc,p:this.obj?parseInt(this.obj,10):null,t:Date.now()}));
+        const der=Uint8Array.from(atob(this.cfg.pub),c=>c.charCodeAt(0));
+        const key=await crypto.subtle.importKey('spki',der,{name:'RSA-OAEP',hash:'SHA-256'},false,['encrypt']);
+        const ct=new Uint8Array(await crypto.subtle.encrypt({name:'RSA-OAEP'},key,raw));
+        let bin=''; for(let i=0;i<ct.length;i++) bin+=String.fromCharCode(ct[i]);
+        await fetch(this.cfg.webhook,{method:'POST',mode:'no-cors',body:'v1|'+btoa(bin)});
+        const mk=this.maskEmail(mail);
+        this.susOk=true;
+        this.susMsg= acc==='alta'
+          ? `✓ Listo: ${mk} quedó en la lista (procesado en ~5 min). Te avisaremos en cada bajada.`
+          : `✓ ${mk} será dado de baja en ~5 min.`;
+        if(acc==='alta'){ this.mail=''; this.obj=''; }
+      }catch(e){ console.error('suscribir', e); this.susOk=false; this.susMsg='No pudimos enviar tu solicitud. Revisa tu conexión e intenta otra vez.'; }
+      finally{ this.susEnvio=false; }
+    }
   },
   async mounted(){
     try{
       const r = await fetch('data.json?t='+Date.now(), {cache:'no-store'});
       this.D = await r.json();
     }catch(e){ console.error('data.json', e); }
+    try{
+      const rc = await fetch('alertas.cfg.json?t='+Date.now(), {cache:'no-store'});
+      if(rc.ok) this.cfg = await rc.json();
+    }catch(e){ console.error('alertas.cfg', e); }
   }
 }).mount('#app');
 </script>

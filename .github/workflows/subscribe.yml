@@ -1,59 +1,82 @@
-name: Suscripciones email
+name: Suscripciones email (via GitHub)
 on:
   issues:
     types: [opened]
 permissions:
-  contents: write
+  contents: read
   issues: write
 jobs:
   gestionar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Procesar ALTA/BAJA
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Procesar ALTA/BAJA (cifrado + privacidad)
         env:
           TITULO: ${{ github.event.issue.title }}
+          CUERPO: ${{ github.event.issue.body }}
           NUM: ${{ github.event.issue.number }}
           TOKEN: ${{ secrets.PUSH_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
+          pip install -q cryptography
           python3 - << 'PYEOF'
-          import json, os, re, subprocess, urllib.request, urllib.parse
+          import base64, json, os, re, time, urllib.request
+          from cryptography.hazmat.primitives import hashes, serialization
+          from cryptography.hazmat.primitives.asymmetric import padding
           titulo = os.environ["TITULO"]; num = os.environ["NUM"]
           token = os.environ["TOKEN"]; repo = os.environ["REPO"]
-          email_m = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", titulo or "")
-          email = email_m.group(0).lower() if email_m else None
-          up = (titulo or "").upper()
-          accion = "ALTA" if up.startswith("ALTA") else ("BAJA" if up.startswith("BAJA") else None)
+          cfg = json.load(open("alertas.cfg.json", encoding="utf8"))
+
+          def mask(e):
+              e = (e or "").strip()
+              if "@" not in e or len(e) < 5: return "***"
+              return e[0] + "***" + e[-1]
+
           def api(method, path, body=None):
               req = urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
-                  data=json.dumps(body).encode() if body else None, method=method,
+                  data=json.dumps(body).encode() if body is not None else None, method=method,
                   headers={"Authorization": f"token {token}", "Accept": "application/vnd.github+json"})
               try: urllib.request.urlopen(req, timeout=20)
               except Exception as e: print(f"api {path}: {e}")
-          def cerrar(comentario):
+
+          def cerrar(comentario, titulo_limpio):
               api("POST", f"issues/{num}/comments", {"body": comentario})
-              api("PATCH", f"issues/{num}", {"state": "closed"})
+              # PRIVACIDAD: el correo sale del título público del issue
+              api("PATCH", f"issues/{num}",
+                  {"state": "closed", "title": titulo_limpio,
+                   "body": "(solicitud procesada — correo eliminado del título por privacidad)"})
+
+          email_m = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", titulo or "")
+          email = email_m.group(0).lower() if email_m else None
+          up = (titulo or "").upper()
+          accion = "alta" if up.startswith("ALTA") else ("baja" if up.startswith("BAJA") else None)
+          mm = mask(email)
+
           if not email or not accion:
-              cerrar("❌ Formato inválido. Para suscribirte abre un issue con título `ALTA tucorreo@ejemplo.com` (o `BAJA ...` para desuscribirte). Cerrando automáticamente.")
+              cerrar("❌ Formato inválido. Abre un issue con título `ALTA tucorreo@ejemplo.com` "
+                     "(o `BAJA ...` para desuscribirte). También puedes suscribirte desde el "
+                     "propio panel: sección **Alertas** → https://xacox01.github.io/vuelos-rio-live/",
+                     "solicitud inválida")
               raise SystemExit(0)
-          subs = json.load(open("subscribers.json")) if os.path.exists("subscribers.json") else []
-          if accion == "ALTA":
-              if email not in subs: subs.append(email)
-              json.dump(subs, open("subscribers.json", "w"), ensure_ascii=False, indent=1)
-              subprocess.run(["git", "config", "user.name", "arena-bot"], check=True)
-              subprocess.run(["git", "config", "user.email", "arena-bot@users.noreply.github.com"], check=True)
-              r = subprocess.run(["git", "commit", "-am", f"alertas: ALTA {email[:3]}***"])
-              if r.returncode == 0:
-                  subprocess.run(["git", "push", f"https://x-access-token:{token}@github.com/{repo}.git", "HEAD:main"], check=False)
-              cerrar(f"✅ **{email}** quedó suscrito a las alertas de bajada de precio (total suscritos: {len(subs)}). Recibirás un correo cuando el panel detecte que una combinación baja. Para salir: issue `BAJA {email}`.")
+
+          # cifra el correo ANTES de que salga de este runner (RSA-OAEP SHA-256)
+          payload = json.dumps({"e": email, "a": accion, "t": int(time.time() * 1000)}).encode()
+          pub = serialization.load_der_public_key(base64.b64decode(cfg["pub"]))
+          ct = pub.encrypt(payload, padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),
+                                                 algorithm=hashes.SHA256(), label=None))
+          blob = "v1|" + base64.b64encode(ct).decode()
+          req = urllib.request.Request(cfg["webhook"], data=blob.encode(), method="POST")
+          urllib.request.urlopen(req, timeout=20)
+
+          if accion == "alta":
+              cerrar(f"✅ **{mm}** quedó en cola de suscripción a las alertas de bajada de precio "
+                     f"(procesado en el próximo ciclo, ~5 min). Tu correo viajó cifrado y en el "
+                     f"listado público solo se ven la primera y la última letra. "
+                     f"Para salir: issue `BAJA` o el botón «Darme de baja» del panel.", f"ALTA {mm}")
           else:
-              if email in subs: subs.remove(email)
-              json.dump(subs, open("subscribers.json", "w"), ensure_ascii=False, indent=1)
-              subprocess.run(["git", "config", "user.name", "arena-bot"], check=True)
-              subprocess.run(["git", "config", "user.email", "arena-bot@users.noreply.github.com"], check=True)
-              r = subprocess.run(["git", "commit", "-am", f"alertas: BAJA {email[:3]}***"])
-              if r.returncode == 0:
-                  subprocess.run(["git", "push", f"https://x-access-token:{token}@github.com/{repo}.git", "HEAD:main"], check=False)
-              cerrar(f"👋 **{email}** fue desuscrito de las alertas. Para volver: issue `ALTA {email}`.")
+              cerrar(f"👋 **{mm}** será desuscrito de las alertas (~5 min). Para volver: issue "
+                     f"`ALTA` o el botón «Suscribirme» del panel.", f"BAJA {mm}")
           PYEOF

@@ -1,0 +1,6 @@
+{
+ "webhook": "https://webhook.site/4fd4477f-07d1-4f2a-a526-c3ccbdb36be1",
+ "pub": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4fkSqZWL6f8VVHex4k4gBtWu2swPXXNBhP37fE1PByxRVlkIwVaWBN1tjarEBRjjB3YlWBoSP7K0LsK4/RfVWtDsfe5dqZ3/mpIwCrRpOZctSOdo5VpXpyX6vYbzdHit7DukFtKilcf7mEOQi+uxUFLIvfNqoOj4DHL3rh0MGKY2ml2xp2yUYwA7tZ2Nj6bwIUAQ2jgs3dLQXe6gaL3IYlT1wOXAG2CkJp7sX2rRYd/3J4P3b0DKjdj24yiik5BroTpNr2Ztr/n2TrKUgTqMUmz+yKgCvU7uaGokkRFvRah9A8m0IA2w2B+98GFGIMcUvnYps2EsWLucWWnBy01uAQIDAQAB",
+ "v": 1,
+ "nota": "Config p\u00fablica del m\u00f3dulo de alertas. La clave p\u00fablica RSA-2048 cifra el correo EN EL NAVEGADOR del visitante; el bus solo ve texto cifrado. La clave privada vive en el secreto ALERT_RSA_PRIV de Actions."
+}

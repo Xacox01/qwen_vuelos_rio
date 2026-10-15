@@ -40,6 +40,13 @@ VIA = "camoufox+warp" if OTA_PROXY else "camoufox"
 # Falabella acepta en deep links; "RIO" provoca redirección a la home).
 FAL_DATES = [("SCL", "GIG", "2027-01-22"), ("GIG", "SCL", "2027-02-01")]
 
+# Cocha (sin DataDome, pero su API GraphQL sub-cotiza ~10-13% vs la página real):
+# verificamos el mínimo de cada ventana abriendo la página de resultados real.
+COCHA_RES_URL = ("https://www.cocha.com/resultado/vuelos/SCL/GIG/{ida}/1/Y"
+                 "?origin2=GIG&destination2=SCL&date2={vuelta}")
+RE_MAS_BARATO = re.compile(r"Más barato\s*\$\s?([\d.]+)")
+RE_N_VUELOS = re.compile(r"(\d+)\s*Vuelos encontrados")
+
 # Umbral de plausibilidad: one-way SCL⇄GIG temporada alta (ene-feb 2027).
 PRICE_MIN, PRICE_MAX = 100000, 2500000
 
@@ -300,7 +307,62 @@ def scan_site(pg, name, log, capture):
     return dias
 
 
-def fetch_otas(log=print):
+def scan_cocha(pg, ventanas, log):
+    """Verifica el mínimo REAL de cada ventana SCL⇄GIG en la página de resultados
+    de cocha.com (la SPA muestra 'N Vuelos encontrados' + pestaña 'Más barato $X').
+
+    Por qué: la API GraphQL de Cocha devuelve totales ~10-13% POR DEBAJO de lo que
+    la página cobra (fareType promo no disponible al reservar) — causa de los
+    "precios irreales" reportados. Publicamos solo lo que la página cobra.
+    Devuelve {ida: {pag_min, n_vuelos, url_final, ts}} (pag_min=None si no verificó).
+    """
+    res = {}
+    for ida, vuelta in ventanas:
+        url = COCHA_RES_URL.format(ida=ida, vuelta=vuelta)
+        try:
+            pg.goto(url, timeout=60000, wait_until="domcontentloaded")
+            pg.wait_for_timeout(6000)
+            pag_min = n_vuelos = None
+            t0 = time.time()
+            while (time.time() - t0) < 42:
+                try:
+                    txt = pg.evaluate("() => document.body ? document.body.innerText : ''") or ""
+                except Exception:
+                    txt = ""
+                m = RE_MAS_BARATO.search(txt)
+                nv = RE_N_VUELOS.search(txt)
+                if m:
+                    try:
+                        v = int(m.group(1).replace(".", ""))
+                        if PRICE_MIN < v < PRICE_MAX:
+                            pag_min = v
+                        n_vuelos = int(nv.group(1)) if nv else None
+                        break
+                    except ValueError:
+                        pass
+                pg.wait_for_timeout(3000)
+            url_final = ""
+            try:
+                url_final = str(pg.url)[:200]
+            except Exception:
+                pass
+            en_resultados = "/resultado/vuelos/SCL/GIG" in url_final
+            valido = bool(en_resultados and pag_min)
+            res[ida] = {"pag_min": pag_min if valido else None,
+                        "n_vuelos": n_vuelos, "url_final": url_final,
+                        "ts": time.strftime("%Y-%m-%d %H:%M:%S")}
+            if valido:
+                log(f"cocha {ida}: página REAL ${pag_min:,} ({n_vuelos or '?'} vuelos)")
+            else:
+                log(f"cocha {ida}: sin lectura verificable (url {url_final[:60]})")
+        except Exception as e:
+            res[ida] = {"pag_min": None, "url_final": "", "error": str(e)[:80]}
+            log(f"cocha {ida}: ERR {str(e)[:60]}")
+        time.sleep(3.0)
+    return res
+
+
+def fetch_otas(log=print, cocha_ventanas=None):
     """Escanea Falabella y Despegar en una sola sesión Camoufox (cookies DataDome calientes).
 
     Si OTA_PROXY está seteado (por warp_boot.sh), sale por WARP y activa geoip
@@ -324,6 +386,10 @@ def fetch_otas(log=print):
         out["falabella"] = {"dias": scan_site(pg, "viajesfalabella.cl", log, cap)}
         time.sleep(4)
         out["despegar"] = {"dias": scan_site(pg, "despegar.cl", log, cap)}
+        # Cocha al final (página sin DataDome; no interfiere con el flujo DataDome)
+        if cocha_ventanas:
+            time.sleep(4)
+            out["cocha_verif"] = scan_cocha(pg, cocha_ventanas, log)
     return out
 
 

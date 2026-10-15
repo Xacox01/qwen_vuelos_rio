@@ -768,13 +768,15 @@ def main():
             return None
     last_attempt = _parse_ts(LIVE.get("ota_ts"))
     due = (not last_attempt) or (datetime.datetime.now() - last_attempt).total_seconds() >= OTAS_GAP
+    otas = {}  # resultados stealth (incluye cocha_verif); {} si este ciclo no venció el gate
     if due:
         LIVE["ota_ts"] = now_iso()  # se marca ANTES de intentar (evita martilleo si falla)
         try:
             import fetch_otas
             if not fetch_otas.HAS_CAMOUFOX:
                 raise RuntimeError("sin camoufox")
-            otas = fetch_otas.fetch_otas(log=lambda m: print(m, flush=True))
+            otas = fetch_otas.fetch_otas(log=lambda m: print(m, flush=True),
+                                         cocha_ventanas=COCHA_VENTANAS)
             fa_dias = otas.get("falabella") or {}
             de_dias = otas.get("despegar") or {}
             if any(d.get("min_clp") for d in fa_dias.get("dias", [])):
@@ -823,16 +825,40 @@ def main():
         cur = LIVE["fuentes"].get("latam")
         if cur is not None:
             cur["ok"] = False
-    # 7) Cocha: cotización REAL por API + tarjetas SSR de respaldo
+    # 7) Cocha: cotización REAL por API + verificación del mínimo contra la página
+    #    real de resultados (la API sub-cotiza ~10-13%; solo publicamos lo que la
+    #    página cobra — misma regla de honestidad que Despegar/Falabella).
     try:
         co_live = fetch_cocha_live(LIVE["fuentes"].get("cocha") or {})
+        verif = (otas if isinstance(otas, dict) else {}).get("cocha_verif") or {}
+        n_verif = 0
+        for v in co_live.get("ventanas", []):
+            vr = verif.get(v.get("ida")) or {}
+            api_min = v.get("min_clp")
+            pag = vr.get("pag_min")
+            if pag and api_min and pag >= api_min * 0.85:
+                # verificado en la página: manda el precio real (api_min queda como auditoría)
+                v["api_min"] = api_min
+                v["min_clp"] = pag
+                v["base"] = "pagina"
+                v["n_vuelos"] = vr.get("n_vuelos")
+                n_verif += 1
+            else:
+                v["base"] = "api"
+                if pag:
+                    v["pagina_no_coherente"] = pag
         old = LIVE["fuentes"].get("cocha") or {}
         LIVE["fuentes"]["cocha"] = {"ts": now_iso(), "ok": True,
-            "nota": "Cotización real automática vía API de cocha.com, ordenada del más barato (1 adulto, tasas incl.)",
+            "nota": ("Cotización automática de cocha.com: detalle por vuelo vía API oficial; "
+                     "el mínimo de cada ventana se verifica contra la página real de "
+                     "resultados (1 adulto, ida y vuelta). Si la verificación no está "
+                     "disponible, se declara la cotización API y puede variar ~10% al reservar."),
             "rio": old.get("rio"), "cards": old.get("cards", []),
+            "verificadas": n_verif,
             "link": "https://www.cocha.com/vuelos", **co_live}
         print("Cocha LIVE OK: " + " | ".join(
-            f"{v['ida']}→{v['vuelta']} ${v['min_clp']:,.0f}" for v in co_live["ventanas"]), flush=True)
+            f"{v['ida']}→{v['vuelta']} ${v['min_clp']:,.0f}[{v.get('base')}]{(' vs api $' + format(v['api_min'], ',')) if v.get('api_min') else ''}"
+            for v in co_live["ventanas"]), flush=True)
     except Exception as e:
         print(f"Cocha live FAIL: {str(e)[:90]}", flush=True)
         try:

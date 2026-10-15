@@ -106,6 +106,44 @@ const est = vm.estado;
 ok(Array.isArray(est) && est.length >= 6, 'estado >= 6 fuentes', est.length);
 ok(est.every(s => typeof s.ok === 'boolean' && s.det), 'estado con det y ok');
 
+console.log('== 7b. notificaciones por correo (privacy-first) ==');
+/* enmascarado: solo primera y última letra visibles (j•••m) */
+ok(vm.maskEmail('juan.perez@gmail.com') === 'j•••m', 'maskEmail primera+última letra', vm.maskEmail('juan.perez@gmail.com'));
+ok(vm.maskEmail('a@x.io') === 'a•••o', 'maskEmail aplica regla inicial+final en correos cortos', vm.maskEmail('a@x.io'));
+ok(vm.maskEmail('') === '•••' && vm.maskEmail(null) === '•••', 'maskEmail tolera vacío/null');
+ok(typeof vm.suscribir === 'function', 'método suscribir presente');
+ok(html.includes("suscribir('alta')") && html.includes("suscribir('baja')"), 'botones alta/baja en el sitio');
+ok(html.includes("mode:'no-cors'") && html.includes('RSA-OAEP'), 'cifrado RSA-OAEP en navegador (correo nunca viaja en claro)');
+ok(html.includes('primera y la última letra'), 'nota de privacidad visible (inicial+final)');
+ok(!html.includes('subUrl'), 'flujo viejo por issues eliminado del sitio');
+/* config pública */
+const cfgPath = require('path').join(require('path').dirname(htmlPath), 'alertas.cfg.json');
+let cfgOk = false, hookOk = false;
+try { const ac = JSON.parse(fs.readFileSync(cfgPath, 'utf8')); cfgOk = typeof ac.pub === 'string' && ac.pub.length > 200; hookOk = /^https:\/\//.test(ac.webhook || ''); } catch (e) {}
+ok(cfgOk, 'alertas.cfg.json con clave pública RSA', cfgOk);
+ok(hookOk, 'alertas.cfg.json con bus https', hookOk);
+/* registro cifrado: jamás un correo en claro en el repo */
+const encPath = require('path').join(require('path').dirname(htmlPath), 'subscribers.enc.json');
+if (fs.existsSync(encPath)) {
+  const encRaw = fs.readFileSync(encPath, 'utf8');
+  ok(!encRaw.includes('@'), 'subscribers.enc.json sin NINGÚN correo en claro');
+  const enc = JSON.parse(encRaw);
+  ok(Array.isArray(enc.items), 'registro cifrado con items');
+}
+/* data.json: suscriptores solo enmascarados */
+const SUBS = DATA.suscriptores || null;
+ok(SUBS === null || (typeof SUBS.total === 'number' && Array.isArray(SUBS.muestras)), 'suscriptores con total+muestras');
+ok(SUBS === null || SUBS.muestras.every(m => /^[^@\s]•••[^@\s]$/.test(m)), 'muestras 100% enmascaradas (inicial+final)', SUBS && SUBS.muestras);
+ok(SUBS === null || !JSON.stringify(SUBS).includes('@'), 'suscriptores sin correos crudos');
+ok(!fs.existsSync(require('path').join(require('path').dirname(htmlPath), 'subscribers.json')), 'subscribers.json (texto plano) eliminado');
+/* backend del módulo */
+const base = require('path').dirname(htmlPath);
+ok(fs.existsSync(require('path').join(base, 'notificaciones.py')), 'notificaciones.py presente');
+ok(fs.existsSync(require('path').join(base, 'send_alerts.py')), 'send_alerts.py presente');
+const subYml = fs.readFileSync(require('path').join(base, '.github/workflows/subscribe.yml'), 'utf8');
+ok(subYml.includes('OAEP') && subYml.includes('PATCH'), 'issue-path cifra el correo y limpia el título público');
+ok(subYml.includes('cfg["webhook"]'), 'issue-path publica blob cifrado al bus');
+
 console.log('== 8. utilidades y HTML ==');
 ok(vm.fmt(337754) === '337.754', 'fmt separador miles CLP', vm.fmt(337754));
 ok(vm.fmtK(337754) === '338', 'fmtK redondea a miles', vm.fmtK(337754));
@@ -116,7 +154,7 @@ ok(vm.ago(DATA.updated).includes('hace') || vm.ago(DATA.updated) === 'ahora', 'a
   ok(found, 'asset existe: ' + p);
 });
 ok(html.includes('id="cupones"'), 'seccion cupones en HTML');
-ok(html.includes('subUrl'), 'suscripcion email presente');
+ok(html.includes('alertas.cfg.json'), 'config del módulo de alertas cargada por el sitio');
 ok(!/linear-gradient\((?![0-9]+deg,rgba\(18,33,64)/.test(html.slice(0, html.indexOf('</style>'))), 'sin gradientes decorativos (diseno plano OTA)');
 ok((html.match(/#0062e3/g) || []).length >= 3, 'color de marca azul presente');
 ok(!html.includes('CyberMonday'), 'sin cupones caducados hardcodeados');
@@ -129,7 +167,7 @@ const TIL_PAT = {
   latam: u => u.includes('latam.com') && u.includes('outbound='),
   despegar: u => u.includes('despegar.cl/shop/flights/results/'),
   falabella: u => u.includes('viajesfalabella.cl/shop/flights/results/'),
-  cocha: u => u.includes('cocha.com'),
+  cocha: u => u.includes('cocha.com/resultado/vuelos/') && !/cocha\.com\/vuelos(\?|$)/.test(u),
   skiplagged: u => u.includes('skiplagged.com/flights/')
 };
 tiles.forEach(t => {
@@ -165,6 +203,11 @@ const tileKeys = new Set(tiles.map(t => t.key));
   ok(tileKeys.has(k), 'tile presente: ' + k));
 ok(vm.campeon && vm.campeon.key === tiles[0].key, 'campeon == tile mas barato');
 ok(vm.minimo === tiles[0].clp && money(vm.minimo), 'minimo del hero coherente');
+/* Cocha: auditoría de verificación (base pagina/api + api_min cuando fue verificado) */
+const CO = (DATA.fuentes || {}).cocha || {};
+ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base === 'pagina' || v.base === 'api'), 'cocha ventanas con base declarada (pagina/api)');
+ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base !== 'pagina' || (v.api_min && v.api_min <= v.min_clp)), 'cocha: api_min queda como auditoría cuando se verificó en página');
+ok((CO.ventanas || []).every(v => v.min_clp > 100000), 'cocha: mínimos plausibles (sin promos de portada)');
 vm.filterMax = 0; vm.onlyDirect = true;
 const directas = vm.filasFiltradas.length;
 vm.onlyDirect = false;

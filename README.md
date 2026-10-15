@@ -6,7 +6,9 @@ Verano 2027 (ene–feb) · viaje ≥ 9 noches · regreso ≤ 23-feb · grupo de 
 ## Qué hace
 - **Cada ~5 min** (GitHub Actions) consulta en vivo:
   - **APIs oficiales**: JetSMART (availability), SKY (Sputnik), LATAM (BFF calendario)
-  - **Cocha** (cotización real por API GraphQL) y **Skiplagged** (metasearch global)
+  - **Cocha** (cotización real por API GraphQL; el **mínimo de cada ventana se verifica
+    contra la página real de resultados** — su API sub-cotiza ~10-13% vs lo que la
+    página cobra) y **Skiplagged** (metasearch global)
   - **Playas LatAm**: 16 destinos bajo $500.000 pp (Skiplagged + Cocha)
   - **Falabella Viajes / Despegar**: Camoufox + **egress Cloudflare WARP** cada ~30 min, 100% automático
 - **Cupones activos**: `fetch_coupons.py` revisa cupon.cl (JetSMART, LATAM, Despegar,
@@ -15,10 +17,42 @@ Verano 2027 (ene–feb) · viaje ≥ 9 noches · regreso ≤ 23-feb · grupo de 
 - Detecta **bajadas de precio ≥ 0,5%** y las registra (alertas + correo opcional).
 - Publica `data.json` solo cuando hay cambios; la web se auto-refresca cada 60 s.
 
+## 📩 Notificaciones por correo (privacy-first)
+Módulo completo sin backend propio, sin cuentas de terceros y **sin exponer correos**:
+
+1. **Formulario en el sitio** (sección Alertas): el visitante ingresa su correo y
+   opcionalmente un precio objetivo. El **navegador cifra el correo con RSA-2048/OAEP**
+   (`WebCrypto`, clave pública en `alertas.cfg.json`) y publica solo el blob cifrado
+   en un bus de mensajes. El correo **nunca viaja ni se guarda en claro**.
+2. `notificaciones.py` (corre en cada ciclo): descarga los blobs del bus, los
+   descifra con el secreto `ALERT_RSA_PRIV`, valida, deduplica y aplica ALTA/BAJA
+   en `subscribers.enc.json` (**blobs cifrados; el repo público jamás contiene correos**).
+3. `data.json` publica solo datos **enmascarados**: total de suscritos + muestras
+   `j•••m` (primera y última letra — requisito del dueño del sitio).
+4. `send_alerts.py`: cuando `scraper.py` detecta una bajada, descifra el registro en
+   memoria y envía por SMTP. En los logs los correos siempre aparecen enmascarados.
+5. Vía alternativa por GitHub: issue `ALTA correo` → `subscribe.yml` cifra el correo,
+   lo publica al bus y **borra el correo del título público** del issue (PATCH).
+
+**Para activar el envío real de correos** (única pieza manual, ~2 min): agregar 3
+secretos en *Settings → Secrets → Actions* con un SMTP libre (p. ej. Gmail con
+contraseña de aplicación, o Brevo/Resend free):
+- `SMTP_HOST` (ej. `smtp.gmail.com` o `smtp-relay.brevo.com`), `SMTP_USER`, `SMTP_PASS`
+- Opcional `SMTP_PORT` (default 587 STARTTLS; usar 465 para SSL directo).
+Mientras no existan, las alertas quedan en cola (`email_pending`) y nada se pierde.
+
+Nota: el bus de captura es el token público de webhook.site referenciado en
+`alertas.cfg.json`; como los payloads van cifrados RSA, quien lo lea solo ve ruido.
+Si algún día se quiere migrar (Formspree, Worker propio), basta cambiar la URL en
+ese archivo.
+
 ## Estructura
 | Archivo | Rol |
 |---|---|
 | `index.html` | Sitio completo (Vue 3 por CDN, sin build) — diseño plano estilo OTA (blanco + azul `#0062e3` + naranja `#ff690f`) |
+| `notificaciones.py` | Procesador de suscripciones cifradas (bus → registro → data.json enmascarado) |
+| `send_alerts.py` | Envío SMTP de bajadas a los suscritos (descifra en memoria, logs enmascarados) |
+| `alertas.cfg.json` | Config pública del módulo de alertas (bus + clave pública RSA) |
 | `scraper.py` | Orquestador: todas las fuentes + alertas + `data.json` (preserva la sección `cupones`) |
 | `fetch_otas.py` | Módulo stealth (Camoufox + WARP) para Falabella/Despegar |
 | `fetch_coupons.py` | Recopilador de cupones reales de cupon.cl (códigos base64 incluidos) |
@@ -26,7 +60,7 @@ Verano 2027 (ene–feb) · viaje ≥ 9 noches · regreso ≤ 23-feb · grupo de 
 | `probe_waf.py` / `diag_otas.py` | Diagnóstico del WAF DataDome |
 | `assets/dest/*.jpg` | Fotos de los 16 destinos (Wikipedia Commons, ver `CREDITS.txt`) |
 | `.github/workflows/refresh.yml` | Ciclo cada ~5 min con auto-encadenado + paso de cupones (gate 6 h) |
-| `verify.js` | Arnés de regresión (54 checks) — `node verify.js index.html data.json` |
+| `verify.js` | Arnés de regresión (127 checks) — `node verify.js index.html data.json` |
 
 ## 🎟️ Cupones automáticos
 1. Se rastrean 5 tiendas de cupon.cl (`/jetsmart`, `/latam`, `/despegar-com`,

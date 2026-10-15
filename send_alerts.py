@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
 """Alertas de bajada de precio por correo. Corre tras scraper.py en el workflow.
-Si SMTP_HOST/SMTP_USER/SMTP_PASS no están configurados, avisa y deja pendiente."""
-import json, os, smtplib
+
+Los destinatarios viven CIFRADOS en subscribers.enc.json (blobs RSA-OAEP);
+se descifran en memoria con el secreto ALERT_RSA_PRIV solo para enviar.
+Si SMTP_HOST/SMTP_USER/SMTP_PASS no están configurados, la alerta queda
+pendiente hasta que se configuren credenciales. En los logs los correos
+siempre aparecen enmascarados (j•••m).
+"""
+import json
+import os
+import smtplib
+import sys
 
 DATA = "data.json"
-SUBS = "subscribers.json"
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from notificaciones import cargar_emails, mask  # noqa: E402
+
 
 def main():
     d = json.load(open(DATA, encoding="utf8"))
     if not d.get("email_pending"):
         print("Sin alertas pendientes."); return
-    subs = json.load(open(SUBS, encoding="utf8")) if os.path.exists(SUBS) else []
+    subs = cargar_emails()
     last_sent = d.get("alerts_sent_ts", "")
     nuevos = [a for a in (d.get("alerts") or []) if a["ts"] > last_sent]
     if not nuevos:
@@ -22,36 +34,52 @@ def main():
     if not subs:
         d["alerts_sent_ts"] = max_ts; d["email_pending"] = False
         json.dump(d, open(DATA, "w"), ensure_ascii=False)
-        print("Hay bajadas pero NADIE suscrito todavía: marcadas como notificadas en el panel.")
+        print("Hay bajadas pero NADIE suscrito todavía: marcadas como notificadas.")
         return
-    host, user, pwd = os.environ.get("SMTP_HOST"), os.environ.get("SMTP_USER"), os.environ.get("SMTP_PASS")
+    host, user, pwd = (os.environ.get("SMTP_HOST"), os.environ.get("SMTP_USER"),
+                       os.environ.get("SMTP_PASS"))
+    port = int(os.environ.get("SMTP_PORT", "587"))
     if not (host and user and pwd):
-        print("SMTP sin configurar: alerta queda pendiente hasta configurar credenciales.")
+        print(f"SMTP sin configurar: {len(nuevos)} alerta(s) quedan pendientes para "
+              f"{len(subs)} suscrito(s) ({', '.join(mask(s) for s in subs[:5])}).")
         return
-    lines = ["Baja de precios detectada en vuelos Santiago → Río de Janeiro (ene–feb 2027):", ""]
+    lines = ["Bajada de precios detectada en vuelos Santiago ⇄ Río de Janeiro (ene–feb 2027):", ""]
     for a in nuevos:
-        lines.append(f"• {a['serie']}: ${a['antes']:,} → ${a['ahora']:,} (bajó ${a['baja']:,} / −{a['pct']}%)")
-    lines += ["", "Ver el panel actualizado: https://xacox01.github.io/vuelos-rio-live/",
-              "(espejo: https://xacox01.github.io/qwen_vuelos_rio/)", "",
-              "Para desuscribirte: abre un issue 'BAJA tucorreo@x.com' en https://github.com/Xacox01/vuelos-rio-live/issues"]
+        lines.append(f"• {a['serie']}: ${a['antes']:,} → ${a['ahora']:,} "
+                     f"(bajó ${a['baja']:,} / −{a['pct']}%)")
+    lines += ["", "Ver el panel actualizado: https://xacox01.github.io/vuelos-rio-live/", "",
+              "Compara siempre en las fuentes oficiales antes de comprar: los precios "
+              "de vuelos son dinámicos.", "",
+              "Para desuscribirte: en el panel, sección Alertas, botón «Darme de baja» "
+              "(mismo correo con el que te suscribiste).",
+              "Tu correo está guardado cifrado y nunca se muestra en el listado público."]
     msg_body = "\n".join(lines)
     ok = 0
     for dest in subs:
         try:
-            with smtplib.SMTP(host, 587, timeout=30) as s:
-                s.starttls(); s.login(user, pwd)
+            if port == 465:
+                srv = smtplib.SMTP_SSL(host, port, timeout=30)
+            else:
+                srv = smtplib.SMTP(host, port, timeout=30)
+            with srv as s:
+                if port != 465:
+                    s.starttls()
+                s.login(user, pwd)
                 s.sendmail(user, [dest],
-                           f"From: {user}\r\nTo: {dest}\r\nSubject: [vuelos-rio-live] Baja de precios a Rio\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n{msg_body}")
+                           f"From: {user}\r\nTo: {dest}\r\n"
+                           f"Subject: [vuelos-rio-live] Baja de precios a Río de Janeiro\r\n"
+                           f"Content-Type: text/plain; charset=utf-8\r\n\r\n{msg_body}")
             ok += 1
-            print(f"enviado → {dest}")
+            print(f"enviado → {mask(dest)}")
         except Exception as e:
-            print(f"FALLO envío a {dest}: {str(e)[:80]}")
+            print(f"FALLO envío a {mask(dest)}: {str(e)[:80]}")
     if ok:
         d["alerts_sent_ts"] = max_ts; d["email_pending"] = False
         json.dump(d, open(DATA, "w"), ensure_ascii=False)
         print(f"OK: {ok}/{len(subs)} correos enviados.")
     else:
         print("Ningún envío exitoso: se reintentará el próximo ciclo.")
+
 
 if __name__ == "__main__":
     main()
