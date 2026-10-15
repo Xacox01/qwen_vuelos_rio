@@ -36,6 +36,8 @@ ok(Array.isArray(tiles) && tiles.length >= 5, 'tiles >= 5 fuentes', tiles.length
 ok(tiles.every(t => money(t.clp)), 'todos los clp validos', tiles.map(t => t.clp));
 ok(tiles.every((t, i) => i === 0 || tiles[i - 1].clp <= t.clp), 'ordenado barato primero');
 ok(tiles.every(t => (t.url || '').startsWith('http')), 'links http');
+ok(tiles.filter(t => t.key === 'despegar' || t.key === 'falabella').every(t => (t.url || '').includes('/shop/flights/results/')), 'OTA con deep link a búsqueda real (no homepage)', tiles.filter(t => t.key === 'despegar' || t.key === 'falabella').map(t => t.url));
+ok(tiles.filter(t => t.key === 'despegar' || t.key === 'falabella').every(t => !String(t.url).includes('/RIO/')), 'OTA sin código RIO inválido (usa GIG)');
 ok(tiles.every(t => typeof t.fresco === 'boolean'), 'flag fresco presente');
 ok(vm.minimo === tiles[0].clp, 'minimo == tile mas barato');
 const F = DATA.fuentes || {};

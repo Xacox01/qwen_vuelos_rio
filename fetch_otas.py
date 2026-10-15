@@ -5,10 +5,17 @@ Metodología de ingeniería inversa (rea-style):
   1. Egress por Cloudflare WARP (SOCKS5 via wireproxy, ver warp_boot.sh): DataDome
      puntúa la IP; WARP entrega reputación de consumidor desde GitHub Actions.
   2. Navegador Firefox stealth real (Camoufox) con humanize + geoip.
-  3. Espera el renderizado de la app React y extrae los precios visibles del DOM.
-  4. Intercepta respuestas JSON de las APIs internas de búsqueda (para calibración futura).
-  5. Extrae días vecinos del calendario flexible (links clickedPrice en el DOM).
-  6. Si DataDome exige challenge interactivo: diagnóstico con screenshots en ota_diag/.
+  3. URL-ONLY-RESULTS: si la SPA redirige fuera de /shop/flights/results/* la lectura
+     se descarta completa (evita publicar precios de módulos promocionales de otras
+     páginas — la causa raíz de los "precios irreales" reportados).
+  4. CAPTURA DE API INTERNA: intercepta las respuestas JSON de búsqueda y extrae el
+     mínimo de tarifas del cuerpo (la fuente más fiable: la API responde SOLO con el
+     resultado de la consulta exacta ruta/fecha).
+  5. GRILLA DE FECHAS (clickedPrice): los enlaces del calendario de la propia OTA
+     traen el precio real por fecha; se usa el precio de la fecha consultada o se
+     valida el mínimo DOM contra la grilla (≥85% del mínimo de vecinos).
+  6. Regla de publicación: api_min > grid_date > dom_min (si pasa sanity). Todo lo
+     descartado queda registrado para auditoría.
 
 Contract de salida 100% compatible con data.json (fuentes.falabella / fuentes.despegar → "dias").
 """
@@ -28,12 +35,12 @@ DIAG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ota_diag")
 # via que se registra en data.json (transparencia para el usuario del dashboard)
 VIA = "camoufox+warp" if OTA_PROXY else "camoufox"
 
-# Escaneo de bajo volumen: 1 ida + 1 vuelta por sitio (DataDome banea por volumen)
-FAL_DATES = [("SCL", "RIO", "2027-01-22"), ("RIO", "SCL", "2027-02-01")]
+# Escaneo de bajo volumen: 1 ida + 1 vuelta por sitio (DataDome banea por volumen).
+# GIG = Aeropuerto Internacional de Galeão (código IATA que el router de Despegar/
+# Falabella acepta en deep links; "RIO" provoca redirección a la home).
+FAL_DATES = [("SCL", "GIG", "2027-01-22"), ("GIG", "SCL", "2027-02-01")]
 
-# Umbral de plausibilidad: one-way SCL⇄RIO temporada alta (ene-feb 2027).
-# La página también muestra módulos promocionales ("desde $44.206") que contaminan
-# la extracción si el umbral es bajo; un vuelo real en enero no baja de ~$100k CLP.
+# Umbral de plausibilidad: one-way SCL⇄GIG temporada alta (ene-feb 2027).
 PRICE_MIN, PRICE_MAX = 100000, 2500000
 
 JS_EXTRACT = """
@@ -53,6 +60,48 @@ JS_EXTRACT = """
 CAL_RE = re.compile(
     r"oneway/([a-z]{3})/([a-z]{3})/(\d{4}-\d{2}-\d{2})/\d/\d/\d\?[^\"']{0,80}?clickedPrice=CLP_(\d+)",
     re.I)
+
+# Respuestas JSON internas de búsqueda (la API responde solo con la consulta exacta)
+API_URL_RE = re.compile(r"(search|cluster|itinerar|shopping|results)", re.I)
+# campos de tarifa típicos del BFF de Despegar/Falabella
+FARE_RE = re.compile(r'"(?:amount|total|price|fare|value)"\s*:\s*"?(\d{5,7})"?')
+
+
+class ApiCapture:
+    """Acumula cuerpos JSON de APIs de búsqueda durante una pata (ida o vuelta)."""
+
+    def __init__(self, max_bodies=60):
+        self.bodies = []      # [(url, texto)]
+        self.max = max_bodies
+
+    def clear(self):
+        self.bodies = []
+
+    def on_response(self, r):
+        try:
+            ct = (r.headers or {}).get("content-type", "")
+            u = r.url or ""
+            if "json" not in ct or not API_URL_RE.search(u):
+                return
+            if len(self.bodies) >= self.max:
+                return
+            body = r.text()
+            if body and len(body) < 3_000_000:
+                self.bodies.append((u[:180], body))
+        except Exception:
+            pass
+
+    def api_prices(self):
+        vals = []
+        for _, body in self.bodies:
+            for m in FARE_RE.finditer(body):
+                try:
+                    v = int(m.group(1))
+                except ValueError:
+                    continue
+                if PRICE_MIN < v < PRICE_MAX:
+                    vals.append(v)
+        return vals
 
 
 def wait_prices(pg, max_ms=45000):
@@ -108,10 +157,58 @@ def snap_diag(pg, name, tag, log):
         log(f"DIAG {name}: no se pudo guardar ({str(e)[:60]})")
 
 
-def scan_site(pg, name, log):
+def decide_price(api_vals, dom_vals, cal, fecha, log, name, tag):
+    """Regla de publicación anti-contaminación.
+
+    Prioridad: API interna > grilla (fecha exacta) > DOM validado contra grilla.
+    Devuelve (min_clp, base, detalle).
+    """
+    grid_date = next((c["clp"] for c in cal if c["fecha"] == fecha), None)
+    grid_min = min((c["clp"] for c in cal), default=None)
+    api_min = min(api_vals) if api_vals else None
+    dom_min = min(dom_vals) if dom_vals else None
+
+    det = {"api_min": api_min, "n_api": len(api_vals), "dom_min": dom_min,
+           "grid_min": grid_min, "grid_date": grid_date, "n_dom": len(dom_vals),
+           "n_grid": len(cal)}
+
+    # 1) API interna: la respuesta corresponde exactamente a esta búsqueda
+    if api_min:
+        det["base"] = "api"
+        return api_min, "api", det
+
+    # 2) grilla de fechas de la propia OTA para la fecha consultada
+    if grid_date:
+        det["base"] = "grid"
+        return grid_date, "grid", det
+
+    # 3) DOM del listado, PERO validado: el mínimo debe ser coherente con la grilla
+    #    de vecinos (si está >15% por debajo de TODA la grilla, es un módulo
+    #    promocional/otra fecha contaminando → se descarta).
+    if dom_min and grid_min and len(cal) >= 4:
+        if dom_min >= 0.85 * grid_min:
+            det["base"] = "dom_validado"
+            return dom_min, "dom_validado", det
+        det["contaminacion"] = (f"dom_min {dom_min} < 85% del min de grilla {grid_min} "
+                                f"— descartado como promo fuera de contexto")
+        log(f"{name} {tag}: CONTAMINACIÓN descartada ({det['contaminacion']})")
+        return None, "descartado", det
+
+    # 4) sin grilla de referencia: solo aceptamos DOM si hay ≥6 valores plausibles
+    #    (listado real renderizado) — riesgo residual aceptado y registrado.
+    if dom_min and len(dom_vals) >= 6:
+        det["base"] = "dom_sin_grilla"
+        return dom_min, "dom_sin_grilla", det
+
+    det["base"] = "sin_dato"
+    return None, "sin_dato", det
+
+
+def scan_site(pg, name, log, capture):
     dias = []
     for o, d, fecha in FAL_DATES:
         url = f"https://www.{name}/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
+        capture.clear()
         try:
             r = pg.goto(url, timeout=60000, wait_until="domcontentloaded")
             status = getattr(r, "status", 0) or 0
@@ -144,27 +241,57 @@ def scan_site(pg, name, log):
                     pass
             if not precios and challenge_active(pg):
                 snap_diag(pg, name, f"{o}{d}_f3", log)
+
+            url_final = ""
+            try:
+                url_final = str(pg.url)[:220]
+            except Exception:
+                pass
+
+            # ── GUARD DE REDIRECCIÓN: solo publicamos lecturas que aterrizan en la
+            #    página de resultados de ESTA búsqueda ─────────────────────────────
+            req_path = f"/shop/flights/results/oneway/{o}/{d}/{fecha}"
+            if req_path not in url_final:
+                log(f"{name} {o}->{d} {fecha}: REDIRECCIÓN fuera de resultados "
+                    f"({url_final[:90]}) — lectura descartada")
+                dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
+                             "min_clp": None, "calendario": [], "via": VIA,
+                             "url_final": url_final,
+                             "error": "redirect fuera de /shop/flights/results (precio no verificable)"})
+                time.sleep(4.0)
+                continue
+
             html = pg.content()
             try:
                 tsec = pg.evaluate("() => document.body ? document.body.innerText.slice(0, 220) : ''").replace("\n", " ")
                 log(f"{name} {o}->{d} {fecha}: pg[{pg.title()[:40]}] txt[{tsec[:150]}]")
             except Exception:
                 pass
+
             cal = [{"fecha": m.group(3), "clp": int(m.group(4))}
                    for m in CAL_RE.finditer(html)
                    if PRICE_MIN < int(m.group(4)) < PRICE_MAX]
-            mejor = min(precios) if precios else None
-            # sanity: el mínimo debe estar cerca del 10º percentil de lo capturado
-            if mejor and len(precios) >= 6:
-                dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
-                             "min_clp": mejor, "n_precios": len(precios),
-                             "calendario": cal[:24], "via": VIA})
-                log(f"{name} {o}->{d} {fecha}: ${mejor:,} ({len(precios)} precios, {len(cal)} días vec.)")
+            # dedupe por fecha conservando el mínimo
+            _by = {}
+            for c in cal:
+                _by[c["fecha"]] = min(_by.get(c["fecha"], 1 << 60), c["clp"])
+            cal = [{"fecha": k, "clp": v} for k, v in sorted(_by.items())]
+
+            api_vals = capture.api_prices()
+            if api_vals:
+                log(f"{name} {o}->{d} {fecha}: API capture {len(capture.bodies)} resp, "
+                    f"{len(api_vals)} tarifas, min ${min(api_vals):,}")
+            mejor, base, det = decide_price(api_vals, precios, cal, fecha, log, name, f"{o}{d}")
+
+            dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
+                         "min_clp": mejor, "base": base, "calendario": cal[:24],
+                         "n_precios": det.get("n_dom", len(precios)), "via": VIA,
+                         "url_final": url_final, **{k: v for k, v in det.items() if k != "base"}})
+            if mejor:
+                log(f"{name} {o}->{d} {fecha}: ${mejor:,} [{base}] "
+                    f"(dom {len(precios)}, grilla {len(cal)}, api {det.get('n_api', 0)})")
             else:
-                dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
-                             "min_clp": None, "calendario": cal[:24], "via": VIA,
-                             "error": f"sin precios suficientes ({len(precios)})"})
-                log(f"{name} {o}->{d} {fecha}: SIN precios ({len(precios)})")
+                log(f"{name} {o}->{d} {fecha}: SIN precio verificable ({det.get('base')})")
         except Exception as e:
             dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": 0, "min_clp": None,
                          "calendario": [], "via": VIA, "error": str(e)[:90]})
@@ -187,37 +314,17 @@ def fetch_otas(log=print):
         kwargs["geoip"] = True
         log(f"Camoufox saldrá por proxy WARP: {OTA_PROXY} (geoip activado)")
     out = {}
+    cap = ApiCapture()
     with Camoufox(**kwargs) as br:
         pg = br.new_page()
-        # interceptar APIs internas (solo log para calibración futura)
         try:
-            pg.on("response", lambda r: api_spy(r, log) if is_api(r) else None)
+            pg.on("response", cap.on_response)
         except Exception:
-            pass
-        out["falabella"] = {"dias": scan_site(pg, "viajesfalabella.cl", log)}
+            log("API capture no disponible (solo DOM+grilla)")
+        out["falabella"] = {"dias": scan_site(pg, "viajesfalabella.cl", log, cap)}
         time.sleep(4)
-        out["despegar"] = {"dias": scan_site(pg, "despegar.cl", log)}
+        out["despegar"] = {"dias": scan_site(pg, "despegar.cl", log, cap)}
     return out
-
-
-_API_PAT = re.compile(r"(search|flight|cluster|itinerar)", re.I)
-
-
-def is_api(r):
-    try:
-        ct = (r.headers or {}).get("content-type", "")
-        return r.url.startswith("http") and "json" in ct and _API_PAT.search(r.url) and "static" not in r.url
-    except Exception:
-        return False
-
-
-def api_spy(r, log):
-    try:
-        u = r.url
-        if any(x in u for x in ("search", "flight", "cluster")) and len(u) < 220:
-            log(f"API-SPY {r.status} {u[:150]}")
-    except Exception:
-        pass
 
 
 def ok(dias):

@@ -635,7 +635,7 @@ footer .flogo b{color:#fff;font-size:1rem}
         <div class="fa-body">Cada 5 minutos un ciclo automático revisa aerolíneas y metebuscadores. Despegar y Falabella se escanean cada 30 minutos (sus webs tienen protección anti-bot más agresiva, así que escaneamos con moderación para no ser bloqueados). Los cupones se revisan cada pocas horas. Siempre verás la antigüedad de cada dato junto al precio.</div>
       </details>
       <details><summary>¿Por qué el precio cambia al llegar al sitio de la aerolínea?</summary>
-        <div class="fa-body">Los precios de vuelos son dinámicos: cambian por disponibilidad, tarifa residual y moneda. Mostramos el mínimo capturado en el último ciclo; al reservar puede variar unos pesos hacia arriba o abajo. Por eso mostramos varias fuentes: si dos sitios coinciden (suele pasar con Despegar y Falabella, comparten inventario), ese precio es sólido.</div>
+        <div class="fa-body">Los precios de vuelos son dinámicos: cambian por disponibilidad, tarifa residual y moneda. Mostramos el mínimo capturado en el último ciclo; al reservar puede variar unos pesos hacia arriba o abajo. Por eso mostramos varias fuentes: si dos sitios coinciden (suele pasar con Despegar y Falabella, comparten inventario), ese precio es sólido. En Despegar y Falabella solo publicamos precios que podemos rastrear hasta la grilla de fechas de la propia OTA o hasta su API de búsqueda: si la lectura no se puede verificar, no se publica.</div>
       </details>
       <details><summary>¿Cómo uso un cupón?</summary>
         <div class="fa-body">Toca "Copiar" en el código, reserva normalmente en el sitio del comercio y pega el código en el campo "¿Tienes un cupón?" del checkout antes de pagar. Los que dicen "Activar oferta" no llevan código: el descuento ya está aplicado en el enlace. Revisa siempre las condiciones (medios de pago, fechas de viaje, stock).</div>
@@ -723,10 +723,11 @@ createApp({
       if(sk.length) out.push({key:'sky',cod:'H2',nombre:'SKY Airline',corto:'SKY',clp:Math.min(...sk),sub:'ida '+this.dshortISO(F.sky.pairs[0].ida),url:'https://www.skyairline.com',ts:F.sky.ts,nota:'API oficial · directo',fresco:this.fresco(F.sky.ts)});
       const la = (F.latam&&F.latam.combos||[]).map(c=>c.clp);
       if(la.length) out.push({key:'latam',cod:'LA',nombre:'LATAM',corto:'LATAM',clp:Math.min(...la),sub:'ida '+this.dshortISO(F.latam.combos[0].ida),url:'https://www.latam.com/es_cl',ts:F.latam.ts,nota:'API oficial · cabina incluida',fresco:this.fresco(F.latam.ts)});
-      const dp = (F.despegar&&F.despegar.dias||[]).map(d=>d.min_clp).filter(x=>x);
-      if(dp.length) out.push({key:'despegar',cod:'DP',nombre:'Despegar',corto:'Despegar',clp:Math.min(...dp),sub:this.otaSub(F.despegar),url:'https://www.despegar.cl',ts:F.despegar.ts,nota:'agencia · precio final con cargos',fresco:this.fresco(F.despegar.ts)});
-      const fa = (F.falabella&&F.falabella.dias||[]).map(d=>d.min_clp).filter(x=>x);
-      if(fa.length) out.push({key:'falabella',cod:'FV',nombre:'Viajes Falabella',corto:'Falabella',clp:Math.min(...fa),sub:this.otaSub(F.falabella),url:'https://www.viajesfalabella.cl',ts:F.falabella.ts,nota:'agencia · acumula puntos CMR',fresco:this.fresco(F.falabella.ts)});
+      const legs = k => { const ds=((F[k]||{}).dias||[]).filter(d=>d.min_clp); const i=ds.filter(d=>(d.sentido||'').startsWith('SCL')).sort((a,b)=>a.min_clp-b.min_clp)[0]; const v=ds.filter(d=>!(d.sentido||'').startsWith('SCL')).sort((a,b)=>a.min_clp-b.min_clp)[0]; return i?{i:i,v:v||null}:null; };
+      const dpl=legs('despegar');
+      if(dpl) out.push({key:'despegar',cod:'DP',nombre:'Despegar',corto:'Despegar',clp:dpl.i.min_clp+(dpl.v?dpl.v.min_clp:0),sub:'ida '+this.dshortISO(dpl.i.fecha)+(dpl.v?' · vuelta '+this.dshortISO(dpl.v.fecha):' · solo ida'),url:this.otaLink('despegar',dpl.i,dpl.v),ts:F.despegar.ts,nota:'agencia · ida+vuelta sumando tramos publicados',fresco:this.fresco(F.despegar.ts)});
+      const fal=legs('falabella');
+      if(fal) out.push({key:'falabella',cod:'FV',nombre:'Viajes Falabella',corto:'Falabella',clp:fal.i.min_clp+(fal.v?fal.v.min_clp:0),sub:'ida '+this.dshortISO(fal.i.fecha)+(fal.v?' · vuelta '+this.dshortISO(fal.v.fecha):' · solo ida'),url:this.otaLink('falabella',fal.i,fal.v),ts:F.falabella.ts,nota:'agencia · ida+vuelta sumando tramos publicados',fresco:this.fresco(F.falabella.ts)});
       const co = F.cocha&&F.cocha.rio&&F.cocha.rio.clp;
       if(co) out.push({key:'cocha',cod:'CH',nombre:'Cocha',corto:'Cocha',clp:co,sub:'cotización final 1 adulto',url:F.cocha.link||'https://www.cocha.com',ts:F.cocha.ts,nota:'agencia chilena · asesoría incluida',fresco:this.fresco(F.cocha.ts)});
       const sl = (F.skiplagged&&F.skiplagged.ventanas||[]).map(v=>v.min_clp).filter(x=>x);
@@ -765,7 +766,7 @@ createApp({
       ((F.jetsmart&&F.jetsmart.idas)||[]).forEach(x=>{ mapa.ida[x.fecha] = Math.min(mapa.ida[x.fecha]||1e12, x.clp); });
       ((F.jetsmart&&F.jetsmart.vueltas)||[]).forEach(x=>{ mapa.vta[x.fecha] = Math.min(mapa.vta[x.fecha]||1e12, x.clp); });
       ['despegar','falabella'].forEach(k=>((F[k]&&F[k].dias)||[]).forEach(d=>((d.calendario)||[]).forEach(c=>{
-        const t = d.sentido==='SCL-RIO' ? 'ida':'vta';
+        const t = (d.sentido||'').startsWith('SCL') ? 'ida':'vta';
         mapa[t][c.fecha] = Math.min(mapa[t][c.fecha]||1e12, c.clp);
       })));
       ((F.latam&&F.latam.dias_out)||[]).forEach(x=>{ mapa.ida[x.fecha]=Math.min(mapa.ida[x.fecha]||1e12,x.clp); });
@@ -831,7 +832,10 @@ createApp({
       const h=Math.round(m/60); if(h<24) return 'hace '+h+' h';
       const d=Math.round(h/24); return 'hace '+d+' d'; },
     fresco(ts){ if(!ts) return false; const t=Date.parse(String(ts).replace(' ','T')+'Z'); return isFinite(t)&&(Date.now()-t)<26*3600e3; },
-    otaSub(F){ const d=(F.dias||[]).find(x=>x.sentido==='SCL-RIO')||{}; return d.fecha?('ida '+this.dshortISO(d.fecha)):'agencia'; },
+    otaSub(F){ const d=((F.dias||[]).find(x=>x.min_clp&&(x.sentido||'').startsWith('SCL')))||{}; return d.fecha?('ida '+this.dshortISO(d.fecha)):'agencia'; },
+    /* deep link a la búsqueda EXACTA en la OTA (GIG: los routers de Despegar/Falabella
+       redirigen "RIO" a la home — causa de los enlaces rotos reportados) */
+    otaLink(site,i,v){ const fx=c=>c==='RIO'?'GIG':c; const p=String(i.sentido||'').split('-'); const b=site==='despegar'?'https://www.despegar.cl':'https://www.viajesfalabella.cl'; const o=fx(p[0]||'SCL'),d=fx(p[1]||'GIG'); return v?`${b}/shop/flights/results/roundtrip/${o}/${d}/${i.fecha}/${v.fecha}/1/0/0`:`${b}/shop/flights/results/oneway/${o}/${d}/${i.fecha}/1/0/0`; },
     sklLink(ida,vta){ return SKL('SCL','GIG',ida,vta); },
     sklDia(c){ if(!c||!c.iso) return; const k=(this.calendarios.find(x=>x.cells.includes(c))||{}).key;
       window.open(k==='vta'?SKL('GIG','SCL',c.iso):SKL('SCL','GIG',c.iso),'_blank'); },

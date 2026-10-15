@@ -145,9 +145,10 @@ def fetch_sky():
     pairs.sort(key=lambda p: p["clp"])
     return {"pairs": pairs, "secs": round(time.time() - t0, 1)}
 
-# ---------------- Falabella (referencia cacheada) ----------------
-FAL_DATES = [("SCL", "RIO", d) for d in ("2027-01-06", "2027-01-20", "2027-01-22")] + \
-            [("RIO", "SCL", d) for d in ("2027-02-01", "2027-02-08")]
+# ---------------- Falabella (referencia cacheada SSR) ----------------
+# GIG = código IATA del aeropuerto de Galeão: "RIO" redirige a la home del router.
+FAL_DATES = [("SCL", "GIG", d) for d in ("2027-01-06", "2027-01-20", "2027-01-22")] + \
+            [("GIG", "SCL", d) for d in ("2027-02-01", "2027-02-08")]
 
 def fetch_falabella():
     rows = []
@@ -157,14 +158,28 @@ def fetch_falabella():
             r = cr.get(u, impersonate="chrome", timeout=45,
                        headers={"Accept-Language": "es-CL,es;q=0.9"})
             h = r.text
-            precios = [int(p.replace(".", "")) for p in re.findall(r"clickedPrice=CLP_(\d+)", h)]
-            cards = [int(p.replace(".", "")) for p in re.findall(r">\s*\$\s?(\d{2,3}\.\d{3})\s*<", h)]
-            mejor = min(precios + cards) if (precios or cards) else None
+            # Guard de redirección: si la URL final no es la de esta búsqueda, el HTML
+            # pertenece a otra página (home/challenge) y TODO precio es incontable.
+            if f"/shop/flights/results/oneway/{o}/{d}/{fecha}" not in str(getattr(r, "url", "")):
+                rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": r.status_code,
+                             "min_clp": None, "calendario": [],
+                             "error": "redirect fuera de resultados (SSR)"})
+                continue
+            # SOLO grilla de fechas (clickedPrice): los precios de tarjetas/texto
+            # incluyen módulos promocionales de otras fechas y contaminan el mínimo.
             cal = []
             for m in re.finditer(r"oneway/[a-z]{3}/[a-z]{3}/(\d{4}-\d{2}-\d{2})/\d/\d/\d\?refererEvent=calendarPricesMatrix&clickedPrice=CLP_(\d+)", h):
-                cal.append({"fecha": m.group(1), "clp": int(m.group(2))})
+                p = int(m.group(2))
+                if 100000 < p < 2500000:
+                    cal.append({"fecha": m.group(1), "clp": p})
+            _by = {}
+            for c in cal:
+                _by[c["fecha"]] = min(_by.get(c["fecha"], 1 << 60), c["clp"])
+            cal = [{"fecha": k, "clp": v} for k, v in sorted(_by.items())]
+            exacto = next((c["clp"] for c in cal if c["fecha"] == fecha), None)
             rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": r.status_code,
-                         "min_clp": mejor, "calendario": cal})
+                         "min_clp": exacto, "base": "grid" if exacto else None,
+                         "calendario": cal[:24]})
         except Exception as e:
             rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": "ERR", "min_clp": None,
                          "calendario": [], "error": str(e)[:80]})
@@ -267,16 +282,24 @@ def fetch_despegar():
     for o, d, fecha in FAL_DATES:
         u = f"https://www.despegar.cl/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
         r = cr.get(u, impersonate="chrome", timeout=45, headers={"Accept-Language": "es-CL,es;q=0.9"})
-        if r.status_code != 200:
-            rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": r.status_code, "min_clp": None, "calendario": []})
+        if f"/shop/flights/results/oneway/{o}/{d}/{fecha}" not in str(getattr(r, "url", "")):
+            rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": r.status_code,
+                         "min_clp": None, "calendario": [],
+                         "error": "redirect fuera de resultados (SSR)"})
             continue
         h = r.text
-        precios = [int(p.replace(".", "")) for p in re.findall(r"clickedPrice=CLP_(\d+)", h)]
-        cards = [int(p.replace(".", "")) for p in re.findall(r">\s*\$\s?(\d{2,3}\.\d{3})\s*<", h)]
+        # SOLO grilla de fechas (clickedPrice), sin tarjetas promocionales
         cal = [{"fecha": m.group(1), "clp": int(m.group(2))} for m in re.finditer(
-            r"oneway/[a-z]{3}/[a-z]{3}/(\d{4}-\d{2}-\d{2})/\d/\d/\d\?refererEvent=calendarPricesMatrix&clickedPrice=CLP_(\d+)", h)]
+            r"oneway/[a-z]{3}/[a-z]{3}/(\d{4}-\d{2}-\d{2})/\d/\d/\d\?refererEvent=calendarPricesMatrix&clickedPrice=CLP_(\d+)", h)
+            if 100000 < int(m.group(2)) < 2500000]
+        _by = {}
+        for c in cal:
+            _by[c["fecha"]] = min(_by.get(c["fecha"], 1 << 60), c["clp"])
+        cal = [{"fecha": k, "clp": v} for k, v in sorted(_by.items())]
+        exacto = next((c["clp"] for c in cal if c["fecha"] == fecha), None)
         rows.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": 200,
-                     "min_clp": min(precios + cards) if (precios or cards) else None, "calendario": cal})
+                     "min_clp": exacto, "base": "grid" if exacto else None,
+                     "calendario": cal[:24]})
     return {"dias": rows}
 
 # ---------------- Cocha (SSR /vuelos: tarjetas "Desde") ----------------
