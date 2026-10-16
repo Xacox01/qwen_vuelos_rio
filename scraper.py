@@ -493,7 +493,7 @@ def signature(live):
         [int((d.get("mejor") or {}).get("clp") or 0) for d in ((F.get("playas") or {}).get("destinos") or [])],
     ])
 
-# ---------------- Skiplagged (metasearch global en vivo) ----------------
+# ---------------- Dólar observado (usado por playas para fx informativo) ----------------
 def usd_clp():
     """Dólar observado (mindicador.cl) con fallback open.er-api.com."""
     for url, path in (("https://mindicador.cl/api/dolar", ("dolar", "valor")),
@@ -509,85 +509,6 @@ def usd_clp():
         except Exception:
             continue
     return 950.0
-
-def fetch_skiplagged():
-    fx = usd_clp()
-    ventanas = []
-    for ida, vuelta in COCHA_VENTANAS:
-        u = f"https://skiplagged.com/api/search.php?from=SCL&to=GIG&depart={ida}&return={vuelta}&format=v3"
-        try:
-            r = cr.get(u, impersonate="chrome", timeout=90, headers={"Accept": "application/json"})
-            r.raise_for_status()
-            d = r.json()
-        except Exception as e:
-            print(f"skiplagged {ida} FAIL: {str(e)[:70]}", flush=True)
-            continue
-        flights = d.get("flights") or {}
-        airlines = d.get("airlines") or {}
-        rows = []
-        for it in (d.get("itineraries") or {}).get("outbound") or []:
-            try:
-                cents = it.get("min_round_trip_price") or 0
-                if not cents:
-                    continue
-                fl = flights.get(it.get("flight")) or {}
-                segs = fl.get("segments") or []
-                if not segs or (segs[0].get("departure") or {}).get("airport") != "SCL":
-                    continue
-                cod = segs[0].get("airline", "?")
-                nombre = (airlines.get(cod) or {}).get("name", cod)
-                escalas = max(len(segs) - 1, 0)
-                hora = ((segs[0].get("departure") or {}).get("time") or "")[11:16]
-                rows.append({"aerolinea": nombre, "cod": cod, "escalas": escalas,
-                             "clp": round(cents / 100.0 * fx),
-                             "det": f"{cod}{segs[0].get('flight_number','')} {hora} salida · {escalas} escala(s) ida"})
-            except Exception:
-                continue
-        if not rows:
-            continue
-        rows.sort(key=lambda x: x["clp"])
-        top = rows[:8]
-        extras = []
-        for x in rows:
-            if x["aerolinea"] not in {y["aerolinea"] for y in top + extras}:
-                extras.append(x)
-            if len(extras) >= 5:
-                break
-        def ow_list(direc, aeropuerto_ini, aeropuerto_fin, maxn=40):
-            out = []
-            for it in (d.get("itineraries") or {}).get(direc) or []:
-                try:
-                    cents = it.get("one_way_price") or 0
-                    if not cents:
-                        continue
-                    fl = flights.get(it.get("flight")) or {}
-                    segs = fl.get("segments") or []
-                    if not segs:
-                        continue
-                    dep0 = segs[0].get("departure") or {}
-                    arrF = segs[-1].get("arrival") or {}
-                    if dep0.get("airport") != aeropuerto_ini or arrF.get("airport") != aeropuerto_fin:
-                        continue
-                    cod = segs[0].get("airline", "?")
-                    nombre = (airlines.get(cod) or {}).get("name", cod)
-                    fecha = (dep0.get("time") or "")[:10]
-                    hora = (dep0.get("time") or "")[11:16]
-                    esc = max(len(segs) - 1, 0)
-                    out.append({"aerolinea": nombre, "cod": cod, "fecha": fecha, "hora": hora,
-                                "clp": round(cents / 100.0 * fx), "escalas": esc,
-                                "det": f"{cod}{segs[0].get('flight_number','')} {hora} · {esc} escala(s)"})
-                except Exception:
-                    continue
-            out.sort(key=lambda x: x["clp"])
-            return out[:maxn]
-        ventanas.append({"ida": ida, "vuelta": vuelta, "min_clp": rows[0]["clp"], "fx": round(fx, 2),
-                         "link": f"https://skiplagged.com/flights/SCL/GIG/{ida}/{vuelta}?sort=cost",
-                         "resultados": top + extras,
-                         "ow_out": ow_list("outbound", "SCL", "GIG"),
-                         "ow_in": ow_list("inbound", "GIG", "SCL")})
-    if not ventanas:
-        raise RuntimeError("skiplagged sin resultados")
-    return {"ventanas": ventanas}
 
 # ---------------- Playas LatAm: destinos de playa bajo presupuesto ----------------
 PLAYAS_DEST = [("GIG", "Río de Janeiro", "Brasil", "🇧🇷"),
@@ -609,46 +530,23 @@ PLAYAS_DEST = [("GIG", "Río de Janeiro", "Brasil", "🇧🇷"),
 PLAYAS_WIN = [("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20"), ("2027-01-02", "2027-02-01")]
 PLAYAS_BUDGET = 500000
 
-def skiplagged_rt(dest, ida, vuelta, fx):
-    """RT en vivo SCL→dest para una ventana. Devuelve dict o None si no hay itinerarios."""
-    u = f"https://skiplagged.com/api/search.php?from=SCL&to={dest}&depart={ida}&return={vuelta}&format=v3"
-    r = cr.get(u, impersonate="chrome", timeout=90, headers={"Accept": "application/json"})
-    r.raise_for_status()
-    d = r.json()
-    flights = d.get("flights") or {}
-    airlines = d.get("airlines") or {}
-    rows = []
-    for it in (d.get("itineraries") or {}).get("outbound") or []:
-        try:
-            cents = it.get("min_round_trip_price") or 0
-            if not cents:
-                continue
-            fl = flights.get(it.get("flight")) or {}
-            segs = fl.get("segments") or []
-            if not segs or (segs[0].get("departure") or {}).get("airport") != "SCL":
-                continue
-            arrF = (segs[-1].get("arrival") or {}).get("airport")
-            if arrF != dest:
-                continue
-            cod = segs[0].get("airline", "?")
-            nombre = (airlines.get(cod) or {}).get("name", cod)
-            escalas = max(len(segs) - 1, 0)
-            hora = ((segs[0].get("departure") or {}).get("time") or "")[11:16]
-            rows.append({"aerolinea": nombre, "cod": cod, "escalas": escalas,
-                         "clp": round(cents / 100.0 * fx),
-                         "det": f"{cod}{segs[0].get('flight_number','')} {hora} salida · {escalas} escala(s) ida"})
-        except Exception:
-            continue
+def agencia_rt(dest, ida, vuelta):
+    """RT en vivo SCL→dest vía Cocha (agencia chilena) — reemplazo de Skiplagged
+    pedido por el dueño: los datos de playas ahora vienen de una agencia real,
+    no de un metebuscador. Devuelve dict o None si no hay itinerarios."""
+    rows = cocha_rt(ida, vuelta, dst=dest)
     if not rows:
         return None
-    rows.sort(key=lambda x: x["clp"])
-    return {"min_clp": rows[0]["clp"], "aerolinea": rows[0]["aerolinea"], "cod_al": rows[0]["cod"],
-            "escalas": rows[0]["escalas"], "det": rows[0]["det"], "top": rows[:5],
-            "link": f"https://skiplagged.com/flights/SCL/{dest}/{ida}/{vuelta}?sort=cost"}
+    rows = sorted(rows, key=lambda r: r.get("clp") or 0)
+    r0 = rows[0]
+    return {"min_clp": r0["clp"], "aerolinea": r0["aerolinea"], "cod_al": r0.get("cod", ""),
+            "escalas": r0.get("escalas", 0), "det": r0.get("det", ""), "top": rows[:5],
+            "link": f"https://www.cocha.com/resultado/vuelos/SCL/{dest}/{ida}/1/Y?origin2={dest}&destination2=SCL&date2={vuelta}"}
 
 def fetch_playas(prev, cycle):
-    """Escaneo de destinos de playa: Skiplagged (1 ventana rotativa por ciclo, todas al arrancar)
-    + Cocha real (rotación de N destinos por ciclo). Fusiona con la caché anterior."""
+    """Escaneo de destinos de playa vía Cocha (agencia chilena): 1 ventana rotativa
+    por ciclo (todas al arrancar). Fusiona con la caché anterior.
+    Ventanas heredadas del antiguo escaneo Skiplagged se descartan (link skiplagged)."""
     prev = prev or {}
     prev_dest = {d["cod"]: d for d in (prev.get("destinos") or []) if isinstance(d, dict)}
     full = os.environ.get("PLAYAS_FULL") == "1" or not prev_dest
@@ -657,10 +555,12 @@ def fetch_playas(prev, cycle):
     out = []
     for cod, ciudad, pais, flag in PLAYAS_DEST:
         pd = prev_dest.get(cod) or {}
-        wprev = {f"{w['ida']}_{w['vuelta']}": w for w in (pd.get("windows") or [])}
+        # descarta ventanas legadas del metebuscador Skiplagged (fuente retirada)
+        wprev = {f"{w['ida']}_{w['vuelta']}": w for w in (pd.get("windows") or [])
+                 if "skiplagged.com" not in str(w.get("link") or "")}
         for ida, vuelta in wins:
             try:
-                res = skiplagged_rt(cod, ida, vuelta, fx)
+                res = agencia_rt(cod, ida, vuelta)
                 if res:
                     wprev[f"{ida}_{vuelta}"] = {"ida": ida, "vuelta": vuelta, "ts": now_iso(), **res}
                     print(f"playas {cod} {ida}: ${res['min_clp']:,}", flush=True)
@@ -668,32 +568,17 @@ def fetch_playas(prev, cycle):
                     print(f"playas {cod} {ida}: sin itinerarios", flush=True)
             except Exception as e:
                 print(f"playas {cod} {ida} FAIL: {str(e)[:60]}", flush=True)
+        wlist = sorted(wprev.values(), key=lambda w: w["min_clp"])
         out.append({"cod": cod, "ciudad": ciudad, "pais": pais, "flag": flag,
-                    "windows": sorted(wprev.values(), key=lambda w: w["min_clp"]),
-                    "cocha": pd.get("cocha")})
-    # Cocha real: sin escanear primero, luego los más antiguos; lote por ciclo
-    lote_n = int(os.environ.get("PLAYAS_COCHA", "2"))
-    rot = [d for d in out if not d.get("cocha")][:lote_n]
-    if not rot:
-        rot = sorted([d for d in out if d.get("cocha")], key=lambda d: (d["cocha"] or {}).get("ts") or "")[:lote_n]
-    for d in rot:
-        ida, vuelta = wins[0]
-        try:
-            r = cocha_rt(ida, vuelta, dst=d["cod"])
-            if r:
-                d["cocha"] = {"ida": ida, "vuelta": vuelta, "min_clp": r[0]["clp"], "aerolinea": r[0]["aerolinea"],
-                              "escalas": r[0]["escalas"], "det": r[0]["det"], "ts": now_iso(),
-                              "link": f"https://www.cocha.com/resultado/vuelos/SCL/{d['cod']}/{ida}/1/Y?origin2={d['cod']}&destination2=SCL&date2={vuelta}"}
-                print(f"playas cocha {d['cod']}: ${r[0]['clp']:,}", flush=True)
-        except Exception as e:
-            print(f"playas cocha {d['cod']} FAIL: {str(e)[:60]}", flush=True)
-    # mejor opción por destino (Skiplagged + Cocha)
+                    "windows": wlist,
+                    "cocha": ({"min_clp": wlist[0]["min_clp"], "aerolinea": wlist[0]["aerolinea"],
+                               "escalas": wlist[0]["escalas"], "det": wlist[0]["det"],
+                               "ida": wlist[0]["ida"], "vuelta": wlist[0]["vuelta"],
+                               "ts": wlist[0]["ts"], "link": wlist[0]["link"]} if wlist else pd.get("cocha"))})
+    # mejor opción por destino (Cocha)
     for d in out:
-        cands = [(w["min_clp"], "Skiplagged", w["ida"], w["vuelta"], w["aerolinea"], w["escalas"], w["det"], w["link"])
+        cands = [(w["min_clp"], "Cocha", w["ida"], w["vuelta"], w["aerolinea"], w["escalas"], w["det"], w["link"])
                  for w in d["windows"]]
-        c = d.get("cocha")
-        if c and c.get("min_clp"):
-            cands.append((c["min_clp"], "Cocha real", c["ida"], c["vuelta"], c["aerolinea"], c["escalas"], c["det"], c["link"]))
         if cands:
             b = min(cands, key=lambda t: t[0])
             d["mejor"] = {"clp": b[0], "src": b[1], "ida": b[2], "vuelta": b[3], "aerolinea": b[4],
@@ -706,7 +591,7 @@ def fetch_playas(prev, cycle):
         raise RuntimeError("playas sin resultados")
     return {"destinos": out, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
             "ventanas": [f"{a} → {b}" for a, b in PLAYAS_WIN],
-            "nota": "Metasearch en vivo Skiplagged (todas las aerolíneas, CLP vía dólar observado) + cotización real Cocha. Mismas reglas del viaje: ene–feb 2027, ≥9 noches, regreso ≤ 23-feb."}
+            "nota": "Cotización en vivo de Cocha (agencia chilena) — el precio final puede variar ~10% al reservar. Mismas reglas del viaje: ene–feb 2027, ≥9 noches, regreso ≤ 23-feb."}
 
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
@@ -720,8 +605,6 @@ def minimos_de(live):
             m[serie] = mn(f[k].get(key))
     if (f.get("cocha") or {}).get("ok"):
         m["Cocha SCL-Río"] = mn(f["cocha"].get("ventanas"), "min_clp")
-    if (f.get("skiplagged") or {}).get("ok"):
-        m["Skiplagged SCL-Río"] = mn(f["skiplagged"].get("ventanas"), "min_clp")
     if (f.get("playas") or {}).get("ok"):
         for d in (f["playas"].get("destinos") or []):
             mj = d.get("mejor")
@@ -889,17 +772,7 @@ def main():
                 print(f"Cocha SSR+verif OK: {n_verif} ventanas verificadas en página", flush=True)
         except Exception as e2:
             print(f"Cocha SSR FAIL: {str(e2)[:80]}", flush=True)
-    # 8) Skiplagged: metasearch global en vivo (todas las aerolíneas)
-    try:
-        skl = fetch_skiplagged()
-        LIVE["fuentes"]["skiplagged"] = {"ts": now_iso(), "ok": True,
-            "nota": "Metasearch en vivo · CLP vía dólar observado · ordenado del más barato",
-            **skl}
-        print("Skiplagged OK: " + " | ".join(
-            f"{v['ida']}→{v['vuelta']} ${v['min_clp']:,}" for v in skl["ventanas"]), flush=True)
-    except Exception as e:
-        print(f"Skiplagged FAIL: {str(e)[:90]}", flush=True)
-    # 9) Playas LatAm: destinos de playa bajo presupuesto $500K (Skiplagged + Cocha real)
+    # 8) Playas LatAm: destinos de playa bajo presupuesto $500K (Cocha, agencia chilena)
     try:
         pl = fetch_playas(LIVE["fuentes"].get("playas") or {}, cycle)
         LIVE["fuentes"]["playas"] = {"ts": now_iso(), "ok": True, **pl}
@@ -948,6 +821,9 @@ def main():
             print("ALERTA: " + "; ".join(f"{n['serie']} ${n['antes']:,}→${n['ahora']:,}" for n in nuevos), flush=True)
         else:
             LIVE["email_pending"] = bool(prev.get("email_pending"))
+        # limpieza única: las series del metebuscador retirado desaparecen del panel
+        # y del historial de alertas (el usuario pidió retirar esa fuente por completo)
+        alerts = [a for a in alerts if "skiplagged" not in str(a.get("serie", "")).lower()]
         LIVE["alerts"] = alerts
         LIVE["minimos"] = minimos
     except Exception as e:

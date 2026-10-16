@@ -16,7 +16,6 @@ global.location = { pathname: '/vuelos-rio-live/' };
 const DIA = ['dom','lun','mar','mié','jue','vie','sáb'];
 const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const SKL = (from,to,ida,vta) => `https://skiplagged.com/flights/${from}/${to}/${ida}${vta?'/'+vta:''}?sort=cost`;
 let cfg;
 try { cfg = eval('(' + cfgSrc + ')'); } catch (e) { console.error('FATAL: config no compila:', e.message); process.exit(2); }
 
@@ -51,7 +50,10 @@ ok(Array.isArray(vw) && vw.length >= 1, 'ventanasTop >= 1', vw.length);
 ok(vw.every(w => /^\d{4}-\d{2}-\d{2}$/.test(w.ida) && /^\d{4}-\d{2}-\d{2}$/.test(w.vuelta)), 'fechas ISO');
 ok(vw.every(w => w.ida < w.vuelta), 'ida < vuelta');
 ok(vw.every(w => money(w.clp)), 'precios de ventana validos');
-ok((vm.sklLink(vw[0].ida, vw[0].vuelta) || '').includes('skiplagged.com/flights/SCL/GIG'), 'sklLink formato');
+ok((vm.dpRT(vw[0].ida, vw[0].vuelta) || '').includes('despegar.cl/shop/flights/results/roundtrip/SCL/GIG'), 'dpRT formato (agencia ancla)');
+ok(Array.isArray(vm.agencias) && vm.agencias.length >= 6, 'agencias comparación >= 6', vm.agencias && vm.agencias.length);
+ok(vm.agencias.every(a => /^https:\/\//.test(a.u)), 'agencias con URL https');
+ok(vm.agencias.some(a => a.u.includes('atrapalo.cl')) && vm.agencias.some(a => a.u.includes('turismocity.cl')) && vm.agencias.some(a => a.u.includes('kiwi.com')) && vm.agencias.some(a => a.u.includes('decolar.com')), 'agencias nuevas presentes (Atrápalo/Turismocity/Kiwi/Decolar)');
 
 console.log('== 3. filas de vuelos ==');
 const filas = vm.filas;
@@ -84,7 +86,13 @@ ok(ds.every(d => money(d.clp)), 'precios destinos validos');
 ok(ds.every(d => (d.link || '').startsWith('http')), 'links destinos http');
 ok(ds.every((d, i) => i === 0 || ds[i - 1].clp <= d.clp), 'destinos ordenados');
 ok(ds.every(d => typeof d.enPresupuesto === 'boolean'), 'flag presupuesto');
-ok(vm.destinosEnPresupuesto >= 6, '>= 6 destinos dentro de presupuesto', vm.destinosEnPresupuesto);
+/* el umbral de destinos en presupuesto depende de cuántas ventanas tiene ya
+   escaneadas el radar de playas (tras la transición de motor, la matriz se
+   rellena por rotación en ~3 ciclos) */
+const PL = (DATA.fuentes || {}).playas || {};
+const nWin = Math.max(0, ...((PL.destinos || []).map(d => (d.windows || []).length)));
+const minPres = nWin >= 3 ? 6 : 3;
+ok(vm.destinosEnPresupuesto >= minPres, `>= ${minPres} destinos dentro de presupuesto (ventanas escaneadas: ${nWin}/3)`, vm.destinosEnPresupuesto);
 ok(vm.ofertas.length >= 5 && vm.ofertas.every(o => o.cod !== 'GIG'), 'ofertas excluyen Rio (card grande)');
 ok(vm.ofertaRio && money(vm.ofertaRio.clp), 'ofertaRio presente');
 ds.forEach(d => console.log('     ' + d.cod + ' ' + d.ciudad + ': $' + Math.round(d.clp).toLocaleString('es-CL') + (d.enPresupuesto ? '' : ' (sobre presupuesto)')));
@@ -178,8 +186,7 @@ const TIL_PAT = {
   latam: u => u.includes('latam.com') && u.includes('outbound='),
   despegar: u => u.includes('despegar.cl/shop/flights/results/'),
   falabella: u => u.includes('viajesfalabella.cl/shop/flights/results/'),
-  cocha: u => u.includes('cocha.com/resultado/vuelos/') && !/cocha\.com\/vuelos(\?|$)/.test(u),
-  skiplagged: u => u.includes('skiplagged.com/flights/')
+  cocha: u => u.includes('cocha.com/resultado/vuelos/') && !/cocha\.com\/vuelos(\?|$)/.test(u)
 };
 tiles.forEach(t => {
   const pat = TIL_PAT[t.key];
@@ -189,7 +196,6 @@ tiles.forEach(t => {
 });
 const FIL_PAT = r => {
   if (r.src === 'Cocha') return (r.link || '').includes('cocha.com/resultado/vuelos/');
-  if (r.src === 'Skiplagged') return (r.link || '').includes('skiplagged.com/flights/');
   if (r.al === 'JetSMART') return (r.link || '').includes('booking.jetsmart.com/Flight/InternalSelect');
   if (r.al === 'SKY Airline') return (r.link || '').includes('skyairline.com') && (r.link || '').includes('departureDate=');
   if (r.al === 'LATAM') return (r.link || '').includes('latam.com') && (r.link || '').includes('outbound=');
@@ -199,9 +205,12 @@ const filasBad = filas.filter(r => !FIL_PAT(r));
 ok(filasBad.length === 0, 'todas las filas con deep link a su fuente', filasBad.slice(0, 3).map(r => (r.al || r.src) + ' → ' + String(r.link).slice(0, 70)));
 ok(filas.every(r => YEAR.test(r.link || '')), 'filas con fecha 2027 en el enlace');
 const vw0 = vw[0] || {};
-ok((vm.sklLink(vw0.ida, vw0.vuelta) || '').includes('2027'), 'buscador hero: url con fecha');
-const dss = ds.filter(d => (d.link || '').includes('skiplagged.com/flights/')).length;
-ok(dss >= ds.length - 1, 'destinos con deep link skiplagged', dss + '/' + ds.length);
+ok((vm.dpRT(vw0.ida, vw0.vuelta) || '').includes('2027'), 'buscador hero: url con fecha');
+const dss = ds.filter(d => (d.link || '').includes('cocha.com/resultado/vuelos/')).length;
+ok(dss >= ds.length - 1, 'destinos con deep link Cocha (agencia chilena)', dss + '/' + ds.length);
+ok(!/skiplagged/i.test(html), 'sin NINGUNA referencia a Skiplagged en la interfaz');
+ok(html.includes('Precios referenciales capturados automáticamente'), 'disclaimer de precios referenciales visible');
+ok(html.includes('Comparar') && html.includes('en más sitios'), 'fila de comparación con agencias visible');
 
 console.log('== 10. interacciones del sitio ==');
 const pax0 = vm.pax;
@@ -210,8 +219,9 @@ ok(vm.skyLink({ ida: '2027-01-22', vuelta: '2027-02-01' }).includes('ADT=2'), 's
 ok(vm.latLink({ ida: '2027-01-22', vuelta: '2027-02-01' }).includes('adults=2'), 'latLink respeta pasajeros');
 vm.pax = pax0;
 const tileKeys = new Set(tiles.map(t => t.key));
-['jetsmart', 'sky', 'latam', 'despegar', 'falabella', 'cocha', 'skiplagged'].forEach(k =>
+['jetsmart', 'sky', 'latam', 'despegar', 'falabella', 'cocha'].forEach(k =>
   ok(tileKeys.has(k), 'tile presente: ' + k));
+ok(!tileKeys.has('skiplagged'), 'tile Skiplagged retirado');
 ok(vm.campeon && vm.campeon.key === tiles[0].key, 'campeon == tile mas barato');
 ok(vm.minimo === tiles[0].clp && money(vm.minimo), 'minimo del hero coherente');
 /* Cocha: auditoría de verificación (base pagina/api + api_min cuando fue verificado) */
@@ -219,6 +229,12 @@ const CO = (DATA.fuentes || {}).cocha || {};
 ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base === 'pagina' || v.base === 'api'), 'cocha ventanas con base declarada (pagina/api)');
 ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base !== 'pagina' || !!v.api_min), 'cocha: api_min queda como auditoría cuando se verificó en página');
 ok((CO.ventanas || []).every(v => v.min_clp > 100000), 'cocha: mínimos plausibles (sin promos de portada)');
+/* coherencia combo: si el tile de una OTA declara fechas, el deep link debe abrir EXACTAMENTE esas fechas */
+tiles.filter(t => t.key === 'despegar' || t.key === 'falabella').forEach(t => {
+  const m = String(t.url || '').match(/roundtrip\/SCL\/GIG\/(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/);
+  ok(!!m, 'tile ' + t.nombre + ': deep link roundtrip con ambas fechas', t.url);
+  if (m) ok(new Date(m[2]) - new Date(m[1]) >= 6 * 864e5, 'tile ' + t.nombre + ': ventana >= 6 noches (combo real)', m[1] + ' → ' + m[2]);
+});
 vm.filterMax = 0; vm.onlyDirect = true;
 const directas = vm.filasFiltradas.length;
 vm.onlyDirect = false;

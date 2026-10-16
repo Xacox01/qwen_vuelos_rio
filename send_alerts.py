@@ -14,6 +14,7 @@ con logo y paleta oficial del sitio.
 """
 import json
 import os
+import re
 import smtplib
 import sys
 from datetime import datetime, timezone
@@ -31,6 +32,45 @@ from notificaciones import cargar_emails, mask  # noqa: E402
 
 NARANJA = "ff690f"  # color oficial del botón (bgcolor sin # para clientes antiguos)
 
+# ---- Nombres de ciudad (pedido del dueño: en el correo, cero códigos de aeropuerto) ----
+CIUDADES = {
+    "SCL": "Santiago", "GIG": "Río de Janeiro", "RIO": "Río de Janeiro",
+    "GRU": "São Paulo", "CGH": "São Paulo", "EZE": "Buenos Aires", "AEP": "Buenos Aires",
+    "LIM": "Lima", "BOG": "Bogotá", "MDE": "Medellín", "CTG": "Cartagena", "ADZ": "San Andrés",
+    "CUN": "Cancún", "PUJ": "Punta Cana", "SDQ": "Santo Domingo", "HAV": "La Habana",
+    "MEX": "Ciudad de México", "PTY": "Panamá", "SJO": "San José", "LIR": "Liberia",
+    "MVD": "Montevideo", "ASU": "Asunción", "VVI": "Santa Cruz", "LPB": "La Paz",
+    "GYE": "Guayaquil", "UIO": "Quito", "MIA": "Miami", "JFK": "Nueva York",
+    "LAX": "Los Ángeles", "MAD": "Madrid", "BCN": "Barcelona", "FLN": "Florianópolis",
+    "SSA": "Salvador de Bahía", "REC": "Recife", "FOR": "Fortaleza", "MCZ": "Maceió",
+    "NAT": "Natal", "BPS": "Porto Seguro", "NVD": "Navegantes", "IGU": "Foz de Iguazú",
+}
+FUENTES_ALERTA = {"sky", "jetsmart", "latam", "cocha", "despegar", "falabella",
+                  "skiplagged", "playas", "google"}
+
+def ruta_bonita(serie) -> str:
+    """Convierte las series de alerta a nombres de ciudad, sin códigos IATA:
+    'SKY SCL-Río'   → 'SKY · Santiago → Río de Janeiro'
+    'Playas GIG'    → 'Playas · Río de Janeiro'
+    'Cocha SCL-GIG' → 'Cocha · Santiago → Río de Janeiro'
+    La plataforma crecerá a toda América: cualquier código nuevo que no esté en el
+    mapa se muestra tal cual (nunca se inventa una ciudad)."""
+    s = str(serie).strip()
+    partes = s.split(" ", 1)
+    fuente = ""
+    if len(partes) == 2 and partes[0].lower() in FUENTES_ALERTA:
+        fuente, ruta = partes
+    else:
+        ruta = s
+    ruta = re.sub(r"\b[A-Z]{3}\b", lambda m: CIUDADES.get(m.group(0), m.group(0)), ruta)
+    ruta = re.sub(r"\bRío\b", "Río de Janeiro", ruta)
+    ruta = ruta.replace("Río de Janeiro de Janeiro", "Río de Janeiro")
+    if "-" in ruta:
+        a, b = ruta.split("-", 1)
+        ruta = f"{a.strip()} → {b.strip()}"
+    return f"{fuente} · {ruta}" if fuente else ruta
+
+
 def clp(n) -> str:
     return "${:,.0f}".format(n).replace(",", ".")
 
@@ -38,7 +78,7 @@ def clp(n) -> str:
 def email_text(alertas) -> str:
     lines = ["Bajada de precios detectada en vuelos Santiago ⇄ Río de Janeiro (ene–feb 2027):", ""]
     for a in alertas:
-        lines.append(f"• {a['serie']}: {clp(a['antes'])} → {clp(a['ahora'])} "
+        lines.append(f"• {ruta_bonita(a['serie'])}: {clp(a['antes'])} → {clp(a['ahora'])} "
                      f"(bajó {clp(a['baja'])} / −{a['pct']}%)")
     lines += ["", f"Ver el panel actualizado: {SITE}", "",
               "Compara siempre en las fuentes oficiales antes de comprar: los precios "
@@ -53,13 +93,13 @@ def email_html(alertas) -> str:
     """Correo HTML con identidad Radar Río (patrones Cerberus fluid)."""
     hoy = datetime.now(timezone.utc).strftime("%d-%m-%Y %H:%M UTC")
     first = alertas[0]
-    preheader = f"{first['serie']}: {clp(first['antes'])} → {clp(first['ahora'])} (−{first['pct']}%)"
+    preheader = f"{ruta_bonita(first['serie'])}: {clp(first['antes'])} → {clp(first['ahora'])} (−{first['pct']}%)"
 
     filas = []
     for a in alertas[:8]:
         filas.append(f"""
       <tr>
-        <td style="padding:12px 16px;border-bottom:1px solid #e3e7ec;font-family:Arial,sans-serif;font-size:14px;color:#1a2b49;font-weight:bold;">{a['serie']}</td>
+        <td style="padding:12px 16px;border-bottom:1px solid #e3e7ec;font-family:Arial,sans-serif;font-size:14px;color:#1a2b49;font-weight:bold;">{ruta_bonita(a['serie'])}</td>
         <td style="padding:12px 8px;border-bottom:1px solid #e3e7ec;font-family:Arial,sans-serif;font-size:14px;color:#8a97ab;text-decoration:line-through;text-align:right;white-space:nowrap;">{clp(a['antes'])}</td>
         <td style="padding:12px 8px;border-bottom:1px solid #e3e7ec;font-family:Arial,sans-serif;font-size:15px;color:#073b9e;font-weight:bold;text-align:right;white-space:nowrap;">{clp(a['ahora'])}</td>
         <td style="padding:12px 16px;border-bottom:1px solid #e3e7ec;text-align:right;">
@@ -142,7 +182,7 @@ def enviar(user, pwd, dest, alertas, port=587, host="") -> None:
         s.login(user, pwd)
         msg = MIMEMultipart("alternative")
         msg["Subject"] = Header(
-            f"[Radar Río] Bajó {clp(alertas[0]['baja'])} en {alertas[0]['serie']}", "utf-8")
+            f"[Radar Río] Bajó {clp(alertas[0]['baja'])} en {ruta_bonita(alertas[0]['serie'])}", "utf-8")
         msg["From"] = user
         msg["To"] = dest
         msg["Date"] = formatdate(localtime=False)
