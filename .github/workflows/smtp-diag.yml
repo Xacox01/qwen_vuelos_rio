@@ -19,4 +19,6 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
-        run: python smtp_test.py
+        run: |
+          pip install -q cryptography || true
+          python smtp_test.py
