@@ -331,6 +331,29 @@ AER = {"H2": "SKY", "JA": "JetSMART", "LA": "LATAM", "G3": "GOL", "AR": "Aerolí
 COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20")]
 _cocha_last = [0.0]
 
+_cocha_sess_cache = {"init": False, "sess": None}
+
+def cocha_sess():
+    """Sesión para Cocha: con el túnel WARP disponible (OTA_PROXY, lo levanta
+    warp_boot.sh en Actions) sale por esa IP de consumidor — el WAF de Cocha
+    rechaza con 403 las IPs de datacenter del runner de GitHub Actions.
+    Se resuelve una sola vez por proceso (WARP se levanta antes del scraper)."""
+    if _cocha_sess_cache["init"]:
+        return _cocha_sess_cache["sess"]
+    _cocha_sess_cache["init"] = True
+    p = (os.environ.get("OTA_PROXY") or "").strip()
+    if p and HAS_CURL:
+        for kwargs in ({"impersonate": "chrome", "proxy": p},
+                       {"impersonate": "chrome", "proxies": {"http": p, "https": p}}):
+            try:
+                _cocha_sess_cache["sess"] = cr.Session(**kwargs)
+                print("cocha: sesión vía WARP", flush=True)
+                return _cocha_sess_cache["sess"]
+            except Exception:
+                continue
+    _cocha_sess_cache["sess"] = None
+    return None
+
 def cocha_rt(ida, vuelta, dst="GIG"):
     gap = time.time() - _cocha_last[0]
     if gap < 2.5:
@@ -339,21 +362,33 @@ def cocha_rt(ida, vuelta, dst="GIG"):
                  "itinerary": [{"origin": "SCL", "destination": dst, "date": ida},
                                {"origin": dst, "destination": "SCL", "date": vuelta}],
                  "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5}
+    # intento 1 por WARP (IP consumidor, pasa el WAF), intento 2 directo
+    rutas = []
+    _w = cocha_sess()
+    if _w is not None:
+        rutas.append(("warp", _w))
+    rutas.append(("directo", cr))
     r = None
-    for intento in range(2):
+    last_err = None
+    for nombre, ses in rutas:
         try:
-            r = cr.post(COCHA_GQL, impersonate="chrome", timeout=90,
+            r = ses.post(COCHA_GQL, impersonate="chrome", timeout=90,
                         headers={"Content-Type": "application/json", "Origin": "https://www.cocha.com",
                                  "Referer": "https://www.cocha.com/"},
                         json={"operationName": "funcion", "variables": variables, "query": COCHA_Q})
             r.raise_for_status()
             break
         except Exception as e:
-            if intento == 0 and any(c in str(e) for c in ("403", "429")):
-                print(f"cocha {dst}: {str(e)[:30]} — pausa 20s y reintento", flush=True)
+            last_err = e
+            r = None
+            print(f"cocha {dst}: {str(e)[:34]} [{nombre}] — cambio de ruta", flush=True)
+            if "429" in str(e):
                 time.sleep(20)
-                continue
-            raise
+            else:
+                time.sleep(4)
+            continue
+    if r is None:
+        raise last_err or RuntimeError("cocha sin respuesta")
     _cocha_last[0] = time.time()
     found = ((r.json().get("data") or {}).get("flightV2") or {}).get("found") or []
     out = []
