@@ -393,8 +393,8 @@ footer .flogo b{color:#fff;font-size:1rem}
 
     <div class="qchips" v-if="D">
       <span class="lab">Atajos:</span>
-      <a class="chip" v-for="(w,i) in ventanasTop.slice(0,3)" :key="i" :href="dpRT(w.ida,w.vuelta)" target="_blank" rel="noopener">
-        {{w.label}} <b>{{fmt(w.clp)}}</b>
+      <a class="chip" v-for="(w,i) in ventanasTop.slice(0,3)" :key="i" :href="w.url||dpRT(w.ida,w.vuelta)" target="_blank" rel="noopener">
+        {{w.label}} <b>{{fmt(w.clp)}}</b> <small style="opacity:.65">· {{w.src}}</small>
       </a>
       <a class="chip" :href="'https://www.google.com/travel/flights?q=Vuelos%20a%20R%C3%ADo%20de%20Janeiro%20desde%20Santiago'" target="_blank" rel="noopener">Comparar en Google Flights ↗</a>
     </div>
@@ -790,17 +790,20 @@ createApp({
     minimo(){ return this.tiles.length?this.tiles[0].clp:0; },
 
     /* ---- ventanas sugeridas (hero) — fusión de TODAS las fuentes con viaje
-       ida+vuelta real (independiente de cualquier fuente única) ---- */
+       ida+vuelta real (independiente de cualquier fuente única). Cada ventana
+       conserva la fuente y el enlace de quien cotizó el precio: el chip abre
+       EXACTAMENTE donde se encontró esa tarifa. ---- */
     ventanasTop(){
       const F=this.f, mm={};
-      const add=(ida,vuelta,clp)=>{ if(!ida||!vuelta||!clp) return;
-        const k=ida+'_'+vuelta; if(!mm[k]||clp<mm[k].clp) mm[k]={ida,vuelta,clp}; };
-      (F.jetsmart&&F.jetsmart.combos||[]).forEach(c=>add(c.ida,c.vuelta,c.clp));
-      (F.sky&&F.sky.pairs||[]).forEach(p=>add(p.ida,p.vuelta,p.clp));
-      (F.latam&&F.latam.combos||[]).forEach(c=>add(c.ida,c.vuelta,c.clp));
-      ((F.cocha&&F.cocha.ventanas)||[]).forEach(v=>add(v.ida,v.vuelta,v.min_clp));
+      const add=(ida,vuelta,clp,src,url)=>{ if(!ida||!vuelta||!clp) return;
+        const k=ida+'_'+vuelta; if(!mm[k]||clp<mm[k].clp) mm[k]={ida,vuelta,clp,src,url}; };
+      (F.jetsmart&&F.jetsmart.combos||[]).forEach(c=>add(c.ida,c.vuelta,c.clp,'JetSMART',this.jsRT(c.ida,c.vuelta)));
+      (F.sky&&F.sky.pairs||[]).forEach(p=>add(p.ida,p.vuelta,p.clp,'SKY',this.skyLink(p)));
+      (F.latam&&F.latam.combos||[]).forEach(c=>add(c.ida,c.vuelta,c.clp,'LATAM',this.latLink(c)));
+      ((F.cocha&&F.cocha.ventanas)||[]).forEach(v=>add(v.ida,v.vuelta,v.min_clp,'Cocha',v.link||`https://www.cocha.com/resultado/vuelos/SCL/GIG/${v.ida}/1/Y?origin2=GIG&destination2=SCL&date2=${v.vuelta}`));
       return Object.values(mm).sort((a,b)=>a.clp-b.clp).map(v=>({
-        ida:v.ida, vuelta:v.vuelta, clp:v.clp, label:this.dshort(v.ida)+' → '+this.dshort(v.vuelta)
+        ida:v.ida, vuelta:v.vuelta, clp:v.clp, src:v.src, url:v.url,
+        label:this.dshort(v.ida)+' → '+this.dshort(v.vuelta)
       }));
     },
     ventanaSel(){ return this.ventanasTop[this.selWin] || this.ventanasTop[0] || null; },
@@ -919,7 +922,7 @@ createApp({
     dpRT(ida,vta){ return `https://www.despegar.cl/shop/flights/results/roundtrip/SCL/GIG/${ida}/${vta}/1/0/0`; },
     calDia(c){ if(!c||!c.iso) return; const k=(this.calendarios.find(x=>x.cells.includes(c))||{}).key||'ida';
       window.open(k==='vta'?`https://www.despegar.cl/shop/flights/results/oneway/GIG/SCL/${c.iso}/1/0/0`:`https://www.despegar.cl/shop/flights/results/oneway/SCL/GIG/${c.iso}/1/0/0`,'_blank'); },
-    buscar(){ const w=this.ventanaSel; if(w) window.open(this.dpRT(w.ida,w.vuelta),'_blank'); },
+    buscar(){ const w=this.ventanaSel; if(w) window.open(w.url||this.dpRT(w.ida,w.vuelta),'_blank'); },
     porMerchant(m){ return this.cupones.filter(c=>c.merchant===m).length; },
     countConds(c){ return c.conds&&Object.keys(c.conds).length; },
     copiar(c){ const txt=c.code; const done=()=>{ this.copied=c.id; setTimeout(()=>this.copied=null,2200); };
