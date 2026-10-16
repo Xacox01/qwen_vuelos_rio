@@ -94,6 +94,15 @@ jobs:
           pip install -q cryptography || true
           python3 notificaciones.py || echo "::warning::notificaciones falló (no bloquea publicación)"
 
+      - name: enviar-alertas-email (destinatarios descifrados en memoria, correos enmascarados en logs)
+        env:
+          ALERT_RSA_PRIV: ${{ secrets.ALERT_RSA_PRIV }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          python3 send_alerts.py || true
+
       - name: subir diagnóstico OTA (si hubo challenge)
         if: always()
         uses: actions/upload-artifact@v4
@@ -126,15 +135,6 @@ jobs:
             git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
             git push
           fi
-
-      - name: enviar-alertas-email
-        if: always()
-        env:
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-        run: |
-          python3 send_alerts.py || true
 
       - name: encadenar siguiente ciclo (~5 min)
         if: always()
