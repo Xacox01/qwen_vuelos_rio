@@ -36,9 +36,12 @@ def main():
         json.dump(d, open(DATA, "w"), ensure_ascii=False)
         print("Hay bajadas pero NADIE suscrito todavía: marcadas como notificadas.")
         return
-    host, user, pwd = (os.environ.get("SMTP_HOST"), os.environ.get("SMTP_USER"),
-                       os.environ.get("SMTP_PASS"))
-    port = int(os.environ.get("SMTP_PORT", "587"))
+    host = (os.environ.get("SMTP_HOST") or "").strip()
+    user = (os.environ.get("SMTP_USER") or "").strip()
+    # Gmail muestra la contraseña de aplicación en bloques de 4 separados por
+    # espacios: se eliminan automáticamente por si se copió tal cual.
+    pwd = (os.environ.get("SMTP_PASS") or "").replace(" ", "").replace("\u00a0", "").strip()
+    port = int(os.environ.get("SMTP_PORT") or "587")
     if not (host and user and pwd):
         print(f"SMTP sin configurar: {len(nuevos)} alerta(s) quedan pendientes para "
               f"{len(subs)} suscrito(s) ({', '.join(mask(s) for s in subs[:5])}).")
