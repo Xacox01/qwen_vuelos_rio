@@ -156,8 +156,19 @@ ok(vm.ago(DATA.updated).includes('hace') || vm.ago(DATA.updated) === 'ahora', 'a
 ok(html.includes('id="cupones"'), 'seccion cupones en HTML');
 ok(html.includes('alertas.cfg.json'), 'config del módulo de alertas cargada por el sitio');
 ok(!/linear-gradient\((?![0-9]+deg,rgba\(18,33,64)/.test(html.slice(0, html.indexOf('</style>'))), 'sin gradientes decorativos (diseno plano OTA)');
-ok((html.match(/#0062e3/g) || []).length >= 3, 'color de marca azul presente');
+ok((html.match(/#0a4fd9/gi) || []).length >= 3, 'color de marca azul (logo oficial) presente');
 ok(!html.includes('CyberMonday'), 'sin cupones caducados hardcodeados');
+
+console.log('== 8b. identidad de marca (logo oficial) ==');
+ok(fs.existsSync('assets/brand/logo.svg'), 'logo oficial SVG presente');
+ok(fs.existsSync('assets/brand/favicon.svg'), 'favicon oficial SVG presente');
+ok(fs.existsSync('assets/brand/og-image.png'), 'og-image para compartir presente');
+ok(/rel="icon" href="assets\/brand\/favicon\.svg"/.test(html), 'favicon del logo enlazado en head');
+ok(/og:image" content="https:\/\/xacox01\.github\.io\/vuelos-rio-live\/assets\/brand\/og-image\.png"/.test(html), 'og:image absoluta enlazada');
+const logoSq = html.slice(html.indexOf('class="sq"'), html.indexOf('class="sq"') + 700);
+ok(/<svg viewBox="0 0 512 512"[^>]*>/.test(logoSq) && /#0a4fd9/.test(logoSq), 'logo inline en header (círculo azul oficial)');
+ok(/stroke="#ff690f"/.test(logoSq), 'señal naranja del logo en header');
+ok(/#ff690f/i.test(html.slice(0, html.indexOf('</style>'))), 'naranja oficial en paleta CSS');
 
 console.log('== 9. enlaces profundos por fuente (integridad de compra) ==');
 const YEAR = /2027-\d{2}-\d{2}/;

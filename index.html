@@ -1,8 +1,15 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#0a4fd9">
+<link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Radar Río · Vuelos SCL⇄Río de Janeiro al mejor precio">
+<meta property="og:description" content="Escaneamos fuentes cada 5 minutos y alertamos bajadas de precio. Vuelos en vivo, playas y cupones.">
+<meta property="og:image" content="https://xacox01.github.io/vuelos-rio-live/assets/brand/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Vuelos Santiago ⇄ Río de Janeiro ene–feb 2027 al precio real de hoy: JetSMART, SKY, LATAM, Despegar, Falabella, Cocha y Skiplagged comparados automáticamente cada 5 minutos. Más 16 destinos de playa bajo $500.000 y cupones activos.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a2b49'/%3E%3Cpath d='M6 20.5 24.5 9l-5.6 15-3.4-5.4L6 20.5z' fill='%23fff'/%3E%3C/svg%3E">
 <title>Radar Río · Vuelos SCL⇄Río de Janeiro al mejor precio · ene–feb 2027</title>
 <style>
 /* ============================================================
@@ -17,9 +24,9 @@
   --faint:#8a97ab;
   --bg:#f6f7f9;           /* gris claro Kayak */
   --white:#ffffff;
-  --brand:#0062e3;        /* azul Skyscanner */
-  --brand-d:#0050bd;
-  --brand-bg:#eef4ff;
+  --brand:#0a4fd9;        /* azul del logo oficial */
+  --brand-d:#083ea8;
+  --brand-bg:#eef3fe;
   --cta:#ff690f;          /* naranja Kayak/Despegar */
   --cta-d:#e55d08;
   --ok:#008009;           /* verde Booking */
@@ -30,7 +37,7 @@
   --r:8px;--r2:12px;
   --sh:0 1px 2px rgba(16,24,40,.06);
   --sh2:0 4px 14px rgba(16,24,40,.09);
-  --navy:#122140;
+  --navy:#073b9e;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:70px}
@@ -48,8 +55,8 @@ img{display:block}
 header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--line)}
 .hbar{display:flex;align-items:center;gap:18px;height:58px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none!important;flex:0 0 auto}
-.logo .sq{width:34px;height:34px;border-radius:8px;background:var(--navy);display:grid;place-items:center}
-.logo .sq svg{width:18px;height:18px}
+.logo .sq{width:38px;height:38px;border-radius:9px;background:transparent;display:grid;place-items:center}
+.logo .sq svg{width:38px;height:38px;display:block}
 .logo b{font-size:1.08rem;font-weight:800;color:var(--ink);white-space:nowrap}
 .logo small{display:block;font-size:.66rem;color:var(--mut);font-weight:600;letter-spacing:.04em;margin-top:-2px}
 nav.desk{display:flex;gap:2px;margin-left:6px}
@@ -320,8 +327,8 @@ footer .flogo b{color:#fff;font-size:1rem}
 <header>
   <div class="wrap hbar">
     <a class="logo" href="#top" aria-label="Radar Río">
-      <span class="sq"><svg viewBox="0 0 32 32" fill="none"><path d="M6 20.5 24.5 9l-5.6 15-3.4-5.4L6 20.5z" fill="#0062e3"/></svg></span>
-      <span><b>Radar Río</b><small>VUELOS EN VIVO · SCL⇄GIG</small></span>
+      <span class="sq" aria-hidden="true"><svg viewBox="0 0 512 512" fill="none"><circle cx="256" cy="256" r="240" fill="#0a4fd9"/><path d="M 306.2 110.9 A 160 160 0 0 1 401.1 205.8" stroke="#ff690f" stroke-width="44" stroke-linecap="round"/><g transform="translate(246 266) rotate(45) scale(14) translate(-12 -12)"><path fill="#fff" d="M21.5,15.5v-2l-8,-5V3.38C13.5,2.61,12.89,2,12.12,2S10.75,2.61,10.75,3.38v5.25l-8,5v2l8,-2.5v5.5l-2.25,1.69V21.5L12,20.5l3.5,1v-1.81L13.25,18v-5.5L21.5,15.5z"/></g></svg></span>
+      <span><b>Radar Río</b><small>ESCANEO EN VIVO · MEJOR PRECIO</small></span>
     </a>
     <nav class="desk">
       <a href="#hoy">Precios hoy</a>

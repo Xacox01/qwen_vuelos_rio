@@ -13,7 +13,9 @@ import smtplib
 import sys
 from datetime import datetime, timezone
 from email.header import Header
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formatdate, make_msgid
 
 
 def mask(e: str) -> str:
@@ -106,6 +108,27 @@ def main() -> None:
             refuse = s.sendmail(user, [user], msg.as_string())
             ok("envío", "Gmail aceptó el mensaje para entrega"
                + (f" (rechazos parciales: {refuse})" if refuse else ""))
+
+            # Muestra con el DISEÑO OFICIAL nuevo (usa las alertas reales del panel)
+            try:
+                import json
+                import send_alerts as sa
+                d = json.load(open("data.json", encoding="utf8")) if os.path.exists("data.json") else {}
+                alertas = sorted((d.get("alerts") or []), key=lambda a: a.get("baja", 0), reverse=True)[:3] \
+                    or [dict(serie="Playas PUJ", antes=694020, ahora=668170, baja=25850, pct=4)]
+                m2 = MIMEMultipart("alternative")
+                m2["Subject"] = Header(
+                    "[Radar Río] Muestra: así se verá tu correo de alertas", "utf-8")
+                m2["From"] = user
+                m2["To"] = user
+                m2["Date"] = formatdate(localtime=False)
+                m2["Message-ID"] = make_msgid(domain="vuelos-rio-live")
+                m2.attach(MIMEText(sa.email_text(alertas), "plain", "utf-8"))
+                m2.attach(MIMEText(sa.email_html(alertas), "html", "utf-8"))
+                s.sendmail(user, [user], m2.as_string())
+                ok("muestra de alertas", "correo con el diseño oficial enviado a tu bandeja")
+            except Exception as e:
+                print(f"  (aviso) muestra con diseño no enviada: {str(e)[:80]}")
     except smtplib.SMTPAuthenticationError as e:
         fail("login", f"Gmail rechazó las credenciales ({e.smtp_code})",
              "confirma que SMTP_PASS sea la CONTRASEÑA DE APLICACIÓN de 16 "
