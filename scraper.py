@@ -343,14 +343,19 @@ def cocha_sess():
     _cocha_sess_cache["init"] = True
     p = (os.environ.get("OTA_PROXY") or "").strip()
     if p and HAS_CURL:
-        for kwargs in ({"impersonate": "chrome", "proxy": p},
-                       {"impersonate": "chrome", "proxies": {"http": p, "https": p}}):
-            try:
-                _cocha_sess_cache["sess"] = cr.Session(**kwargs)
-                print("cocha: sesión vía WARP", flush=True)
-                return _cocha_sess_cache["sess"]
-            except Exception:
-                continue
+        # wireproxy (WARP) requiere resolución DNS remota: socks5h (el propio
+        # handshake del boot usa --socks5-hostname). Con socks5 plano libcurl
+        # resuelve local y el pipeline del proxy falla con curl (97).
+        ph = p.replace("socks5://", "socks5h://", 1)
+        for cand in ([ph] if ph == p else [ph, p]):
+            for kwargs in ({"impersonate": "chrome", "proxy": cand},
+                           {"impersonate": "chrome", "proxies": {"http": cand, "https": cand}}):
+                try:
+                    _cocha_sess_cache["sess"] = cr.Session(**kwargs)
+                    print("cocha: sesión vía WARP", cand, flush=True)
+                    return _cocha_sess_cache["sess"]
+                except Exception:
+                    continue
     _cocha_sess_cache["sess"] = None
     return None
 
@@ -381,7 +386,7 @@ def cocha_rt(ida, vuelta, dst="GIG"):
         except Exception as e:
             last_err = e
             r = None
-            print(f"cocha {dst}: {str(e)[:34]} [{nombre}] — cambio de ruta", flush=True)
+            print(f"cocha {dst}: {str(e)[:120]} [{nombre}] — cambio de ruta", flush=True)
             if "429" in str(e):
                 time.sleep(20)
             else:
