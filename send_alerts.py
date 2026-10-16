@@ -11,6 +11,8 @@ import json
 import os
 import smtplib
 import sys
+from email.header import Header
+from email.mime.text import MIMEText
 
 DATA = "data.json"
 
@@ -68,10 +70,14 @@ def main():
                 if port != 465:
                     s.starttls()
                 s.login(user, pwd)
-                s.sendmail(user, [dest],
-                           f"From: {user}\r\nTo: {dest}\r\n"
-                           f"Subject: [vuelos-rio-live] Baja de precios a Río de Janeiro\r\n"
-                           f"Content-Type: text/plain; charset=utf-8\r\n\r\n{msg_body}")
+                # MIME correcto: el asunto/cuerpo llevan acentos (Río) y ⇄;
+                # un header crudo no-ASCII hace que smtplib falle con 'ascii' codec.
+                msg = MIMEText(msg_body, "plain", "utf-8")
+                msg["Subject"] = Header(
+                    "[vuelos-rio-live] Baja de precios a Río de Janeiro", "utf-8")
+                msg["From"] = user
+                msg["To"] = dest
+                s.sendmail(user, [dest], msg.as_string())
             ok += 1
             print(f"enviado → {mask(dest)}")
         except Exception as e:
