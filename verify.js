@@ -86,13 +86,17 @@ ok(ds.every(d => money(d.clp)), 'precios destinos validos');
 ok(ds.every(d => (d.link || '').startsWith('http')), 'links destinos http');
 ok(ds.every((d, i) => i === 0 || ds[i - 1].clp <= d.clp), 'destinos ordenados');
 ok(ds.every(d => typeof d.enPresupuesto === 'boolean'), 'flag presupuesto');
-/* el umbral de destinos en presupuesto depende de cuántas ventanas tiene ya
-   escaneadas el radar de playas (tras la transición de motor, la matriz se
-   rellena por rotación en ~3 ciclos) */
+/* Gate de playas orientado a DATOS, no al mercado: cuántos destinos caben en
+   $500k depende de la temporada (para ene–feb 2027 solo 3 de 16 quedaron bajo
+   presupuesto y el umbral fijo de 6 congeló la publicación del sitio entero).
+   Lo que este gate debe detectar es datos rotos/vacíos o pesos corruptos:
+   exigimos cotización en >= 3 destinos y >= 1 dentro de presupuesto (si un
+   parseo inflara todos los precios 10x, el segundo check lo caza). */
 const PL = (DATA.fuentes || {}).playas || {};
 const nWin = Math.max(0, ...((PL.destinos || []).map(d => (d.windows || []).length)));
-const minPres = nWin >= 3 ? 6 : 3;
-ok(vm.destinosEnPresupuesto >= minPres, `>= ${minPres} destinos dentro de presupuesto (ventanas escaneadas: ${nWin}/3)`, vm.destinosEnPresupuesto);
+const nDatos = (PL.destinos || []).filter(d => d.mejor && d.mejor.clp > 0).length;
+ok(nDatos >= 3, `>= 3 destinos de playa con cotización (ventanas escaneadas: ${nWin}/3)`, nDatos);
+ok(vm.destinosEnPresupuesto >= 1, '>= 1 destino de playa dentro de presupuesto', vm.destinosEnPresupuesto);
 ok(vm.ofertas.length >= 5 && vm.ofertas.every(o => o.cod !== 'GIG'), 'ofertas excluyen Rio (card grande)');
 ok(vm.ofertaRio && money(vm.ofertaRio.clp), 'ofertaRio presente');
 ds.forEach(d => console.log('     ' + d.cod + ' ' + d.ciudad + ': $' + Math.round(d.clp).toLocaleString('es-CL') + (d.enPresupuesto ? '' : ' (sobre presupuesto)')));
