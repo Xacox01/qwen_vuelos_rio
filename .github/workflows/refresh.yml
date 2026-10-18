@@ -1,8 +1,8 @@
 name: refresh
 
+# COPIA ARCHIVO (qwen): sin cron automatico para no duplicar scraping ni correos.
+# Se puede refrescar a mano desde la pestana Actions (Ejecutar workflow).
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch: {}
   push:
     paths:
