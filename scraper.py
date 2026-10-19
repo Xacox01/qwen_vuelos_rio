@@ -692,6 +692,28 @@ def main():
     last_attempt = _parse_ts(LIVE.get("ota_ts"))
     due = (not last_attempt) or (datetime.datetime.now() - last_attempt).total_seconds() >= OTAS_GAP
     otas = {}  # resultados stealth (incluye cocha_verif); {} si este ciclo no venció el gate
+
+    # PISO DE PLAUSIBILIDAD (fix precios erróneos): ninguna tarifa one-way real de
+    # una agencia puede quedar por debajo de la aerolínea más barata para esa fecha
+    # (APIs directas JetSMART/LATAM, ±1 día de holgura) menos 8%. Si queda, es un
+    # precio de un módulo "fechas flexibles" de otro mes que contaminó la captura.
+    def _piso_one_way(o, d, fecha):
+        try:
+            f0 = datetime.date.fromisoformat(fecha)
+        except Exception:
+            return None
+        vecs = {(f0 + datetime.timedelta(days=i)).isoformat() for i in (-1, 0, 1)}
+        vals = []
+        jsx = LIVE["fuentes"].get("jetsmart") or {}
+        for x in (jsx.get("idas") or []):
+            if x.get("clp") and x.get("fecha") in vecs:
+                vals.append(float(x["clp"]))
+        lax = LIVE["fuentes"].get("latam") or {}
+        for x in ((lax.get("dias_out") if (o, d) == ("SCL", "GIG") else lax.get("dias_in")) or []):
+            if x.get("clp") and x.get("fecha") in vecs:
+                vals.append(float(x["clp"]))
+        return int(0.92 * min(vals)) if vals else None
+
     if due:
         LIVE["ota_ts"] = now_iso()  # se marca ANTES de intentar (evita martilleo si falla)
         try:
@@ -699,9 +721,26 @@ def main():
             if not fetch_otas.HAS_CAMOUFOX:
                 raise RuntimeError("sin camoufox")
             otas = fetch_otas.fetch_otas(log=lambda m: print(m, flush=True),
-                                         cocha_ventanas=COCHA_VENTANAS)
+                                         cocha_ventanas=COCHA_VENTANAS,
+                                         piso_fn=_piso_one_way)
             fa_dias = otas.get("falabella") or {}
             de_dias = otas.get("despegar") or {}
+            # PRÉSTAMO CRUZADO: Despegar y Falabella comparten inventario; si a un
+            # sitio le faltó un sentido verificado (grilla/API descartadas por piso)
+            # y al otro no, reutilizamos su lectura — queda auditada como cruzado_*.
+            for _a, _b in (("falabella", "despegar"), ("despegar", "falabella")):
+                da = otas.get(_a) or {}
+                db = otas.get(_b) or {}
+                for dx in da.get("dias", []):
+                    if dx.get("min_clp"):
+                        continue
+                    dy = next((y for y in db.get("dias", [])
+                               if y.get("sentido") == dx.get("sentido")
+                               and y.get("fecha") == dx.get("fecha") and y.get("min_clp")), None)
+                    if dy:
+                        dx["min_clp"] = dy["min_clp"]
+                        dx["base"] = f"cruzado_{_b}"
+                        dx["cruzado_de"] = _b
             if any(d.get("min_clp") for d in fa_dias.get("dias", [])):
                 LIVE["fuentes"]["falabella"] = {"ts": now_iso(), "ok": True,
                     "nota": "lectura stealth 1 adulto (navegador real, DataDome bypass) — precio de referencia",

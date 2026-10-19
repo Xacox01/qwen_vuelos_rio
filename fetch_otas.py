@@ -164,34 +164,53 @@ def snap_diag(pg, name, tag, log):
         log(f"DIAG {name}: no se pudo guardar ({str(e)[:60]})")
 
 
-def decide_price(api_vals, dom_vals, cal, fecha, log, name, tag):
-    """Regla de publicación anti-contaminación.
+def decide_price(api_vals, dom_vals, cal, fecha, log, name, tag, piso=None):
+    """Regla de publicación anti-contaminación (v2).
 
-    Prioridad: API interna > grilla (fecha exacta) > DOM validado contra grilla.
+    FIX precios erróneos: la página de resultados incluye módulos de "fechas
+    flexibles / ofertas" cuyas tarifas (de OTRO mes) entraban al mínimo de la
+    captura API y del DOM. Ahora TODA lectura debe superar el "piso" de
+    plausibilidad: el mínimo one-way de las APIs directas de las aerolíneas
+    (JetSMART/LATAM) para esa fecha −8% de holgura. Si una agencia "cobra"
+    menos que la aerolínea más barata, la captura está contaminada.
+
+    Prioridad: grilla (fecha exacta) > API validada > DOM validado > vecinos
+    de grilla (precio real de una fecha vecina, como referencia) > sin dato.
     Devuelve (min_clp, base, detalle).
     """
     grid_date = next((c["clp"] for c in cal if c["fecha"] == fecha), None)
     grid_min = min((c["clp"] for c in cal), default=None)
-    api_min = min(api_vals) if api_vals else None
-    dom_min = min(dom_vals) if dom_vals else None
+    api_raw = min(api_vals) if api_vals else None
+    dom_raw = min(dom_vals) if dom_vals else None
 
-    det = {"api_min": api_min, "n_api": len(api_vals), "dom_min": dom_min,
+    det = {"api_min": api_raw, "n_api": len(api_vals), "dom_min": dom_raw,
            "grid_min": grid_min, "grid_date": grid_date, "n_dom": len(dom_vals),
-           "n_grid": len(cal)}
+           "n_grid": len(cal), "piso": piso}
+    api_min, dom_min = api_raw, dom_raw
 
-    # 1) API interna: la respuesta corresponde exactamente a esta búsqueda
-    if api_min:
-        det["base"] = "api"
-        return api_min, "api", det
+    # piso de plausibilidad contra contaminación de módulos de otras fechas
+    if piso:
+        if api_min and api_min < piso:
+            det["api_descartado"] = (f"api_min {api_min} < piso {piso:.0f} "
+                                     f"(tarifa de módulo de otras fechas)")
+            api_min = None
+        if dom_min and dom_min < piso:
+            det["dom_descartado"] = f"dom_min {dom_min} < piso {piso:.0f}"
+            dom_min = None
 
-    # 2) grilla de fechas de la propia OTA para la fecha consultada
+    # 1) grilla de la propia OTA para la fecha consultada (máxima verificabilidad)
     if grid_date:
         det["base"] = "grid"
         return grid_date, "grid", det
 
-    # 3) DOM del listado, PERO validado: el mínimo debe ser coherente con la grilla
-    #    de vecinos (si está >15% por debajo de TODA la grilla, es un módulo
-    #    promocional/otra fecha contaminando → se descarta).
+    # 2) API interna de ESTA búsqueda, ya validada contra el piso
+    if api_min:
+        det["base"] = "api"
+        return api_min, "api", det
+
+    # 3) DOM del listado, PERO validado: coherente con la grilla de vecinos
+    #    (si está >15% por debajo de TODA la grilla, es un módulo promocional
+    #    contaminando → se descarta).
     if dom_min and grid_min and len(cal) >= 4:
         if dom_min >= 0.85 * grid_min:
             det["base"] = "dom_validado"
@@ -207,11 +226,20 @@ def decide_price(api_vals, dom_vals, cal, fecha, log, name, tag):
         det["base"] = "dom_sin_grilla"
         return dom_min, "dom_sin_grilla", det
 
+    # 5) vecinos de grilla: el mínimo de la grilla ES un precio real de una fecha
+    #    real vecina (clickedPrice de la propia OTA); publicarlo como referencia
+    #    honesta en vez de quedarnos sin dato, dejando fecha auditada.
+    if grid_min:
+        vecina = next((c["fecha"] for c in sorted(cal, key=lambda c: c["clp"]) if c.get("fecha")), None)
+        det["base"] = "grid_vecinos"
+        det["fecha_vecina"] = vecina
+        return grid_min, "grid_vecinos", det
+
     det["base"] = "sin_dato"
     return None, "sin_dato", det
 
 
-def scan_site(pg, name, log, capture):
+def scan_site(pg, name, log, capture, piso_fn=None):
     dias = []
     for o, d, fecha in FAL_DATES:
         url = f"https://www.{name}/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
@@ -288,7 +316,10 @@ def scan_site(pg, name, log, capture):
             if api_vals:
                 log(f"{name} {o}->{d} {fecha}: API capture {len(capture.bodies)} resp, "
                     f"{len(api_vals)} tarifas, min ${min(api_vals):,}")
-            mejor, base, det = decide_price(api_vals, precios, cal, fecha, log, name, f"{o}{d}")
+            piso = piso_fn(o, d, fecha) if piso_fn else None
+            if piso:
+                log(f"{name} {o}->{d} {fecha}: piso plausibilidad ${piso:,} (aerolíneas)")
+            mejor, base, det = decide_price(api_vals, precios, cal, fecha, log, name, f"{o}{d}", piso=piso)
 
             dias.append({"sentido": f"{o}-{d}", "fecha": fecha, "status": status,
                          "min_clp": mejor, "base": base, "calendario": cal[:24],
@@ -362,7 +393,7 @@ def scan_cocha(pg, ventanas, log):
     return res
 
 
-def fetch_otas(log=print, cocha_ventanas=None):
+def fetch_otas(log=print, cocha_ventanas=None, piso_fn=None):
     """Escanea Falabella y Despegar en una sola sesión Camoufox (cookies DataDome calientes).
 
     Si OTA_PROXY está seteado (por warp_boot.sh), sale por WARP y activa geoip
@@ -383,9 +414,9 @@ def fetch_otas(log=print, cocha_ventanas=None):
             pg.on("response", cap.on_response)
         except Exception:
             log("API capture no disponible (solo DOM+grilla)")
-        out["falabella"] = {"dias": scan_site(pg, "viajesfalabella.cl", log, cap)}
+        out["falabella"] = {"dias": scan_site(pg, "viajesfalabella.cl", log, cap, piso_fn=piso_fn)}
         time.sleep(4)
-        out["despegar"] = {"dias": scan_site(pg, "despegar.cl", log, cap)}
+        out["despegar"] = {"dias": scan_site(pg, "despegar.cl", log, cap, piso_fn=piso_fn)}
         # Cocha al final (página sin DataDome; no interfiere con el flujo DataDome)
         if cocha_ventanas:
             time.sleep(4)
