@@ -124,6 +124,7 @@ jobs:
       - name: publicar si hubo cambios (solo si verificación OK)
         if: always() && steps.verify.outcome == 'success'
         run: |
+          git config core.fileMode false
           git config user.name "arena-bot"
           git config user.email "arena-bot@users.noreply.github.com"
           git add data.json subscribers.enc.json estado_alertas.json
@@ -131,7 +132,7 @@ jobs:
             echo "Sin cambios: no se publica commit."
           else
             git commit -m "refresh $(date -u +%Y-%m-%dT%H:%MZ)"
-            git pull --rebase || true
+            git pull --rebase --autostash || true
             git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
             git push
           fi

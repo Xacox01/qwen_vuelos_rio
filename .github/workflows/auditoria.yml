@@ -28,6 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: git seguro contra carreras con la cadena de refresh
+        run: git config core.fileMode false
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -77,12 +80,17 @@ jobs:
         run: |
           git config user.name "arena-bot"
           git config user.email "arena-bot@users.noreply.github.com"
+          git config core.fileMode false
           git add auditoria.json auditoria_previa.json data.json 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "Sin cambios que publicar."
-          else
+          if ! git diff --cached --quiet; then
             git commit -m "auditoria $(date -u +%Y-%m-%dT%H:%MZ)"
           fi
-          git pull --rebase || true
-          git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
-          git push
+          # la cadena de refresh sube commits cada ~5 min: rebase con autostash
+          # y reintento de push hasta 3 veces
+          for i in 1 2 3; do
+            git pull --rebase --autostash || true
+            git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
+            if git push; then echo "push OK (intento $i)"; break; fi
+            echo "push rechazado (intento $i) — reintento"
+            sleep 8
+          done
