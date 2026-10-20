@@ -364,7 +364,8 @@ footer .flogo b{color:#fff;font-size:1rem}
     <h1 v-else>Buscando los mejores precios…</h1>
     <p class="sub">Comparamos en vivo los precios de JetSMART, SKY, LATAM, Despegar, Viajes Falabella y Cocha para enero y febrero 2027, y te damos enlaces directos a Atrápalo, Turismocity, Decolar, eDreams y Kiwi con tus fechas. Sin registrarte, sin spam: precios reales actualizados automáticamente cada 5 minutos.</p>
 
-    <div class="search" role="search">
+    <div id="aud-chip" hidden></div>
+<div class="search" role="search">
       <div class="sf route">
         <label>Ruta</label>
         <div class="v">Santiago <small>SCL</small>
@@ -966,6 +967,43 @@ createApp({
     }catch(e){ console.error('alertas.cfg', e); }
   }
 }).mount('#app');
+</script>
+
+<style>
+#aud-chip{margin:16px auto 0;max-width:1120px;padding:0 18px}
+#aud-chip details{background:rgba(2,6,23,.38);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:10px 16px;color:#fff;font-size:13.5px;backdrop-filter:blur(6px)}
+#aud-chip summary{cursor:pointer;font-weight:800;display:flex;align-items:center;gap:9px;list-style:none}
+#aud-chip summary::-webkit-details-marker{display:none}
+#aud-chip summary .aud-arrow{margin-left:auto;opacity:.7;font-size:11px}
+.aud-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+.aud-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.12);flex-wrap:wrap}
+.aud-row b{min-width:210px}
+.aud-est{font-weight:800;font-size:11.5px;background:rgba(255,255,255,.16);padding:2px 8px;border-radius:99px}
+.aud-row small{opacity:.82;font-weight:400}
+.aud-ts{display:block;padding-top:8px;opacity:.75}
+</style>
+
+<script>
+(function () {
+  function hace(f) { if (f == null) return "—"; return f < 1 ? Math.round(f * 60) + " min" : (f < 10 ? f.toFixed(1).replace(".", ",") : Math.round(f)) + " h"; }
+  fetch("auditoria.json?v=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (A) {
+    if (!A) return;
+    var el = document.getElementById("aud-chip"); if (!el) return;
+    var t = new Date(String(A.ts || "").replace(" ", "T") + "Z").getTime();
+    var hrs = isNaN(t) ? null : (Date.now() - t) / 3.6e6;
+    var col = A.fallos > 0 ? "#f87171" : (A.alertas > 0 ? "#fbbf24" : "#34d399");
+    var rows = "";
+    (A.modulos || []).forEach(function (m) {
+      rows += '<div class="aud-row"><span class="aud-dot" style="background:' + m.color + '"></span><b>' + m.nombre + '</b><span class="aud-est">' + m.estado + '</span><small>' + (m.detalle || "") + '</small></div>';
+    });
+    var s = A.sitio || {};
+    if (s.verify_js) {
+      rows += '<div class="aud-row"><span class="aud-dot" style="background:' + (String(s.verify_js).indexOf("OK") >= 0 ? "#34d399" : "#f87171") + '"></span><b>Funcional del sitio</b><span class="aud-est">CHECK</span><small>' + s.verify_js + (s.test_tiles ? " · " + s.test_tiles : "") + '</small></div>';
+    }
+    el.innerHTML = '<details><summary><span class="aud-dot" style="background:' + col + '"></span>Auditoría 4×día: <b>' + A.ok + '/' + A.total + '</b>&nbsp;módulos verificados OK · última revisión hace ' + hace(hrs) + '<span class="aud-arrow">▼ detalle</span></summary>' + rows + '<small class="aud-ts">Última auditoría: ' + (A.ts_stgo || A.ts) + ' (Santiago) · corridas diarias a las 10:30, 14:30, 18:30 y 21:30 · los precios se re-capturan en vivo y se comparan con lo publicado</small></details>';
+    el.hidden = false;
+  }).catch(function () {});
+})();
 </script>
 </body>
 </html>

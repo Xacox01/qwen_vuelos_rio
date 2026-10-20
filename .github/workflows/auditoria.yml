@@ -1,0 +1,88 @@
+name: auditoria-modulos
+
+# REVISIÓN COMPLETA DE TODOS LOS MÓDULOS, 4 VECES AL DÍA (hora de Santiago):
+# 10:30, 14:30, 18:30 y 21:30 — determina que los precios publicados son REALES
+# (muestra viva re-capturada y comparada) y que TODOS los módulos del sitio son
+# funcionales (verify.js + test_tiles.js + inventario data.json).
+# Auto-reparación: corrige playas divergentes en vivo y fuerza recaptura completa
+# si un módulo está congelado. Publica auditoria.json (insignia visible en el sitio).
+on:
+  schedule:
+    - cron: "30 13 * * *"   # 10:30 Santiago (verano UTC-3)
+    - cron: "30 17 * * *"   # 14:30 Santiago
+    - cron: "30 21 * * *"   # 18:30 Santiago
+    - cron: "30 0  * * *"   # 21:30 Santiago
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auditoria
+  cancel-in-progress: false
+
+jobs:
+  auditoria:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.warp
+          key: warp-device-v1
+
+      - name: dependencias
+        run: pip install -q curl_cffi cryptography
+
+      - name: activar WARP (Cocha/LATAM rechazan IPs de datacenter)
+        run: |
+          chmod +x warp_boot.sh
+          timeout 260 bash warp_boot.sh || echo "::warning::WARP no disponible — muestras vivas pueden quedar NO VERIFICABLE"
+          echo "WARP_OK=${WARP_OK:-0}"
+
+      - name: ejecutar auditoría de módulos
+        run: python3 auditoria.py
+
+      - name: resumen en Actions
+        if: always()
+        run: |
+          if [ -f auditoria.json ]; then
+            python3 - <<'PYEOF'
+          import json
+          A = json.load(open("auditoria.json"))
+          print(f"## 🔍 Auditoría de módulos n°{A.get('n')} — {A.get('ts_stgo','')} (Santiago)")
+          print(f"**{A.get('resumen','')}**\n")
+          print("| Módulo | Estado | Frescura | Detalle |")
+          print("|---|---|---|---|")
+          for m in A.get("modulos", []):
+              print(f"| {m['nombre']} | {m['estado']} | {m.get('frescura_h') if m.get('frescura_h') is not None else '—'} h | {m.get('detalle','')[:90]} |")
+          for m in A.get("modulos", []):
+              for x in (m.get("muestra") or []):
+                  print(f"> {x.get('cod')}: pub ${x.get('pub',0):,} · vivo ${x.get('vivo',0):,} · **{x.get('veredicto')}**" if x.get('vivo') else f"> {x.get('cod')}: {x.get('veredicto')} {x.get('nota','')}")
+          s = A.get("sitio") or {}
+          print(f"\n⚙️ Sitio: verify.js {s.get('verify_js','—')}" + (f" · test_tiles {s.get('test_tiles','—')}" if s.get('test_tiles') else ""))
+          PYEOF
+          else
+            echo "::error::auditoria.json no se generó — revisar paso anterior"
+          fi
+
+      - name: publicar reporte de auditoría (insignia en el sitio)
+        if: always()
+        run: |
+          git config user.name "arena-bot"
+          git config user.email "arena-bot@users.noreply.github.com"
+          git add auditoria.json auditoria_previa.json data.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Sin cambios que publicar."
+          else
+            git commit -m "auditoria $(date -u +%Y-%m-%dT%H:%MZ)"
+          fi
+          git pull --rebase || true
+          git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push

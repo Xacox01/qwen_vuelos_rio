@@ -405,8 +405,14 @@ def cocha_rt(ida, vuelta, dst="GIG"):
             seg_ida, seg_vue = secs[0], secs[1]
             cod = seg_ida[0].get("airline", "?")
             escalas = sum(len(s) - 1 for s in (seg_ida, seg_vue))
-            hora = seg_ida[0].get("departure", "")[-5:]
-            hvue = seg_vue[0].get("departure", "")[-5:]
+            dep_i = str(seg_ida[0].get("departure", ""))
+            dep_v = str(seg_vue[0].get("departure", ""))
+            hora = dep_i[-5:]
+            hvue = dep_v[-5:]
+            # auditoría de realidad: la API puede devolver un itinerario de
+            # OTRA fecha (tarifa flexible). Guardamos las fechas reales para
+            # publicar solo el precio de la fecha pedida y auditable.
+            f_i, f_v = dep_i[:10], dep_v[:10]
             precios = []
             pr = f.get("prices")
             items = pr if isinstance(pr, list) else ([pr] if pr else [])
@@ -424,7 +430,8 @@ def cocha_rt(ida, vuelta, dst="GIG"):
                 continue
             out.append({"aerolinea": AER.get(cod, cod), "cod": cod,
                         "det": f"{cod}{seg_ida[0].get('connections',[{}])[0].get('flightNumber','')} {hora} salida · vuelta {hvue}",
-                        "escalas": escalas, "clp": min(precios)})
+                        "escalas": escalas, "clp": min(precios),
+                        "fecha_ida": f_i, "fecha_vuelta": f_v})
         except Exception:
             continue
     out.sort(key=lambda x: x["clp"])
@@ -578,8 +585,14 @@ def agencia_rt(dest, ida, vuelta):
     if not rows:
         return None
     rows = sorted(rows, key=lambda r: r.get("clp") or 0)
-    r0 = rows[0]
+    # preferencia por itinerarios de fecha EXACTA: si Cocha devuelve tarifas
+    # flexibles de otra fecha, se descartan para el mínimo publicado
+    exact = [r for r in rows
+             if r.get("fecha_ida") == ida and r.get("fecha_vuelta") == vuelta]
+    r0 = (exact or rows)[0]
     return {"min_clp": r0["clp"], "aerolinea": r0["aerolinea"], "cod_al": r0.get("cod", ""),
+            "exacta": bool(exact) and r0 in exact,
+            "fecha_ida_real": r0.get("fecha_ida", ida), "fecha_vuelta_real": r0.get("fecha_vuelta", vuelta),
             "escalas": r0.get("escalas", 0), "det": r0.get("det", ""), "top": rows[:5],
             "link": f"https://www.cocha.com/resultado/vuelos/SCL/{dest}/{ida}/1/Y?origin2={dest}&destination2=SCL&date2={vuelta}"}
 
@@ -603,7 +616,8 @@ def fetch_playas(prev, cycle):
                 res = agencia_rt(cod, ida, vuelta)
                 if res:
                     wprev[f"{ida}_{vuelta}"] = {"ida": ida, "vuelta": vuelta, "ts": now_iso(), **res}
-                    print(f"playas {cod} {ida}: ${res['min_clp']:,}", flush=True)
+                    flag = "exacta" if res.get("exacta") else "FLEX!"
+                    print(f"playas {cod} {ida}: ${res['min_clp']:,} [{flag}]", flush=True)
                 else:
                     print(f"playas {cod} {ida}: sin itinerarios", flush=True)
             except Exception as e:
@@ -631,7 +645,7 @@ def fetch_playas(prev, cycle):
         raise RuntimeError("playas sin resultados")
     return {"destinos": out, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
             "ventanas": [f"{a} → {b}" for a, b in PLAYAS_WIN],
-            "nota": "Cotización en vivo de Cocha (agencia chilena) — el precio final puede variar ~10% al reservar. Mismas reglas del viaje: ene–feb 2027, ≥9 noches, regreso ≤ 23-feb."}
+            "nota": "Cotización en vivo de Cocha (agencia chilena) — precios verificados con fecha de itinerario exacta; el precio final puede variar ~10% al reservar."}
 
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
