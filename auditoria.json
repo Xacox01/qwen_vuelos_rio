@@ -1,10 +1,10 @@
 {
- "ts": "2026-10-21 18:09:13",
- "ts_stgo": "2026-10-21 15:09:13",
- "n": 5,
+ "ts": "2026-10-21 20:49:44",
+ "ts_stgo": "2026-10-21 17:49:44",
+ "n": 6,
  "total": 16,
- "ok": 12,
- "alertas": 3,
+ "ok": 9,
+ "alertas": 6,
  "fallos": 1,
  "modulos": [
   {
@@ -12,8 +12,8 @@
    "nombre": "Vuelos JetSMART",
    "estado": "ALERTA",
    "color": "#d97706",
-   "frescura_h": 27.5,
-   "detalle": "mínimo $301,650 · 20 registros · fresco 27.5 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "frescura_h": 30.2,
+   "detalle": "mínimo $301,650 · 20 registros · fresco 30.2 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
@@ -21,8 +21,8 @@
    "nombre": "Vuelos SKY",
    "estado": "ALERTA",
    "color": "#d97706",
-   "frescura_h": 27.5,
-   "detalle": "mínimo $312,823.0 · 43 registros · fresco 27.5 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "frescura_h": 30.2,
+   "detalle": "mínimo $312,823.0 · 43 registros · fresco 30.2 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
@@ -30,35 +30,35 @@
    "nombre": "Vuelos LATAM",
    "estado": "ALERTA",
    "color": "#d97706",
-   "frescura_h": 27.5,
-   "detalle": "mínimo $450,649 · 20 registros · fresco 27.5 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "frescura_h": 30.2,
+   "detalle": "mínimo $450,649 · 20 registros · fresco 30.2 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
    "id": "vuelos-cocha",
    "nombre": "Vuelos Cocha",
-   "estado": "OK",
-   "color": "#10b981",
-   "frescura_h": 27.5,
-   "detalle": "mínimo $332,534 · 3 registros · fresco 27.5 h (límite 30 h)",
+   "estado": "ALERTA",
+   "color": "#d97706",
+   "frescura_h": 30.1,
+   "detalle": "mínimo $332,534 · 3 registros · fresco 30.1 h (límite 30 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
    "id": "vuelos-despegar",
    "nombre": "Vuelos Despegar",
-   "estado": "OK",
-   "color": "#10b981",
-   "frescura_h": 27.5,
-   "detalle": "mínimo $157,316 · 2 registros · fresco 27.5 h (límite 30 h)",
+   "estado": "ALERTA",
+   "color": "#d97706",
+   "frescura_h": 30.2,
+   "detalle": "mínimo $157,316 · 2 registros · fresco 30.2 h (límite 30 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
    "id": "vuelos-falabella",
    "nombre": "Vuelos Viajes Falabella",
-   "estado": "OK",
-   "color": "#10b981",
-   "frescura_h": 27.5,
-   "detalle": "mínimo $157,316 · 2 registros · fresco 27.5 h (límite 30 h)",
+   "estado": "ALERTA",
+   "color": "#d97706",
+   "frescura_h": 30.2,
+   "detalle": "mínimo $157,316 · 2 registros · fresco 30.2 h (límite 30 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
@@ -73,78 +73,87 @@
   {
    "id": "playas",
    "nombre": "Playas del extranjero",
-   "estado": "CORREGIDO",
+   "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 18.1,
-   "detalle": "16 destinos · 16 con precio · mínimo $273,850 · ventanas exactas 30/flex 0 · fresco 18.1 h · CORREGIDOS EN VIVO: CUN,GIG (exactas 30, flex 0)",
+   "frescura_h": 2.7,
+   "detalle": "16 destinos · 16 con precio · mínimo $273,850 · ventanas exactas 30/flex 0 · fresco 2.7 h · muestra viva verificada 6/6 (exactas 30, flex 0)",
    "muestra": [
     {
-     "cod": "CUN",
+     "cod": "SSA",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 1066644,
-     "vivo": 894855,
-     "diff_pct": 16.1,
+     "pub": 528153,
+     "vivo": 523002,
+     "diff_pct": 1.0,
      "exacta": true,
      "aerolinea": "LATAM",
-     "veredicto": "CORREGIDO"
-    },
-    {
-     "cod": "LIR",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 1493890,
-     "vivo": 1473352,
-     "diff_pct": 1.4,
-     "exacta": true,
-     "aerolinea": "AA",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "FLN",
-     "ida": "2027-01-10",
-     "vuelta": "2027-01-20",
-     "pub": 273850,
-     "vivo": 272853,
+     "cod": "BPS",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 564974,
+     "vivo": 562840,
      "diff_pct": 0.4,
      "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "GIG",
-     "ida": "2027-01-02",
-     "vuelta": "2027-02-01",
-     "pub": 332534,
-     "vivo": 369677,
-     "diff_pct": 11.2,
-     "exacta": true,
-     "aerolinea": "SKY",
-     "veredicto": "CORREGIDO"
-    },
-    {
-     "cod": "CTG",
+     "cod": "FOR",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 452522,
-     "vivo": 438195,
-     "diff_pct": 3.2,
+     "pub": 611620,
+     "vivo": 651846,
+     "diff_pct": 6.6,
      "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "REC",
+     "cod": "ADZ",
+     "ida": "2027-01-10",
+     "vuelta": "2027-01-20",
+     "pub": 615388,
+     "vivo": 612990,
+     "diff_pct": 0.4,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "SJO",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 507494,
-     "vivo": 517577,
-     "diff_pct": 2.0,
+     "pub": 619596,
+     "vivo": 626767,
+     "diff_pct": 1.2,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "MCZ",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 626848,
+     "vivo": 633055,
+     "diff_pct": 1.0,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-jetsmart",
+   "nombre": "Muestra viva JetSMART",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $301,650 ≈ vivo $271,088 (10.1%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-sky",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-latam",
-   "nombre": "Muestra viva LATAM",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $450,649 ≈ vivo $448,883 (0.4%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 29.3,
-   "detalle": "49 cupones vigentes · fresco 29.3 h",
+   "frescura_h": 32.0,
+   "detalle": "49 cupones vigentes · fresco 32.0 h",
    "muestra": []
   },
   {
@@ -222,5 +222,5 @@
  "sitio": {
   "verify_js": "FALLA: 142/143 checks OK — 1 FALLOS"
  },
- "resumen": "12/16 módulos OK · 3 alertas · 1 fallos"
+ "resumen": "9/16 módulos OK · 6 alertas · 1 fallos"
 }
