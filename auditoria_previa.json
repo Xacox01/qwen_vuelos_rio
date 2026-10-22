@@ -1,6 +1,6 @@
 {
- "n": 9,
- "ts": "2026-10-22 18:03:59",
+ "n": 10,
+ "ts": "2026-10-22 20:43:38",
  "hashes": {
   "vuelos-jetsmart": "53df5e0c9c9a",
   "vuelos-sky": "38116e50fdc4",
@@ -11,5 +11,5 @@
   "playas": "c2ffda11d9a1",
   "cupones": "03c2cd309e95"
  },
- "congelado_streak": 0
+ "congelado_streak": 1
 }
