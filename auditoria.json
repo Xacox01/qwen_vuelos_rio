@@ -1,9 +1,9 @@
 {
- "ts": "2026-10-23 02:27:15",
- "ts_stgo": "2026-10-22 23:27:15",
- "n": 12,
- "total": 16,
- "ok": 16,
+ "ts": "2026-10-23 05:07:10",
+ "ts_stgo": "2026-10-23 02:07:10",
+ "n": 13,
+ "total": 17,
+ "ok": 17,
  "alertas": 0,
  "fallos": 0,
  "modulos": [
@@ -22,7 +22,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.1,
-   "detalle": "mínimo $365,498.0 · 16 registros · fresco 0.1 h (límite 26 h)",
+   "detalle": "mínimo $417,812.0 · 13 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $309,738 · 3 registros · fresco 0.2 h (límite 30 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $347,747 · 5 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -48,8 +48,8 @@
    "nombre": "Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $160,375 · 2 registros · fresco 0.2 h (límite 30 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $135,813 · 4 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -57,8 +57,8 @@
    "nombre": "Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $160,375 · 2 registros · fresco 0.2 h (límite 30 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $135,813 · 4 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -67,7 +67,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "diferencia 0% ($160,375 vs $160,375) — coherentes",
+   "detalle": "diferencia 0% ($135,813 vs $135,813) — coherentes",
    "muestra": []
   },
   {
@@ -75,76 +75,85 @@
    "nombre": "Playas del extranjero",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.0,
-   "detalle": "16 destinos · 16 con precio · mínimo $272,484 · ventanas exactas 30/flex 0 · fresco 0.0 h · muestra viva verificada 6/6 (exactas 30, flex 0)",
+   "frescura_h": 0.1,
+   "detalle": "16 destinos · 16 con precio · mínimo $271,866 · ventanas exactas 66/flex 0 · cruce 4/16 (1 mixtos) · fresco 0.1 h · muestra viva verificada 6/6 (exactas 66, flex 0)",
    "muestra": [
     {
-     "cod": "MCZ",
+     "cod": "CUN",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 632089,
-     "vivo": 632089,
-     "diff_pct": 0.0,
+     "pub": 907630,
+     "vivo": 909742,
+     "diff_pct": 0.2,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "FOR",
+     "cod": "LIR",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 636594,
-     "vivo": 636594,
-     "diff_pct": 0.0,
+     "pub": 1470349,
+     "vivo": 1467343,
+     "diff_pct": 0.2,
      "exacta": true,
-     "aerolinea": "LATAM",
+     "aerolinea": "AA",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "NAT",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 651548,
-     "vivo": 651548,
+     "cod": "FLN",
+     "ida": "2027-01-29",
+     "vuelta": "2027-02-08",
+     "pub": 271866,
+     "vivo": 271866,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "LATAM",
+     "aerolinea": "JetSMART",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "PUJ",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 697247,
-     "vivo": 697247,
+     "cod": "GIG",
+     "ida": "2027-02-05",
+     "vuelta": "2027-02-19",
+     "pub": 347747,
+     "vivo": 347747,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "SKY",
+     "aerolinea": "JetSMART",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "PTY",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 701322,
-     "vivo": 701322,
+     "cod": "REC",
+     "ida": "2027-02-05",
+     "vuelta": "2027-02-19",
+     "pub": 415896,
+     "vivo": 415896,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "Copa",
+     "aerolinea": "JetSMART",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "HAV",
+     "cod": "CTG",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 758037,
-     "vivo": 758037,
-     "diff_pct": 0.0,
+     "pub": 463269,
+     "vivo": 462323,
+     "diff_pct": 0.2,
      "exacta": true,
-     "aerolinea": "Copa",
+     "aerolinea": "JetSMART",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-latam",
+   "nombre": "Muestra viva LATAM",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $448,072 ≈ vivo $448,072 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-jetsmart",
@@ -156,21 +165,21 @@
    "muestra": []
   },
   {
-   "id": "viva-sky",
-   "nombre": "Muestra viva SKY",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $365,498.0 ≈ vivo $365,498.0 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
+   "frescura_h": 2.0,
+   "detalle": "53 cupones vigentes · fresco 2.0 h",
+   "muestra": []
+  },
+  {
+   "id": "combos",
+   "nombre": "Motor de combinaciones",
+   "estado": "OK",
+   "color": "#10b981",
    "frescura_h": 0.1,
-   "detalle": "45 cupones vigentes · fresco 0.1 h",
+   "detalle": "1971 pares · mejor $270,506 (JetSMART vuelo JA762 04:46 + JetSMART vuelo JA753 10:45) · fresco 0.1 h",
    "muestra": []
   },
   {
@@ -188,7 +197,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "20 series activas",
+   "detalle": "24 series activas",
    "muestra": []
   },
   {
@@ -215,12 +224,12 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "verify.js OK · 143/143 checks OK",
+   "detalle": "verify.js OK · 156/156 checks OK",
    "muestra": []
   }
  ],
  "sitio": {
-  "verify_js": "OK · 143/143 checks OK"
+  "verify_js": "OK · 156/156 checks OK"
  },
- "resumen": "16/16 módulos OK"
+ "resumen": "17/17 módulos OK"
 }
