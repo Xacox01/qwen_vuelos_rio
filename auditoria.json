@@ -1,64 +1,64 @@
 {
- "ts": "2026-10-23 00:05:10",
- "ts_stgo": "2026-10-22 21:05:10",
- "n": 11,
+ "ts": "2026-10-23 02:27:15",
+ "ts_stgo": "2026-10-22 23:27:15",
+ "n": 12,
  "total": 16,
- "ok": 8,
- "alertas": 7,
- "fallos": 1,
+ "ok": 16,
+ "alertas": 0,
+ "fallos": 0,
  "modulos": [
   {
    "id": "vuelos-jetsmart",
    "nombre": "Vuelos JetSMART",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": 57.5,
-   "detalle": "mínimo $301,650 · 20 registros · fresco 2.4 días (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.1,
+   "detalle": "mínimo $270,506 · 20 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-sky",
    "nombre": "Vuelos SKY",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": 57.5,
-   "detalle": "mínimo $312,823.0 · 43 registros · fresco 2.4 días (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.1,
+   "detalle": "mínimo $365,498.0 · 16 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-latam",
    "nombre": "Vuelos LATAM",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": 57.4,
-   "detalle": "mínimo $450,649 · 20 registros · fresco 2.4 días (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.1,
+   "detalle": "mínimo $448,072 · 20 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-cocha",
    "nombre": "Vuelos Cocha",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": 57.4,
-   "detalle": "mínimo $332,534 · 3 registros · fresco 2.4 días (límite 30 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $309,738 · 3 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
    "id": "vuelos-despegar",
    "nombre": "Vuelos Despegar",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": 57.4,
-   "detalle": "mínimo $157,316 · 2 registros · fresco 2.4 días (límite 30 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $160,375 · 2 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
    "id": "vuelos-falabella",
    "nombre": "Vuelos Viajes Falabella",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": 57.4,
-   "detalle": "mínimo $157,316 · 2 registros · fresco 2.4 días (límite 30 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $160,375 · 2 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -67,7 +67,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "diferencia 0% ($157,316 vs $157,316) — coherentes",
+   "detalle": "diferencia 0% ($160,375 vs $160,375) — coherentes",
    "muestra": []
   },
   {
@@ -75,49 +75,16 @@
    "nombre": "Playas del extranjero",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 19.0,
-   "detalle": "16 destinos · 16 con precio · mínimo $273,850 · ventanas exactas 30/flex 0 · fresco 19.0 h · muestra viva verificada 6/6 (exactas 30, flex 0)",
+   "frescura_h": 0.0,
+   "detalle": "16 destinos · 16 con precio · mínimo $272,484 · ventanas exactas 30/flex 0 · fresco 0.0 h · muestra viva verificada 6/6 (exactas 30, flex 0)",
    "muestra": [
     {
-     "cod": "CTG",
+     "cod": "MCZ",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 452522,
-     "vivo": 463269,
-     "diff_pct": 2.4,
-     "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "REC",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 507494,
-     "vivo": 539413,
-     "diff_pct": 6.3,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "SSA",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 528153,
-     "vivo": 523277,
-     "diff_pct": 0.9,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "BPS",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 564974,
-     "vivo": 561954,
-     "diff_pct": 0.5,
+     "pub": 632089,
+     "vivo": 632089,
+     "diff_pct": 0.0,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
@@ -126,42 +93,75 @@
      "cod": "FOR",
      "ida": "2027-01-22",
      "vuelta": "2027-02-01",
-     "pub": 611620,
+     "pub": 636594,
      "vivo": 636594,
-     "diff_pct": 4.1,
+     "diff_pct": 0.0,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "ADZ",
-     "ida": "2027-01-10",
-     "vuelta": "2027-01-20",
-     "pub": 615388,
-     "vivo": 611700,
-     "diff_pct": 0.6,
+     "cod": "NAT",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 651548,
+     "vivo": 651548,
+     "diff_pct": 0.0,
      "exacta": true,
      "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "PUJ",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 697247,
+     "vivo": 697247,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "SKY",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "PTY",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 701322,
+     "vivo": 701322,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "HAV",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 758037,
+     "vivo": 758037,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
      "veredicto": "VERIFICADO"
     }
    ]
   },
   {
-   "id": "viva-sky",
-   "nombre": "Muestra viva SKY",
-   "estado": "ALERTA",
-   "color": "#d97706",
-   "frescura_h": null,
-   "detalle": "publicado $312,823.0 vs vivo $365,498.0 (17%) — desactualizado; el próximo refresh de la cadena lo corrige",
-   "muestra": []
-  },
-  {
-   "id": "viva-latam",
-   "nombre": "Muestra viva LATAM",
+   "id": "viva-jetsmart",
+   "nombre": "Muestra viva JetSMART",
    "estado": "VERIFICADO",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "publicado $450,649 ≈ vivo $448,072 (0.6%) — el precio publicado es REAL",
+   "detalle": "publicado $270,506 ≈ vivo $270,506 (0.0%) — el precio publicado es REAL",
+   "muestra": []
+  },
+  {
+   "id": "viva-sky",
+   "nombre": "Muestra viva SKY",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $365,498.0 ≈ vivo $365,498.0 (0.0%) — el precio publicado es REAL",
    "muestra": []
   },
   {
@@ -169,8 +169,8 @@
    "nombre": "Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 59.3,
-   "detalle": "49 cupones vigentes · fresco 2.5 días",
+   "frescura_h": 0.1,
+   "detalle": "45 cupones vigentes · fresco 0.1 h",
    "muestra": []
   },
   {
@@ -179,7 +179,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "fecha 2026-10-19 · series 20",
+   "detalle": "fecha 2026-10-22 · series 20",
    "muestra": []
   },
   {
@@ -212,15 +212,15 @@
   {
    "id": "sitio",
    "nombre": "Funcional del sitio (arneses de regresión)",
-   "estado": "FALLA",
-   "color": "#dc2626",
+   "estado": "OK",
+   "color": "#10b981",
    "frescura_h": null,
-   "detalle": "verify.js FALLA: 142/143 checks OK — 1 FALLOS",
+   "detalle": "verify.js OK · 143/143 checks OK",
    "muestra": []
   }
  ],
  "sitio": {
-  "verify_js": "FALLA: 142/143 checks OK — 1 FALLOS"
+  "verify_js": "OK · 143/143 checks OK"
  },
- "resumen": "8/16 módulos OK · 7 alertas · 1 fallos"
+ "resumen": "16/16 módulos OK"
 }
