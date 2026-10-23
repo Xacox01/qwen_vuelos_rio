@@ -15,6 +15,16 @@ JS_AVAIL = "https://origin.jsrtff.it.jetsm.art/availability/plain"
 WIN_LO, WIN_HI = "2027-01-01", "2027-02-28"
 RET_LIMIT = "2027-02-23"
 CARNAVAL = ("2027-02-04", "2027-02-13")
+# FASE 2 (Task 22): la API de disponibilidad de JetSMART devuelve tramos de TODA
+# la red — hoy solo se leía SCL↔GIG y el resto se descartaba. Capturamos también
+# los destinos de playa (FLN viene gratis en la misma respuesta; los demás se
+# cubren con Cocha oneway rotativo).
+PLAYAS_TRAMOS = ("FLN", "SSA", "REC", "FOR", "MCZ", "NAT", "BPS", "CTG",
+                 "ADZ", "PUJ", "CUN", "HAV", "LIR", "SJO", "PTY")
+TRAMO_LO, TRAMO_HI = "2026-12-01", "2027-03-31"
+AL_NOMBRE = {"JA": "JetSMART", "LA": "LATAM", "H2": "SKY", "G3": "GOL",
+             "AR": "Aerolíneas Argentinas", "AV": "Avianca", "CM": "Copa",
+             "AM": "Aeroméxico", "IB": "Iberia"}
 
 try:
     from curl_cffi import requests as cr
@@ -32,39 +42,52 @@ def fetch_jetsmart():
     r.raise_for_status()
     data = r.json()
     recs = data.get("availability", data) if isinstance(data, dict) else data
-    idas, vues = {}, {}
+    idas, vues, tramos = {}, {}, {}
     for rec in recs:
         for leg in (rec, rec.get("rfb")):
             if not isinstance(leg, dict) or leg.get("ft") != "internacional":
                 continue
             dep, arr = leg.get("dep"), leg.get("arr")
-            if (dep, arr) not in (("SCL", "GIG"), ("GIG", "SCL")):
-                continue
             dt = leg.get("date", "")
             fecha, hora = dt[:10], dt[11:16]
-            if not (WIN_LO <= fecha <= "2027-03-05"):
-                continue
-            vuelo = "JA" + str(leg.get("fn", ""))
-            clp = (leg.get("pi") or {}).get("clp")
-            bucket = leg.get("c", "?")
-            if not clp:
-                continue
-            tgt = idas if (dep, arr) == ("SCL", "GIG") else vues
-            key = (fecha, vuelo, hora)
-            if key in tgt:
-                if clp < tgt[key]["clp"]:
-                    tgt[key]["clp"] = clp
-                tgt[key]["bk"].append([clp, int(leg.get("s", 0) or 0), bucket])
-            else:
-                tgt[key] = {"fecha": fecha, "vuelo": vuelo, "hora": hora,
-                            "clp": clp, "buckets": [bucket],
-                            "bk": [[clp, int(leg.get("s", 0) or 0), bucket]]}
+            if (dep, arr) in (("SCL", "GIG"), ("GIG", "SCL")):
+                if not (WIN_LO <= fecha <= "2027-03-05"):
+                    continue
+                vuelo = "JA" + str(leg.get("fn", ""))
+                clp = (leg.get("pi") or {}).get("clp")
+                bucket = leg.get("c", "?")
+                if not clp:
+                    continue
+                tgt = idas if (dep, arr) == ("SCL", "GIG") else vues
+                key = (fecha, vuelo, hora)
+                if key in tgt:
+                    if clp < tgt[key]["clp"]:
+                        tgt[key]["clp"] = clp
+                    tgt[key]["bk"].append([clp, int(leg.get("s", 0) or 0), bucket])
+                else:
+                    tgt[key] = {"fecha": fecha, "vuelo": vuelo, "hora": hora,
+                                "clp": clp, "buckets": [bucket],
+                                "bk": [[clp, int(leg.get("s", 0) or 0), bucket]]}
+            elif "SCL" in (dep, arr):
+                # FASE 2: tramos one-way de playa en la MISMA respuesta — gratis.
+                otro = arr if dep == "SCL" else dep
+                if otro in PLAYAS_TRAMOS and TRAMO_LO <= fecha <= TRAMO_HI:
+                    clp_t = (leg.get("pi") or {}).get("clp")
+                    if clp_t:
+                        t = tramos.setdefault(otro, {}).setdefault(
+                            "idas" if dep == "SCL" else "vueltas", {})
+                        k2 = (fecha, "JA" + str(leg.get("fn", "")))
+                        if k2 not in t or clp_t < t[k2]["clp"]:
+                            t[k2] = {"fecha": fecha, "vuelo": "JA" + str(leg.get("fn", "")),
+                                     "hora": hora, "clp": clp_t}
     def flat(d):
         for v in d.values():
             v["bk"].sort(key=lambda b: b[0])
         return sorted(d.values(), key=lambda x: (x["fecha"], x["hora"]))
     I, V = flat(idas), flat(vues)
-    return {"idas": I, "vueltas": V,
+    T = {cod: {k: sorted(vv.values(), key=lambda x: (x["fecha"], x["hora"]))
+               for k, vv in dd.items()} for cod, dd in tramos.items()}
+    return {"idas": I, "vueltas": V, "tramos": T,
             "combos": best_combos(I, V, 1),
             "combos_by_pax": {str(n): best_combos(I, V, n) for n in (1, 2, 4, 5, 9)},
             "secs": round(time.time() - t0, 1), "n_records": len(recs)}
@@ -371,14 +394,12 @@ def cocha_sess():
     _cocha_sess_cache["sess"] = None
     return None
 
-def cocha_rt(ida, vuelta, dst="GIG"):
+def _cocha_post(variables):
+    """POST GraphQL a Cocha con la ruta WARP→directo y reintentos (compartido por
+    roundtrip y oneway). Respeta el espaciado global _cocha_last (2.5 s)."""
     gap = time.time() - _cocha_last[0]
     if gap < 2.5:
         time.sleep(2.5 - gap)
-    variables = {"channel": "B2C", "searchType": "roundtrip", "cabinType": "Y",
-                 "itinerary": [{"origin": "SCL", "destination": dst, "date": ida},
-                               {"origin": dst, "destination": "SCL", "date": vuelta}],
-                 "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5}
     # intento 1 por WARP (IP consumidor, pasa el WAF), intento 2 directo
     rutas = []
     _w = cocha_sess()
@@ -398,7 +419,7 @@ def cocha_rt(ida, vuelta, dst="GIG"):
         except Exception as e:
             last_err = e
             r = None
-            print(f"cocha {dst}: {str(e)[:120]} [{nombre}] — cambio de ruta", flush=True)
+            print(f"cocha {variables['itinerary'][0]['destination']}: {str(e)[:120]} [{nombre}] — cambio de ruta", flush=True)
             if "429" in str(e):
                 time.sleep(20)
             else:
@@ -407,6 +428,14 @@ def cocha_rt(ida, vuelta, dst="GIG"):
     if r is None:
         raise last_err or RuntimeError("cocha sin respuesta")
     _cocha_last[0] = time.time()
+    return r
+
+def cocha_rt(ida, vuelta, dst="GIG"):
+    variables = {"channel": "B2C", "searchType": "roundtrip", "cabinType": "Y",
+                 "itinerary": [{"origin": "SCL", "destination": dst, "date": ida},
+                               {"origin": dst, "destination": "SCL", "date": vuelta}],
+                 "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5}
+    r = _cocha_post(variables)
     found = ((r.json().get("data") or {}).get("flightV2") or {}).get("found") or []
     out = []
     for f in found:
@@ -444,6 +473,49 @@ def cocha_rt(ida, vuelta, dst="GIG"):
                         "det": f"{cod}{seg_ida[0].get('connections',[{}])[0].get('flightNumber','')} {hora} salida · vuelta {hvue}",
                         "escalas": escalas, "clp": min(precios),
                         "fecha_ida": f_i, "fecha_vuelta": f_v})
+        except Exception:
+            continue
+    out.sort(key=lambda x: x["clp"])
+    return out
+
+def cocha_ow(o, d, fecha):
+    """FASE 2: one-way SCL→dest (o dest→SCL) vía Cocha. Cocha agrega TODAS las
+    aerolíneas (JA, LA, H2/SKY, G3, AR, AV, CM...), así que un solo scrape da la
+    materia prima para cruzar aerolíneas por destino. Devuelve lista
+    [{aerolinea, cod, clp, det, escalas, fecha_real, hora}] ordenada por precio."""
+    r = _cocha_post({"channel": "B2C", "searchType": "oneway", "cabinType": "Y",
+                     "itinerary": [{"origin": o, "destination": d, "date": fecha}],
+                     "classType": "EC", "fareType": "P", "passengers": "1", "maxStops": 5})
+    found = ((r.json().get("data") or {}).get("flightV2") or {}).get("found") or []
+    out = []
+    for f in found:
+        try:
+            secs = f.get("sections") or []
+            if not secs:
+                continue
+            seg = secs[0]
+            cod = seg[0].get("airline", "?")
+            dep_i = str(seg[0].get("departure", ""))
+            precios = []
+            pr = f.get("prices")
+            items = pr if isinstance(pr, list) else ([pr] if pr else [])
+            for p in items:
+                if not isinstance(p, dict):
+                    continue
+                t = p.get("total")
+                if isinstance(t, (int, float)):
+                    precios.append(t)
+                elif isinstance(t, dict):
+                    c = (t.get("clp") or {}).get("total")
+                    if isinstance(c, (int, float)):
+                        precios.append(c)
+            if not precios:
+                continue
+            out.append({"aerolinea": AER.get(cod, cod), "cod": cod,
+                        "clp": min(precios), "escalas": sum(len(s) - 1 for s in secs),
+                        "fecha_real": dep_i[:10], "hora": dep_i[-5:],
+                        "det": (f"{cod}{seg[0].get('connections',[{}])[0].get('flightNumber','')} "
+                                f"{dep_i[-5:]}").strip()})
         except Exception:
             continue
     out.sort(key=lambda x: x["clp"])
@@ -550,6 +622,8 @@ def signature(live):
         [int(d.get("min_clp") or 0) for d in (de.get("dias") or [])],
         int((co.get("rio") or {}).get("clp") or 0),
         [int((d.get("mejor") or {}).get("clp") or 0) for d in ((F.get("playas") or {}).get("destinos") or [])],
+        [int(((F.get("playas") or {}).get("cruce") or {}).get("destinos", {}).get(d.get("cod") or "", {}).get("mejor", {}).get("clp") or 0)
+         for d in ((F.get("playas") or {}).get("destinos") or [])],
     ])
 
 # ---------------- Dólar observado (usado por playas para fx informativo) ----------------
@@ -628,6 +702,47 @@ def fetch_playas(prev, cycle):
     full = os.environ.get("PLAYAS_FULL") == "1" or not prev_dest
     wins = list(PLAYAS_WIN) if full else [PLAYAS_WIN[cycle % len(PLAYAS_WIN)]]
     fx = usd_clp()
+    # ---- FASE 2: matrices one-way por destino (Cocha oneway, rotativo) ----
+    # Cada ciclo escanea 1-2 destinos (ida + vuelta × 3 fechas); en ~16 ciclos
+    # (~2.5 h) hay grilla one-way completa para los 16. Se acumula el MÍNIMO por
+    # fecha entre ciclos y las fechas ya cubiertas se refrescan de la más vieja.
+    prev_ow = prev.get("one_way") or {}
+    one_way = {k: (dict(v) if isinstance(v, dict) else {}) for k, v in prev_ow.items()}
+    win_starts = [a for a, _b in PLAYAS_WIN]
+    faltantes = [cod for cod, _c, _p, _f in PLAYAS_DEST
+                 if not isinstance(one_way.get(cod), dict) or not one_way[cod].get("SCL-" + cod)]
+    resto = [cod for cod, _c, _p, _f in PLAYAS_DEST if cod not in faltantes]
+    orden_ow = faltantes + resto
+    n_ow = 1 if full else int(os.environ.get("PLAYAS_OW", "2"))
+    for cod in orden_ow[:n_ow]:
+        owc = one_way.setdefault(cod, {})
+        for o, d in (("SCL", cod), (cod, "SCL")):
+            key = f"{o}-{d}"
+            m = owc.setdefault(key, {})
+            falta = [f for f in win_starts if f not in m]
+            if falta:
+                fechas_scan = falta[:3]
+            else:  # todo cubierto: refresca las 3 fechas con ts más antiguo
+                fechas_scan = [f for f, _ in sorted(m.items(),
+                             key=lambda kv: str((kv[1] or {}).get("ts") or ""))[:3]]
+            for fecha in fechas_scan:
+                try:
+                    rows = cocha_ow(o, d, fecha)
+                    exact = [r for r in rows if r.get("fecha_real") == fecha and r.get("clp")]
+                    if exact:
+                        r0 = exact[0]
+                        cand = {"clp": r0["clp"], "al": r0["cod"], "al_nom": r0["aerolinea"],
+                                "det": r0["det"], "escalas": r0["escalas"], "hora": r0["hora"],
+                                "ts": now_iso()}
+                        cur = m.get(fecha)
+                        if (not cur) or cand["clp"] < cur["clp"]:
+                            m[fecha] = cand
+                        print(f"ow {key} {fecha}: ${cand['clp']:,} [{cand['al']}]", flush=True)
+                    else:
+                        print(f"ow {key} {fecha}: sin tarifa fecha exacta", flush=True)
+                except Exception as e:
+                    print(f"ow {key} {fecha} FAIL: {str(e)[:60]}", flush=True)
+        owc["ts"] = now_iso()
     out = []
     for cod, ciudad, pais, flag in PLAYAS_DEST:
         pd = prev_dest.get(cod) or {}
@@ -666,7 +781,11 @@ def fetch_playas(prev, cycle):
     out.sort(key=lambda d: (d["mejor"] is None, (d["mejor"] or {}).get("clp") or 0))
     if not any(d.get("mejor") for d in out):
         raise RuntimeError("playas sin resultados")
-    return {"destinos": out, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
+    n_ow_ok = sum(1 for cod, _c, _p, _f in PLAYAS_DEST
+                  if isinstance(one_way.get(cod), dict) and one_way[cod].get("SCL-" + cod)
+                  and one_way[cod].get(cod + "-SCL"))
+    print(f"playas one-way: {n_ow_ok}/16 destinos con grilla", flush=True)
+    return {"destinos": out, "one_way": one_way, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
             "ventanas": [f"{a} → {b}" for a, b in PLAYAS_WIN],
             "nota": "Cotización en vivo de Cocha (agencia chilena) — precios verificados con fecha de itinerario exacta; el precio final puede variar ~10% al reservar."}
 
@@ -798,6 +917,117 @@ def combo_engine(live):
         "secs": round(time.time() - t0, 1),
     }
 
+# ---- FASE 2: cruce de aerolíneas por destino de playa ----
+def _ow_link_leg(al, o, d, fecha):
+    """Deep link por tramo one-way. JA y LA tienen búsqueda directa; el resto sale
+    por Cocha (que fue la fuente del precio)."""
+    if al == "JA":
+        return (f"https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true"
+                f"&cur=CLP&culture=es-CL&dd1={fecha}&o1={o}&d1={d}")
+    if al == "LA":
+        tag = "outbound" if o == "SCL" else "inbound"
+        return (f"https://www.latam.com/es_cl/book/shopping/flight/search/"
+                f"?from={o}&to={d}&{tag}={fecha}&adults=1")
+    return "https://www.cocha.com/vuelos"
+
+def combos_playas(live):
+    """FASE 2 (pedido del dueño): extender el cruce de aerolíneas a los 16 destinos
+    de playa. Por destino recorre TODAS las tarifas one-way acumuladas (JetSMART
+    directo desde su API de red + Cocha oneway multi-aerolínea) y arma el round
+    trip más barato por par de fechas, incluyendo ida y vuelta en aerolíneas
+    DISTINTAS (2 tickets separados). El RT de Cocha sigue publicado junto: si el
+    pasaje redondo directo es más barato que armarlo por partes, se dice."""
+    t0 = time.time()
+    F = live["fuentes"]
+    tramos = ((F.get("jetsmart") or {}).get("tramos") or {})
+    P = F.get("playas") or {}
+    ow = P.get("one_way") or {}
+    out = {}
+    for d in (P.get("destinos") or []):
+        cod = d.get("cod")
+        if not cod:
+            continue
+        def _lado(sentido, key_ow):
+            m = {}
+            for x in ((tramos.get(cod) or {}).get(sentido) or []):
+                f = str(x.get("fecha", ""))[:10]
+                if x.get("clp") and HOR_INI <= f <= HOR_FIN:
+                    m.setdefault(f, []).append((float(x["clp"]), "JA",
+                                                f"vuelo {x.get('vuelo', '')} {x.get('hora', '')}".strip()))
+            for f, w in (((ow.get(cod) or {}).get(key_ow) or {}).items()):
+                if isinstance(w, dict) and w.get("clp") and HOR_INI <= str(f)[:10] <= HOR_FIN:
+                    m.setdefault(str(f)[:10], []).append(
+                        (float(w["clp"]), w.get("al") or "CO", w.get("det") or w.get("al_nom") or "Cocha"))
+            return m
+        idas = _lado("idas", f"SCL-{cod}")
+        vueltas = _lado("vueltas", f"{cod}-SCL")
+        if not idas or not vueltas:
+            continue
+        best, best_mono, best_mix = {}, {}, {}
+        for fi, li in idas.items():
+            d0 = datetime.date.fromisoformat(fi)
+            for fv, lv in sorted(vueltas.items()):
+                noches = (datetime.date.fromisoformat(fv) - d0).days
+                if noches < NOCHES_MIN:
+                    continue
+                if noches > NOCHES_MAX:
+                    break
+                for pi, si, di in li:
+                    for pv, sv, dv in lv:
+                        tot = pi + pv
+                        k = (fi, fv)
+                        if k not in best or tot < best[k]["tot"]:
+                            best[k] = {"ida": fi, "vuelta": fv, "noches": noches, "tot": tot,
+                                       "al_ida": si, "al_vue": sv, "det_ida": di, "det_vue": dv}
+                        if si == sv:
+                            if k not in best_mono or tot < best_mono[k]["tot"]:
+                                best_mono[k] = {"ida": fi, "vuelta": fv, "noches": noches,
+                                                "tot": tot, "al_ida": si, "al_vue": sv,
+                                                "det_ida": di, "det_vue": dv}
+                        else:
+                            if k not in best_mix or tot < best_mix[k]["tot"]:
+                                best_mix[k] = {"ida": fi, "vuelta": fv, "noches": noches,
+                                               "tot": tot, "al_ida": si, "al_vue": sv,
+                                               "det_ida": di, "det_vue": dv}
+        def _pick(src):
+            if not src:
+                return None
+            b = min(src.values(), key=lambda c: c["tot"])
+            b = dict(b)
+            b["clp"] = round(b["tot"])
+            b["mixta"] = b["al_ida"] != b["al_vue"]
+            b["al_ida_nom"] = AL_NOMBRE.get(b["al_ida"], b["al_ida"])
+            b["al_vue_nom"] = AL_NOMBRE.get(b["al_vue"], b["al_vue"])
+            b["link_ida"] = _ow_link_leg(b["al_ida"], "SCL", cod, b["ida"])
+            b["link_vue"] = _ow_link_leg(b["al_vue"], cod, "SCL", b["vuelta"])
+            return b
+        mejor = _pick(best)
+        if not mejor:
+            continue
+        mono = {}
+        por_al = {}
+        for c in best_mono.values():
+            por_al.setdefault(c["al_ida"], []).append(c)
+        for al, lst in sorted(por_al.items(), key=lambda kv: min(x["tot"] for x in kv[1]))[:4]:
+            b = min(lst, key=lambda c: c["tot"])
+            mono[al] = {"clp": round(b["tot"]), "ida": b["ida"], "vuelta": b["vuelta"]}
+        mixta = _pick(best_mix)
+        rt = (d.get("mejor") or {}).get("clp")
+        delta_rt = round((mejor["tot"] / rt - 1) * 100, 1) if rt else None
+        out[cod] = {"ts": now_iso(),
+                    "cobertura": {"fechas_ida": len(idas), "fechas_vue": len(vueltas),
+                                  "idas": sum(len(v) for v in idas.values()),
+                                  "vueltas": sum(len(v) for v in vueltas.values()),
+                                  "pares": len(best)},
+                    "mejor": mejor, "mixta": mixta, "mono": mono,
+                    "delta_rt_pct": delta_rt}
+    return {"ts": now_iso(), "destinos": out,
+            "nota": ("Cruce por destino: mejor ida one-way + mejor vuelta one-way de las "
+                     "fuentes acumuladas (JetSMART directo y Cocha multi-aerolínea), "
+                     "incluyendo aerolíneas distintas (2 tickets separados, sin "
+                     "protección entre tramos). Compara contra el pasaje redondo de Cocha.")
+            , "secs": round(time.time() - t0, 1)}
+
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
     f = live.get("fuentes", {})
@@ -815,6 +1045,9 @@ def minimos_de(live):
             mj = d.get("mejor")
             if mj and mj.get("clp"):
                 m[f"Playas {d['cod']}"] = mj["clp"]
+            cr = ((f["playas"].get("cruce") or {}).get("destinos") or {}).get(d.get("cod")) or {}
+            if (cr.get("mejor") or {}).get("clp"):
+                m[f"Cruce {d['cod']}"] = cr["mejor"]["clp"]
     return m
 
 def main():
@@ -1067,6 +1300,23 @@ def main():
         cur = LIVE["fuentes"].get("playas")
         if cur is not None:
             cur["ok"] = False
+    # 8b) FASE 2: cruce de aerolíneas por destino de playa (one-way JA + Cocha)
+    try:
+        cru = combos_playas(LIVE)
+        prev_cru = ((LIVE["fuentes"].get("playas") or {}).get("cruce") or {}).get("destinos") or {}
+        # regla anti-borrado: si el motor quedó vacío (sin materia prima este ciclo)
+        # se conserva el resultado anterior
+        if cru["destinos"] or prev_cru:
+            merged = dict(prev_cru)
+            merged.update(cru["destinos"])
+            cru["destinos"] = merged
+            if "cruce" in (LIVE["fuentes"].get("playas") or {}):
+                cru["ts_previo"] = LIVE["fuentes"]["playas"]["cruce"].get("ts")
+            LIVE["fuentes"]["playas"]["cruce"] = cru
+            n_mix = sum(1 for c in cru["destinos"].values() if c.get("mixta"))
+            print(f"Cruce playas OK: {len(cru['destinos'])} destinos · {n_mix} con opción mixta · {cru['secs']}s", flush=True)
+    except Exception as e:
+        print(f"Cruce playas FAIL: {str(e)[:80]} — se conserva el anterior", flush=True)
     # (espejo Google eliminado por pedido del usuario)
     LIVE["fuentes"].pop("google", None)
 

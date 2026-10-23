@@ -190,9 +190,14 @@ def main():
                     precios_ok = False
         mejor = [(d["cod"], (d.get("mejor") or {}).get("clp")) for d in dests if d.get("mejor")]
         mn = min([p for _, p in mejor]) if mejor else None
+        # FASE 2: cobertura del cruce de aerolíneas (one-way por destino)
+        cruce = playas.get("cruce") or {}
+        cr_dests = [c for c in ((cruce.get("destinos") or {}).values() if isinstance(cruce.get("destinos"), dict) else [])
+                    if isinstance(c, dict) and (c.get("mejor") or {}).get("clp")]
+        cr_mix = sum(1 for c in cr_dests if (c.get("mejor") or {}).get("mixta"))
         estado = "OK"
         det = (f"{len(dests)} destinos · {len(mejor)} con precio · mínimo ${mn:,} · "
-               f"ventanas exactas {exactas}/flex {flex} · fresco {htxt(e)}")
+               f"ventanas exactas {exactas}/flex {flex} · cruce {len(cr_dests)}/16 ({cr_mix} mixtos) · fresco {htxt(e)}")
         if not precios_ok:
             estado = "FALLA"
             det += " · PRECIO FUERA DE RANGO"

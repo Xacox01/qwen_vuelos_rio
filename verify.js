@@ -99,6 +99,21 @@ ok(nDatos >= 3, `>= 3 destinos de playa con cotización (ventanas escaneadas: ${
 ok(vm.destinosEnPresupuesto >= 1, '>= 1 destino de playa dentro de presupuesto', vm.destinosEnPresupuesto);
 ok(vm.ofertas.length >= 5 && vm.ofertas.every(o => o.cod !== 'GIG'), 'ofertas excluyen Rio (card grande)');
 ok(vm.ofertaRio && money(vm.ofertaRio.clp), 'ofertaRio presente');
+/* FASE 2 (Task 22): cruce de aerolíneas por destino de playa — ida/vuelta one-way
+   por separado (JA directo + Cocha oneway multi-aerolínea). Gate orientado a datos:
+   exige >= 1 destino con cruce calculado y consistencia de los combos emitidos. */
+const CR = PL.cruce || {};
+const crList = Object.values(CR.destinos || {}).filter(c => c && c.mejor && c.mejor.clp > 0);
+ok(crList.length >= 1, 'cruce playas: >= 1 destino con combinación one-way', crList.length);
+ok(crList.every(c => c.mejor.ida < c.mejor.vuelta && c.mejor.noches >= 4 && c.mejor.noches <= 30),
+   'cruce playas: vuelta > ida y noches 4-30');
+ok(crList.every(c => (c.mejor.link_ida || '').startsWith('http') && (c.mejor.link_vue || '').startsWith('http')),
+   'cruce playas: links por tramo http');
+ok(crList.every(c => c.mejor.al_ida && c.mejor.al_vue && typeof c.mejor.mixta === 'boolean'),
+   'cruce playas: aerolíneas etiquetadas + flag mixta');
+const dConCru = vm.destinos.filter(d => d.cruce && d.cruce.clp > 0).length;
+ok(dConCru >= 1, 'UI destinos: cruce visible en tarjeta', dConCru);
+crList.slice(0, 4).forEach(c => console.log('     cruce ' + c.mejor.al_ida + '+' + c.mejor.al_vue + ' ' + c.mejor.ida + '→' + c.mejor.vuelta + ': $' + Math.round(c.mejor.clp).toLocaleString('es-CL') + (c.delta_rt_pct != null ? ' (' + (c.delta_rt_pct > 0 ? '+' : '') + c.delta_rt_pct + '% vs redondo)' : '')));
 ds.forEach(d => console.log('     ' + d.cod + ' ' + d.ciudad + ': $' + Math.round(d.clp).toLocaleString('es-CL') + (d.enPresupuesto ? '' : ' (sobre presupuesto)')));
 
 console.log('== 6. cupones ==');

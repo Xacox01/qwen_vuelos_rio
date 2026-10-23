@@ -254,6 +254,14 @@ section.band{background:var(--bg);border-top:1px solid var(--line);border-bottom
 .dbd .nm{font-weight:800;font-size:.9rem;color:var(--ink)}
 .dbd .fe{font-size:.72rem;color:var(--mut);font-weight:600}
 .dbd .srcs{font-size:.68rem;color:var(--faint);font-weight:600}
+.dbd .cruce{font-size:.7rem;font-weight:700;background:var(--brand-bg);border:1px solid var(--brand);border-radius:7px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink2)}
+.dbd .cruce b{color:var(--brand-d)}
+.dbd .cruce .mixtag{background:var(--brand);color:#fff;border-radius:999px;padding:2px 7px;font-size:.56rem;font-weight:800;letter-spacing:.04em;flex:0 0 auto}
+.dbd .cruce .bchip{font-size:.56rem;padding:2px 7px}
+.dbd .cruce .lnks{margin-left:auto;display:flex;gap:5px;flex:0 0 auto}
+.dbd .cruce .lnks a{font-weight:800;color:var(--brand);font-size:.64rem;text-decoration:underline}
+.bchip.gan{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.nota-sec{font-size:.72rem;color:var(--mut);margin-top:14px;line-height:1.55}
 .dbd .row{display:flex;gap:6px;margin-top:auto}
 .mini{flex:1;text-align:center;border:1px solid var(--line2);border-radius:6px;padding:7px 4px;font-size:.72rem;font-weight:800;color:var(--ink2)}
 .mini:hover{border-color:var(--brand);color:var(--brand);text-decoration:none}
@@ -619,7 +627,7 @@ footer .flogo b{color:#fff;font-size:1rem}
   <div class="wrap">
     <div class="shead">
       <h2>16 playas de Latinoamérica bajo tu presupuesto</h2>
-      <span class="note-r" v-if="D">Tope de gasto: <b>${{fmt(D.fuentes.playas.budget)}}</b> por pasaje · solo {{destinosEnPresupuesto}} de {{destinos.length}} caben hoy</span>
+      <span class="note-r" v-if="D">Tope de gasto: <b>${{fmt(D.fuentes.playas.budget)}}</b> por pasaje · solo {{destinosEnPresupuesto}} de {{destinos.length}} caben hoy<template v-if="destinosConCruce"> · <b>cruce de aerolíneas</b> disponible en {{destinosConCruce}}</template></span>
     </div>
     <div class="dgrid">
       <div class="dcard" v-for="d in destinos" :key="d.cod" :style="!d.enPresupuesto?'opacity:.62':''">
@@ -633,6 +641,12 @@ footer .flogo b{color:#fff;font-size:1rem}
           <div class="nm">{{d.ciudad}}</div>
           <div class="fe">{{dshort(d.ida)}} → {{dshort(d.vuelta)}} · {{d.noches}} noches</div>
           <div class="srcs">mejor vía {{d.src}} · Cocha desde ${{fmtK(d.cocha)}}</div>
+          <div class="cruce" v-if="d.cruce" title="Mejor ida + vuelta compradas por separado; pueden ser de aerolíneas distintas (2 tickets, sin protección entre tramos)">
+            <span class="mixtag">{{d.cruce.mixta?'MIXTO':'1 AERO'}}</span>
+            <span>{{d.cruce.alIda}} + {{d.cruce.alVue}} = <b>${{fmt(d.cruce.clp)}}</b></span>
+            <span class="bchip gan" v-if="d.cruce.delta<0" title="Más barato que el pasaje redondo">−{{Math.abs(d.cruce.delta)}}% vs redondo</span>
+            <span class="lnks"><a :href="d.cruce.linkIda" target="_blank" rel="noopener nofollow">ida</a><a :href="d.cruce.linkVue" target="_blank" rel="noopener nofollow">vuelta</a></span>
+          </div>
           <div class="row">
             <a class="mini pri" :href="d.link" target="_blank" rel="noopener nofollow">Volar</a>
             <a class="mini" :href="d.linkCocha" target="_blank" rel="noopener nofollow">Comparar</a>
@@ -640,6 +654,7 @@ footer .flogo b{color:#fff;font-size:1rem}
         </div>
       </div>
     </div>
+    <p class="nota-sec" v-if="destinosConCruce">El <b>cruce</b> arma el viaje con 2 tickets one-way (pueden ser de aerolíneas distintas): en varios destinos sale más barato que el pasaje redondo, pero no hay protección entre tramos — si un vuelo se atrasa, la otra aerolínea no responde. El precio del redondo de Cocha sigue a la vista para comparar.</p>
   </div>
 </section>
 
@@ -966,18 +981,23 @@ createApp({
     /* ---- ofertas con foto ---- */
     destinos(){
       const P=(this.f.playas&&this.f.playas.destinos)||[]; const B=(this.f.playas&&this.f.playas.budget)||500000;
+      const CR=(this.f.playas&&this.f.playas.cruce&&this.f.playas.cruce.destinos)||{};
       return P.map(p=>{
         const m=p.mejor||{}; const wins=(p.windows||[]).map(w=>w.min_clp).filter(x=>x);
         const maxW=Math.max(...wins,m.clp||0)||0;
         const ahorro = maxW>m.clp? Math.round((maxW-m.clp)/maxW*100):0;
         const wBest=(p.windows||[]).find(w=>w.min_clp===m.clp) || {};
+        const c=(CR[p.cod]&&CR[p.cod].mejor)||null;
         return {cod:p.cod,ciudad:p.ciudad,pais:p.pais,flag:p.flag,clp:m.clp,ida:m.ida,vuelta:m.vuelta,
           noches:m.noches||'',al:m.aerolinea,escalas:m.escalas||0,src:m.src,link:m.link,
           cocha:(p.cocha&&p.cocha.min_clp)||0,linkCocha:(p.cocha&&p.cocha.link)||m.link,
-          enPresupuesto:m.clp<=B, ahorro, ahorroVentana:wBest.ida?this.dshort(wBest.ida).replace(/^\w+ /,''):''};
+          enPresupuesto:m.clp<=B, ahorro, ahorroVentana:wBest.ida?this.dshort(wBest.ida).replace(/^\w+ /,''):'',
+          cruce:c?{clp:c.clp,ida:c.ida,vuelta:c.vuelta,noches:c.noches,alIda:c.al_ida_nom,alVue:c.al_vue_nom,
+            mixta:!!c.mixta,linkIda:c.link_ida,linkVue:c.link_vue,delta:(CR[p.cod].delta_rt_pct!=null?CR[p.cod].delta_rt_pct:1)}:null};
       }).sort((a,b)=>a.clp-b.clp);
     },
     destinosEnPresupuesto(){ return this.destinos.filter(d=>d.enPresupuesto).length; },
+    destinosConCruce(){ return this.destinos.filter(d=>d.cruce).length; },
     ofertas(){ return this.destinos.filter(d=>d.cod!=='GIG').slice(0,6); },
     ofertaRio(){ return this.destinos.find(d=>d.cod==='GIG')||null; },
 
