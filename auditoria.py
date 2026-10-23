@@ -363,6 +363,25 @@ def main():
             add("cupones", "Cupones de descuento", "ALERTA", f"{n_it} cupones · fresco {htxt(e)} (límite 7 días)")
             cuenta("alerta")
 
+    # ---------- 3b. motor de combinaciones (mixtas) ----------
+    cb = data.get("combos") or {}
+    if isinstance(cb, dict) and cb.get("ts") and cb.get("top"):
+        e = horas(cb.get("ts"))
+        if e <= 26 and len(cb["top"]) >= 5:
+            al = cb["top"][0].get("al_ida", "?") + " + " + cb["top"][0].get("al_vue", "?")
+            add("combos", "Motor de combinaciones", "OK",
+                f"{cb['cobertura']['pares']} pares · mejor ${cb['top'][0].get('clp'):,} ({al}) · fresco {htxt(e)}",
+                frescura_h=e)
+            cuenta("ok")
+            hashes_now["combos"] = sha([(c.get("ida"), c.get("vuelta"), c.get("clp")) for c in cb["top"]])
+        else:
+            add("combos", "Motor de combinaciones", "ALERTA",
+                f"{len(cb.get('top') or [])} combos · fresco {htxt(e)} (límite 26 h)")
+            cuenta("alerta")
+    else:
+        add("combos", "Motor de combinaciones", "ALERTA", "sin datos de combos en data.json")
+        cuenta("alerta")
+
     # ---------- 4. radar de alojamientos (stays) ----------
     stays = data.get("stays")
     if isinstance(stays, dict) and stays.get("ts"):

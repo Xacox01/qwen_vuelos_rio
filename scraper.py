@@ -147,12 +147,23 @@ def fetch_sky():
 
 # ---------------- Falabella (referencia cacheada SSR) ----------------
 # GIG = código IATA del aeropuerto de Galeão: "RIO" redirige a la home del router.
-FAL_DATES = [("SCL", "GIG", d) for d in ("2027-01-06", "2027-01-20", "2027-01-22")] + \
-            [("GIG", "SCL", d) for d in ("2027-02-01", "2027-02-08")]
+# Anclas rotativas igual que fetch_otas: base del viaje + 2 fechas que recorren
+# dic 2026 → mar 2027 (la matriz se acumula en main() entre ciclos).
+_BASE_DATES = [("SCL", "GIG", "2027-01-22"), ("GIG", "SCL", "2027-02-01")]
+_ROT_DATES = ([("SCL", "GIG", f) for f in ("2026-12-15", "2027-01-02", "2027-01-08",
+                                           "2027-01-15", "2027-01-29", "2027-02-05",
+                                           "2027-02-12", "2027-02-19", "2027-03-01")]
+              + [("GIG", "SCL", f) for f in ("2026-12-20", "2027-01-12", "2027-01-20",
+                                             "2027-01-27", "2027-02-03", "2027-02-10",
+                                             "2027-02-17", "2027-02-24", "2027-03-08")])
+
+def _fal_dates():
+    j = datetime.date.today().timetuple().tm_yday
+    return _BASE_DATES + [_ROT_DATES[(j + i) % len(_ROT_DATES)] for i in range(2)]
 
 def fetch_falabella():
     rows = []
-    for o, d, fecha in FAL_DATES:
+    for o, d, fecha in _fal_dates():
         try:
             u = f"https://www.viajesfalabella.cl/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
             r = cr.get(u, impersonate="chrome", timeout=45,
@@ -279,7 +290,7 @@ def fetch_latam():
 # ---------------- Despegar (mismo motor SSR que Falabella) ----------------
 def fetch_despegar():
     rows = []
-    for o, d, fecha in FAL_DATES:
+    for o, d, fecha in _fal_dates():
         u = f"https://www.despegar.cl/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
         r = cr.get(u, impersonate="chrome", timeout=45, headers={"Accept-Language": "es-CL,es;q=0.9"})
         if f"/shop/flights/results/oneway/{o}/{d}/{fecha}" not in str(getattr(r, "url", "")):
@@ -328,7 +339,8 @@ COCHA_Q = ("query funcion($channel: Channel!, $searchType: SearchType!, $cabinTy
 AER = {"H2": "SKY", "JA": "JetSMART", "LA": "LATAM", "G3": "GOL", "AR": "Aerolíneas Argentinas",
        "CM": "Copa", "AV": "Avianca", "IB": "Iberia", "AM": "Aeroméxico", "DL": "Delta",
        "UA": "United", "EK": "Emirates", "LU": "LATAM", "H2": "SKY"}
-COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20")]
+COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20"),
+                  ("2027-01-15", "2027-01-29"), ("2027-02-05", "2027-02-19")]
 _cocha_last = [0.0]
 
 _cocha_sess_cache = {"init": False, "sess": None}
@@ -574,7 +586,18 @@ PLAYAS_DEST = [("GIG", "Río de Janeiro", "Brasil", "🇧🇷"),
                ("LIR", "Liberia · Guanacaste", "Costa Rica", "🇨🇷"),
                ("SJO", "San José · Jacó/Manuel Antonio", "Costa Rica", "🇨🇷"),
                ("PTY", "Panamá · Playa Blanca", "Panamá", "🇵🇦")]
-PLAYAS_WIN = [("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20"), ("2027-01-02", "2027-02-01")]
+def _genera_playas_win():
+    """Ventanas rotativas (inicio, noches) que cubren dic 2026 → mar 2027. Cada ciclo
+    escanea 1 (todas al arrancar); fetch_playas acumula y 'mejor' pasa a ser el
+    mínimo sobre TODAS las ventanas históricas — ya no hay un rango fijo de 3."""
+    W = [("2026-12-15", 7), ("2027-01-02", 10), ("2027-01-08", 7), ("2027-01-15", 10),
+         ("2027-01-15", 14), ("2027-01-22", 10), ("2027-01-22", 7), ("2027-01-29", 10),
+         ("2027-02-05", 14), ("2027-02-05", 7), ("2027-02-12", 10), ("2027-02-19", 7)]
+    return [(s, (datetime.date.fromisoformat(s) + datetime.timedelta(days=n)).isoformat())
+            for s, n in W]
+
+
+PLAYAS_WIN = _genera_playas_win()
 PLAYAS_BUDGET = 500000
 
 def agencia_rt(dest, ida, vuelta):
@@ -622,7 +645,7 @@ def fetch_playas(prev, cycle):
                     print(f"playas {cod} {ida}: sin itinerarios", flush=True)
             except Exception as e:
                 print(f"playas {cod} {ida} FAIL: {str(e)[:60]}", flush=True)
-        wlist = sorted(wprev.values(), key=lambda w: w["min_clp"])
+        wlist = sorted(wprev.values(), key=lambda w: w["min_clp"])[:24]
         out.append({"cod": cod, "ciudad": ciudad, "pais": pais, "flag": flag,
                     "windows": wlist,
                     "cocha": ({"min_clp": wlist[0]["min_clp"], "aerolinea": wlist[0]["aerolinea"],
@@ -646,6 +669,134 @@ def fetch_playas(prev, cycle):
     return {"destinos": out, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
             "ventanas": [f"{a} → {b}" for a, b in PLAYAS_WIN],
             "nota": "Cotización en vivo de Cocha (agencia chilena) — precios verificados con fecha de itinerario exacta; el precio final puede variar ~10% al reservar."}
+
+# ---------------- Motor de combinaciones (tramos separados, cruce de aerolíneas) ----------------
+# Pedido del dueño: dejar de fijar ventanas — el algoritmo recorre TODAS las fechas
+# y TODAS las fuentes one-way disponibles (JetSMART, LATAM, Despegar, Falabella) y
+# arma el round trip más barato combinando tramos, incluso de aerolíneas distintas.
+HOR_INI, HOR_FIN = "2026-12-01", "2027-03-31"
+NOCHES_MIN, NOCHES_MAX = 4, 30
+SRC_NOMBRE = {"JA": "JetSMART", "LA": "LATAM", "DP": "Despegar", "FB": "Falabella"}
+
+def _ow_links(src, o, d, fecha):
+    if src == "JA":
+        return (f"https://booking.jetsmart.com/Flight/InternalSelect?c=true&mon=true"
+                f"&cur=CLP&culture=es-CL&dd1={fecha}&o1={o}&d1={d}")
+    if src == "LA":
+        if o == "SCL":
+            return f"https://www.latam.com/es_cl/book/shopping/flight/search/?from=SCL&to=GIG&outbound={fecha}&adults=1"
+        return f"https://www.latam.com/es_cl/book/shopping/flight/search/?from=GIG&to=SCL&inbound={fecha}&adults=1"
+    base = "https://www.despegar.cl" if src == "DP" else "https://www.viajesfalabella.cl"
+    return f"{base}/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
+
+def _matriz_ow(live):
+    """{sentido: {src: {fecha: (clp, detalle)}}} con TODA la tarifa one-way por fecha
+    disponible en las fuentes activas del ciclo."""
+    F = live["fuentes"]
+    out = {}
+    def add(sentido, src, fecha, clp, det):
+        if not fecha or not isinstance(clp, (int, float)) or clp <= 0:
+            return
+        fecha = str(fecha)[:10]
+        if not (HOR_INI <= fecha <= HOR_FIN):
+            return
+        m = out.setdefault(sentido, {}).setdefault(src, {})
+        if fecha not in m or clp < m[fecha][0]:
+            m[fecha] = (float(clp), det)
+    js = F.get("jetsmart") or {}
+    for x in (js.get("idas") or []):
+        add("SCL-GIG", "JA", x.get("fecha"), x.get("clp"),
+            f"vuelo {x.get('vuelo', '')} {x.get('hora', '')}".strip())
+    for x in (js.get("vueltas") or []):
+        add("GIG-SCL", "JA", x.get("fecha"), x.get("clp"),
+            f"vuelo {x.get('vuelo', '')} {x.get('hora', '')}".strip())
+    la = F.get("latam") or {}
+    for x in (la.get("dias_out") or []):
+        add("SCL-GIG", "LA", x.get("fecha"), x.get("clp"),
+            "directo" if x.get("directo") else "con escala")
+    for x in (la.get("dias_in") or []):
+        add("GIG-SCL", "LA", x.get("fecha"), x.get("clp"),
+            "directo" if x.get("directo") else "con escala")
+    for src, code in (("despegar", "DP"), ("falabella", "FB")):
+        for dia in ((F.get(src) or {}).get("dias") or []):
+            for c in (dia.get("calendario") or []):
+                add(dia.get("sentido") or "SCL-GIG", code,
+                    c.get("fecha") or c.get("iso"), c.get("clp"), "grilla OTA")
+    return out
+
+def combo_engine(live):
+    """Recorre idas × vueltas de TODAS las fuentes y devuelve los round trips más
+    baratos por par de fechas, con cruce de aerolíneas (mixta = 2 tickets one-way)."""
+    t0 = time.time()
+    m = _matriz_ow(live)
+    idas = [(f, s, p, det) for s, mm in (m.get("SCL-GIG") or {}).items()
+            for f, (p, det) in mm.items()]
+    vueltas = [(f, s, p, det) for s, mm in (m.get("GIG-SCL") or {}).items()
+               for f, (p, det) in mm.items()]
+    if not idas or not vueltas:
+        raise RuntimeError("matriz one-way insuficiente")
+    idas.sort(key=lambda x: (x[0], x[2]))
+    vueltas.sort(key=lambda x: (x[0], x[2]))
+    best = {}
+    for fi, si, pi, di in idas:
+        d0 = datetime.date.fromisoformat(fi)
+        for fv, sv, pv, dv in vueltas:
+            noches = (datetime.date.fromisoformat(fv) - d0).days
+            if noches < NOCHES_MIN:
+                continue
+            if noches > NOCHES_MAX:
+                break
+            tot = pi + pv
+            k = (fi, fv)
+            if k not in best or tot < best[k]["tot"]:
+                best[k] = {"ida": fi, "vuelta": fv, "noches": noches, "tot": tot,
+                           "p_ida": pi, "p_vue": pv, "src_ida": si, "src_vue": sv,
+                           "al_ida": f"{SRC_NOMBRE.get(si, si)} {di}".strip(),
+                           "al_vue": f"{SRC_NOMBRE.get(sv, sv)} {dv}".strip(),
+                           "mixta": si != sv}
+    top = sorted(best.values(), key=lambda c: c["tot"])
+    # top con totales DISTINCTOS: el piso de una aerolínea repite el mismo total en
+    # varias vueltas; para el usuario es una sola oferta. El mejor MIXTO siempre
+    # se destaca aparte (aunque no gane, es lo que se pidió comparar).
+    vistos, topu = set(), []
+    for c in top:
+        if c["tot"] in vistos:
+            continue
+        vistos.add(c["tot"])
+        topu.append(c)
+        if len(topu) >= 12:
+            break
+    mono = {}
+    for src in set(x[1] for x in idas) & set(x[1] for x in vueltas):
+        cand = [c for c in top if c["src_ida"] == src and c["src_vue"] == src]
+        if cand:
+            mono[src] = {"clp": round(cand[0]["tot"]), "ida": cand[0]["ida"],
+                         "vuelta": cand[0]["vuelta"]}
+    mejor = top[0]
+    mejor_mono = min(mono.values(), key=lambda x: x["clp"]) if mono else None
+    ahorro = round((mejor_mono["clp"] / mejor["tot"] - 1) * 100, 1) \
+        if (mejor_mono and mejor["tot"]) else 0
+    for c in topu:
+        c["clp"] = round(c["tot"])
+        c["link_ida"] = _ow_links(c["src_ida"], "SCL", "GIG", c["ida"])
+        c["link_vue"] = _ow_links(c["src_vue"], "GIG", "SCL", c["vuelta"])
+    mixta = next((c for c in top if c["mixta"]), None)
+    if mixta is not None:
+        mixta["clp"] = round(mixta["tot"])
+        mixta["link_ida"] = _ow_links(mixta["src_ida"], "SCL", "GIG", mixta["ida"])
+        mixta["link_vue"] = _ow_links(mixta["src_vue"], "GIG", "SCL", mixta["vuelta"])
+        mixta["delta_pct"] = round((mixta["tot"] / mejor["tot"] - 1) * 100, 1)
+    return {
+        "ts": now_iso(), "horizonte": [idas[0][0], vueltas[-1][0]],
+        "noches": [NOCHES_MIN, NOCHES_MAX],
+        "cobertura": {"idas": len(idas), "vueltas": len(vueltas), "pares": len(best)},
+        "top": topu, "mono": mono, "mejor_mono": mejor_mono, "ahorro_pct": ahorro,
+        "mejor_mixta": mixta,
+        "nota": ("Tramos one-way de 1 pasajero combinados entre fuentes (JetSMART, LATAM, "
+                 "Despegar, Falabella). Un combo mixto son 2 tickets separados: sin "
+                 "protección entre tramos; para grupos, verificar disponibilidad de la tarifa."),
+        "secs": round(time.time() - t0, 1),
+    }
 
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
@@ -724,6 +875,8 @@ def main():
     last_attempt = _parse_ts(LIVE.get("ota_ts"))
     due = (not last_attempt) or (datetime.datetime.now() - last_attempt).total_seconds() >= OTAS_GAP
     otas = {}  # resultados stealth (incluye cocha_verif); {} si este ciclo no venció el gate
+    # snapshot ANTES del intento (para acumular la matriz de fechas entre ciclos)
+    prev_otas = json.loads(json.dumps({s: (LIVE["fuentes"].get(s) or {}) for s in ("despegar", "falabella")}))
 
     # PISO DE PLAUSIBILIDAD (fix precios erróneos): ninguna tarifa one-way real de
     # una agencia puede quedar por debajo de la aerolínea más barata para esa fecha
@@ -809,6 +962,25 @@ def main():
                         print("Despegar WAF: se conserva último dato", flush=True)
                 except Exception as e:
                     print(f"Despegar FAIL: {str(e)[:80]}", flush=True)
+    # Acumulación de la MATRIZ DE FECHAS OTA: los calendarios por sentido se UNEN
+    # entre ciclos (mínimo por fecha). Con anclas rotativas (fetch_otas), en ~5
+    # escaneos stealth (≈12 h) el motor de combos cubre dic 2026 → mar 2027.
+    for _src in ("despegar", "falabella"):
+        cur = LIVE["fuentes"].get(_src) or {}
+        if not cur.get("dias"):
+            continue
+        prev = prev_otas.get(_src) or {}
+        for pd in (prev.get("dias") or []):
+            nd = next((x for x in cur["dias"] if x.get("sentido") == pd.get("sentido")), None)
+            if nd is None:
+                continue
+            acc = {c.get("fecha"): c.get("clp") for c in (nd.get("calendario") or []) if c.get("fecha")}
+            for c in (pd.get("calendario") or []):
+                f, p = c.get("fecha"), c.get("clp")
+                if f and p and (f not in acc or p < acc[f]):
+                    acc[f] = p
+            nd["calendario"] = [{"fecha": k, "clp": v} for k, v in sorted(acc.items())][-250:]
+
     # 5) LATAM oficial (BFF calendario)
     try:
         la = fetch_latam()
@@ -897,6 +1069,16 @@ def main():
             cur["ok"] = False
     # (espejo Google eliminado por pedido del usuario)
     LIVE["fuentes"].pop("google", None)
+
+    # 9) Motor de combinaciones (ida/vuelta por separado, cruce de aerolíneas)
+    try:
+        LIVE["combos"] = combo_engine(LIVE)
+        _cb = LIVE["combos"]
+        print(f"Combos OK: {_cb['cobertura']['pares']} pares evaluados · mejor ${_cb['top'][0]['clp']:,} "
+              f"({'mixta ' + _cb['top'][0]['al_ida'] + ' + ' + _cb['top'][0]['al_vue'] if _cb['top'][0]['mixta'] else 'misma aerolínea'}) "
+              f"· ahorro vs mejor mono {_cb['ahorro_pct']}%", flush=True)
+    except Exception as e:
+        print(f"Motor combos FAIL: {str(e)[:80]} — se conserva el resultado anterior", flush=True)
 
     LIVE["cycle"] = cycle + 1
     LIVE["checked"] = now_iso()

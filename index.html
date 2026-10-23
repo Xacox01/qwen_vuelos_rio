@@ -172,6 +172,30 @@ section.band{background:var(--bg);border-top:1px solid var(--line);border-bottom
   .frow .cta-mini{grid-area:cta;padding:11px 0}
 }
 
+/* ---------- combos ---------- */
+.combohero{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:14px}
+@media(max-width:760px){.combohero{grid-template-columns:1fr}}
+.combohero .ct{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.combohero .ct small{font-size:.64rem;font-weight:800;color:var(--faint);letter-spacing:.05em;text-transform:uppercase}
+.combohero .ct b{font-size:1.02rem;color:var(--ink)}
+.combohero .ct .pr{font-size:1.2rem;font-weight:900;color:var(--brand-d)}
+.ctsum{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 10px;text-align:center}
+.ctsum .tot{font-size:1.3rem;font-weight:900;color:var(--ok)}
+.ctsum small{font-size:.66rem;color:var(--faint);font-weight:700}
+.bchip.ok2{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+.combo-mix{display:flex;gap:9px;flex-wrap:wrap;align-items:center;background:var(--white);border:1px dashed var(--line);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:.78rem}
+.combo-mix .d{font-weight:700;color:var(--ink)}
+.combo-mix .t{font-weight:900;color:var(--brand-d)}
+.combo-mix .pct{font-size:.7rem;color:var(--faint);font-weight:700}
+.cbrows{display:flex;flex-direction:column;gap:7px}
+.cbrow{display:grid;grid-template-columns:1.35fr 1.7fr auto auto auto auto auto;gap:9px;align-items:center;background:var(--white);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:.78rem}
+@media(max-width:880px){.cbrow{grid-template-columns:1fr 1fr;row-gap:5px}}
+.cbrow .d{font-weight:800;color:var(--ink)}
+.cbrow .d small,.combo-mix small{color:var(--faint)}
+.cbrow .al{color:var(--mut)}
+.cbrow .n{color:var(--faint);font-weight:700}
+.cbrow .t{font-weight:900;color:var(--brand-d)}
+
 /* ---------- calendario ---------- */
 .cals{display:flex;gap:26px;flex-wrap:wrap}
 .cal{flex:1 1 320px;max-width:420px;background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:16px}
@@ -338,6 +362,7 @@ footer .flogo b{color:#fff;font-size:1rem}
     <nav class="desk">
       <a href="#hoy">Precios hoy</a>
       <a href="#vuelos">Vuelos</a>
+      <a href="#combos">Combos</a>
       <a href="#calendario">Calendario</a>
       <a href="#ofertas">Ofertas</a>
       <a href="#destinos">Destinos</a>
@@ -353,6 +378,7 @@ footer .flogo b{color:#fff;font-size:1rem}
   <nav class="mob" :class="{open:mob}">
     <a href="#hoy" @click="mob=false">Precios hoy</a>
     <a href="#vuelos" @click="mob=false">Vuelos</a>
+    <a href="#combos" @click="mob=false">Combos</a>
     <a href="#calendario" @click="mob=false">Calendario</a>
     <a href="#ofertas" @click="mob=false">Ofertas</a>
     <a href="#destinos" @click="mob=false">Destinos de playa</a>
@@ -464,6 +490,58 @@ footer .flogo b{color:#fff;font-size:1rem}
       <div class="pr">${{fmt(r.clp)}}<small>por persona</small></div>
       <a class="cta-mini" :href="r.link" target="_blank" rel="noopener nofollow">Ver oferta</a>
     </div>
+  </div>
+</section>
+
+<!-- ================= COMBOS ================= -->
+<section class="band" id="combos" v-if="cb && cb.top && cb.top.length">
+  <div class="wrap">
+    <div class="shead">
+      <h2>Motor de combinaciones · ida y vuelta por separado</h2>
+      <span class="note-r">Recorre <b>todas las fechas</b> ({{cb.horizonte[0].slice(5)}} → {{cb.horizonte[1].slice(5)}}) de JetSMART, LATAM, Despegar y Falabella, y arma el viaje con los tramos más baratos — <b>aunque sean de aerolíneas distintas</b> · {{cb.cobertura.pares}} pares de fechas evaluados</span>
+    </div>
+    <div class="combohero">
+      <div class="ct">
+        <small>IDA · {{cb.top[0].al_ida}}</small>
+        <b>{{dshort(cb.top[0].ida)}}</b>
+        <span class="pr">${{fmt(cb.top[0].p_ida)}}</span>
+        <a class="mini" :href="cb.top[0].link_ida" target="_blank" rel="noopener nofollow">Ver este tramo ↗</a>
+      </div>
+      <div class="ctsum">
+        <span class="tot">${{fmt(cb.top[0].clp)}}</span>
+        <small>{{cb.top[0].noches}} noches · por persona</small>
+        <span class="bchip" :class="{warn:cb.top[0].mixta}">{{cb.top[0].mixta?'mixta · 2 tickets':'misma aerolínea'}}</span>
+        <span class="bchip ok2" v-if="cb.ahorro_pct>0">−{{cb.ahorro_pct}}% vs mejor mono-aerolínea</span>
+      </div>
+      <div class="ct">
+        <small>VUELTA · {{cb.top[0].al_vue}}</small>
+        <b>{{dshort(cb.top[0].vuelta)}}</b>
+        <span class="pr">${{fmt(cb.top[0].p_vue)}}</span>
+        <a class="mini" :href="cb.top[0].link_vue" target="_blank" rel="noopener nofollow">Ver este tramo ↗</a>
+      </div>
+    </div>
+    <div class="combo-mix" v-if="cb.mejor_mixta && !(cb.top[0].mixta)">
+      <span class="bchip warn">mejor combo mixto</span>
+      <span class="d"><b>{{dshort(cb.mejor_mixta.ida)}}</b> con {{cb.mejor_mixta.al_ida}} <small>+</small> <b>{{dshort(cb.mejor_mixta.vuelta)}}</b> con {{cb.mejor_mixta.al_vue}}</span>
+      <span class="n">{{cb.mejor_mixta.noches}} noches</span>
+      <span class="t">${{fmt(cb.mejor_mixta.clp)}}</span>
+      <span class="pct" v-if="cb.mejor_mixta.delta_pct>0">+{{cb.mejor_mixta.delta_pct}}% vs el mejor</span>
+      <a class="mini" :href="cb.mejor_mixta.link_ida" target="_blank" rel="noopener nofollow">ida ↗</a>
+      <a class="mini" :href="cb.mejor_mixta.link_vue" target="_blank" rel="noopener nofollow">vuelta ↗</a>
+    </div>
+    <div class="cbrows" v-if="cb.top.length>1">
+      <div class="cbrow" v-for="(c,i) in cb.top.slice(1,7)" :key="i">
+        <span class="d">{{dshort(c.ida)}} <small>→</small> {{dshort(c.vuelta)}}</span>
+        <span class="al">{{c.al_ida}} <small>+</small> {{c.al_vue}}</span>
+        <span class="n">{{c.noches}} noches</span>
+        <span class="t">${{fmt(c.clp)}}</span>
+        <span class="bchip warn" v-if="c.mixta">mixta</span>
+        <span class="bchip" v-else>mono</span>
+        <a class="mini" :href="c.link_ida" target="_blank" rel="noopener nofollow">ida ↗</a>
+        <a class="mini" :href="c.link_vue" target="_blank" rel="noopener nofollow">vuelta ↗</a>
+      </div>
+    </div>
+    <p class="pp" style="font-size:.72rem;color:var(--mut);margin-top:10px">{{cb.nota}} Mejor mono-aerolínea hoy: {{cb.mejor_mono ? '$'+fmt(cb.mejor_mono.clp)+' ('+dshort(cb.mejor_mono.ida)+' → '+dshort(cb.mejor_mono.vuelta)+')' : '—'}}.</p>
   </div>
 </section>
 
@@ -714,6 +792,7 @@ footer .flogo b{color:#fff;font-size:1rem}
       <h4>Explorar</h4>
       <a href="#hoy">Precios de hoy</a>
       <a href="#vuelos">Mejores combinaciones</a>
+      <a href="#combos">Motor de combos</a>
       <a href="#calendario">Calendario de precios</a>
       <a href="#ofertas">Ofertas de la semana</a>
       <a href="#destinos">Destinos de playa</a>
@@ -917,6 +996,7 @@ createApp({
     },
 
     alertas(){ return (this.D&&this.D.alerts||[]).slice(0,8); },
+    cb(){ return (this.D&&this.D.combos)||null; },
     subs(){ return (this.D&&this.D.suscriptores)||null; },
     estado(){
       const F=this.f, nm={jetsmart:'JetSMART API',sky:'SKY API',latam:'LATAM API',cocha:'Cocha',despegar:'Despegar (WARP+Camoufox)',falabella:'Falabella (WARP+Camoufox)',playas:'Radar playas'};

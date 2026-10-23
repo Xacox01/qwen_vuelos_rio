@@ -107,8 +107,11 @@ ok(Array.isArray(cp) && cp.length >= 10, 'cupones >= 10', cp.length);
 ok(cp.every(c => c.id && c.merchant && c.title && (c.url || '').startsWith('http')), 'cupones con campos minimos');
 ok(cp.some(c => c.code && /^[A-Za-z0-9\-_.]{3,30}$/.test(c.code)), 'hay al menos 1 codigo real', cp.filter(c => c.code).map(c => c.code));
 ok(cp.some(c => c.verified), 'hay cupones verificados');
+vm.cpTipo = 'todos';
 ok(vm.cuponesVisibles.length === cp.length, 'filtro "todas" muestra todo');
 if (vm.merchants.length) { vm.cpF = vm.merchants[0]; ok(vm.cuponesVisibles.every(c => c.merchant === vm.merchants[0]), 'filtro por merchant funciona'); vm.cpF = 'todas'; }
+ok(vm.cupones.filter(c => c.kind === 'oferta').length === 0, 'sin ofertas de vuelo en cupones (solo codigos/beneficios)');
+vm.cpTipo = 'codigos';
 console.log('     merchants: ' + vm.merchants.join(', '));
 console.log('     codigos: ' + cp.filter(c => c.code).map(c => c.merchant + ':' + c.code).join(', '));
 
@@ -243,7 +246,15 @@ vm.filterMax = 0; vm.onlyDirect = true;
 const directas = vm.filasFiltradas.length;
 vm.onlyDirect = false;
 ok(directas <= vm.filasFiltradas.length, 'filtro directos reduce correctamente');
-const nav = ['#hoy', '#vuelos', '#calendario', '#ofertas', '#destinos', '#cupones', '#alertas'];
+/* motor de combinaciones (ida/vuelta por separado, cruce de aerolíneas) */
+const CB = vm.D && vm.D.combos;
+ok(!!CB && Array.isArray(CB.top) && CB.top.length >= 5, 'motor combos: top >= 5', CB ? (CB.top || []).length : 0);
+ok(!!CB && CB.cobertura && CB.cobertura.pares >= 500, 'motor combos: >= 500 pares evaluados', CB && CB.cobertura ? CB.cobertura.pares : 0);
+ok(!!CB && CB.top.every(c => c.ida < c.vuelta && c.noches >= 4 && c.noches <= 30), 'motor combos: vuelta > ida y noches 4-30');
+ok(!!CB && CB.top.every(c => c.link_ida && c.link_vue), 'motor combos: links por tramo');
+ok(!!CB && !!CB.mejor_mixta && CB.mejor_mixta.mixta === true, 'motor combos: mejor mixta destacada');
+ok(!!CB && CB.top[0].clp <= (CB.mejor_mono ? CB.mejor_mono.clp : 1e12), 'motor combos: top <= mejor mono-aerolínea');
+const nav = ['#hoy', '#vuelos', '#combos', '#calendario', '#ofertas', '#destinos', '#cupones', '#alertas'];
 nav.forEach(id => ok(html.includes('href="' + id + '"') && html.includes('id="' + id.slice(1) + '"'), 'navegacion y seccion: ' + id));
 ok(html.includes('Buscar vuelos'), 'CTA buscador presente');
 ok(html.includes('<details'), 'FAQ acordeon presente');

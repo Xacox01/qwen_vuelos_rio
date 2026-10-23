@@ -35,10 +35,23 @@ DIAG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ota_diag")
 # via que se registra en data.json (transparencia para el usuario del dashboard)
 VIA = "camoufox+warp" if OTA_PROXY else "camoufox"
 
-# Escaneo de bajo volumen: 1 ida + 1 vuelta por sitio (DataDome banea por volumen).
-# GIG = Aeropuerto Internacional de Galeão (código IATA que el router de Despegar/
-# Falabella acepta en deep links; "RIO" provoca redirección a la home).
-FAL_DATES = [("SCL", "GIG", "2027-01-22"), ("GIG", "SCL", "2027-02-01")]
+# Anclas de escaneo: las 2 del viaje (22 ene → 1 feb) + 2 ROTATIVAS por ciclo que
+# recorren dic 2026 → mar 2027. scraper.py ACUMULA las grillas entre ciclos
+# (mínimo por fecha), así en ~5 escaneos stealth (≈12 h) la matriz cubre todo el
+# horizonte para el motor de combinaciones. Volumen moderado: 4 URLs por sitio
+# cada OTAS_GAP (~2,5 h) — DataDome sigue de sobra atendido.
+_BASE_DATES = [("SCL", "GIG", "2027-01-22"), ("GIG", "SCL", "2027-02-01")]
+_ROT_DATES = ([("SCL", "GIG", f) for f in ("2026-12-15", "2027-01-02", "2027-01-08",
+                                           "2027-01-15", "2027-01-29", "2027-02-05",
+                                           "2027-02-12", "2027-02-19", "2027-03-01")]
+              + [("GIG", "SCL", f) for f in ("2026-12-20", "2027-01-12", "2027-01-20",
+                                             "2027-01-27", "2027-02-03", "2027-02-10",
+                                             "2027-02-17", "2027-02-24", "2027-03-08")])
+
+def _fal_dates():
+    import datetime as _dt
+    j = _dt.date.today().timetuple().tm_yday
+    return _BASE_DATES + [_ROT_DATES[(j + i) % len(_ROT_DATES)] for i in range(2)]
 
 # Cocha (sin DataDome, pero su API GraphQL sub-cotiza ~10-13% vs la página real):
 # verificamos el mínimo de cada ventana abriendo la página de resultados real.
@@ -241,7 +254,7 @@ def decide_price(api_vals, dom_vals, cal, fecha, log, name, tag, piso=None):
 
 def scan_site(pg, name, log, capture, piso_fn=None):
     dias = []
-    for o, d, fecha in FAL_DATES:
+    for o, d, fecha in _fal_dates():
         url = f"https://www.{name}/shop/flights/results/oneway/{o}/{d}/{fecha}/1/0/0"
         capture.clear()
         try:
