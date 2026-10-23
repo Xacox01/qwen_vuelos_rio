@@ -25,7 +25,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from html import unescape
 from urllib.parse import urljoin
 
@@ -77,6 +77,92 @@ def b64d(s: str) -> str:
         return base64.b64decode(s + "=" * (-len(s) % 4)).decode("utf-8", "replace").strip()
     except Exception:
         return ""
+
+
+# ---------- capa editorial + saneo (oct 2026) ----------
+# Los sitios de cupones listan códigos vencidos como "verified" (ej. BCIMACHD de
+# septiembre) y mezclan ofertas de precio de vuelos con códigos reales. Aquí:
+#   1) detect_expired(): descarta lo que menciona un mes/año/fecha ya pasado
+#   2) detect_banco_dias(): etiqueta restricciones de pago (BCI/MACH, Mastercard...)
+#      y de día (miércoles, mar-jue, vie-dom) para que el sitio las muestre
+#   3) load_seed(): fusiona seed_coupons.json (capa editorial curada de fuentes
+#      oficiales y redes sociales). Gana la versión seed en dedup por code.
+MONTHS_ES = {"enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6,
+             "julio": 7, "agosto": 8, "septiembre": 9, "setiembre": 9, "octubre": 10,
+             "noviembre": 11, "diciembre": 12}
+BANK_RE = re.compile(r"\b(BCI|MACHBANK|MACH|Tenpo|Mastercard|CMR|Scotiabank|Santander|Ita[uúú]|Banco de Chile|Galicia|Caja Los Andes)\b", re.I)
+
+
+def _blob(it: dict) -> str:
+    return " ".join([it.get("title", ""), it.get("desc", "")] +
+                    [f"{k} {v}" for k, v in (it.get("conds") or {}).items()])
+
+
+def detect_expired(it: dict) -> bool:
+    """True si el cupón menciona un mes pasado, una fecha dd/mm/yyyy pasada o un
+    'válido hasta' vencido. El patrón 'miércoles de <mes>' de cupon.cl (ej. BCIMACHD
+    de septiembre) cae aquí automáticamente."""
+    today = datetime.now()
+    blob = _blob(it).lower()
+    for m in re.finditer(r"\bde\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\b", blob):
+        if MONTHS_ES[m.group(1)] < today.month:
+            return True
+    for m in re.finditer(r"\b(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})\b", blob):
+        d, mo, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if y < 100:
+            y += 2000
+        try:
+            if datetime(y, mo, d) < today:
+                return True
+        except ValueError:
+            pass
+    for m in re.finditer(r"\b(\d{4})-(\d{2})-(\d{2})\b", blob):
+        try:
+            if datetime(int(m.group(1)), int(m.group(2)), int(m.group(3))) < today:
+                return True
+        except ValueError:
+            pass
+    return False
+
+
+def detect_banco_dias(it: dict) -> None:
+    """Etiqueta it['banco'] e it['dias'] a partir de las condiciones."""
+    blob = _blob(it)
+    b = BANK_RE.search(blob)
+    if b and not it.get("banco"):   # la etiqueta curada de la seed tiene prioridad
+        name = b.group(1)
+        it["banco"] = name.upper() if name.upper() in ("BCI", "MACH", "MACHBANK") else name
+    low = blob.lower()
+    if "miércoles" in low or "miercoles" in low:
+        it.setdefault("dias", "miércoles")
+    elif "martes" in low and "jueves" in low:
+        it.setdefault("dias", "mar-jue")
+    elif "viernes" in low and "domingo" in low:
+        it.setdefault("dias", "vie-dom")
+
+
+def load_seed() -> list:
+    """Carga seed_coupons.json (capa editorial). Descarta la semilla completa si
+    lleva más de 45 días sin revisión humana (anti-staleness)."""
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "seed_coupons.json")
+    try:
+        with open(p, encoding="utf-8") as fh:
+            seed = json.load(fh)
+        rev = seed.get("revisado") or ""
+        cut = (datetime.now(timezone.utc) - timedelta(days=45)).strftime("%Y-%m-%d")
+        if rev and rev < cut:
+            print(f"  [seed] obsoleta (revisado {rev} < {cut}) — se ignora", file=sys.stderr)
+            return []
+        items = []
+        for it in seed.get("items", []):
+            it = dict(it)
+            it["src_editorial"] = True
+            items.append(it)
+        print(f"  [seed] {len(items)} cupones editoriales (revisado {rev})")
+        return items
+    except Exception as e:
+        print(f"  [seed] no disponible: {e}", file=sys.stderr)
+        return []
 
 def fetch_store(store_slug: str):
     """Devuelve (items, updated_label, error) para una tienda de cupon.cl."""
@@ -169,14 +255,43 @@ def main():
             resolve_code(it)
             time.sleep(0.4)
 
+    # saneo: descartar vencidos (mes/fecha pasada) y etiquetar restricciones
+    n_exp = 0
+    clean = []
+    for it in items:
+        if detect_expired(it):
+            n_exp += 1
+            continue
+        detect_banco_dias(it)
+        clean.append(it)
+    items = clean
+
+    # capa editorial: la seed gana en dedup por code
+    have = {x.get("code") for x in items if x.get("code")}
+    for s in load_seed():
+        if s.get("code") and s["code"] in have:
+            continue
+        if detect_expired(s):
+            n_exp += 1
+            continue
+        detect_banco_dias(s)
+        items.append(s)
+
+    # orden global: códigos primero (conf alta primero), luego beneficios, ofertas al final
+    items.sort(key=lambda x: (0 if x.get("code") else (1 if x.get("kind") == "beneficio" else 2),
+                              0 if x.get("conf") == "alta" else 1))
+
     out = {
         "ts": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
         "ok": len(items) > 0,
         "secs": round(time.time() - t0, 1),
-        "source": "cupon.cl",
+        "source": "cupon.cl + seed editorial",
         "stats": {
             "total": len(items),
             "con_codigo": sum(1 for x in items if x["code"]),
+            "beneficios": sum(1 for x in items if x.get("kind") == "beneficio"),
+            "ofertas": sum(1 for x in items if x.get("kind") == "oferta"),
+            "expirados_filtrados": n_exp,
             "por_tienda": {k: v["n"] for k, v in per_store.items()},
         },
         "fuentes_upd": {k: v["updated"] for k, v in per_store.items()},
@@ -198,8 +313,10 @@ def main():
         json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
 
     print(f"CUPONES OK: {out['stats']['total']} items "
-          f"({out['stats']['con_codigo']} con código) en {out['secs']}s")
-    for it in items[:6]:
+          f"({out['stats']['con_codigo']} con código, "
+          f"{out['stats']['beneficios']} beneficios, "
+          f"{out['stats']['expirados_filtrados']} vencidos filtrados) en {out['secs']}s")
+    for it in items[:8]:
         print(f"   · [{'CÓD ' + it['code'] if it['code'] else it['kind']:>14}] "
               f"{it['merchant']:<16} {it['title'][:62]}")
 

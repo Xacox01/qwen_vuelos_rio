@@ -238,6 +238,11 @@ section.band{background:var(--bg);border-top:1px solid var(--line);border-bottom
 
 /* ---------- cupones ---------- */
 .cpfilters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cpcard .chips{display:flex;gap:6px;flex-wrap:wrap}
+.bchip{display:inline-flex;align-items:center;gap:4px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--mut);border:1px solid var(--line)}
+.bchip.warn{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+.bchip.info{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.bchip.soft{background:#f9fafb;color:#6b7280;border-style:dashed}
 .cpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 .cpcard{background:var(--white);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;transition:.15s}
 .cpcard:hover{box-shadow:var(--sh2)}
@@ -336,7 +341,7 @@ footer .flogo b{color:#fff;font-size:1rem}
       <a href="#calendario">Calendario</a>
       <a href="#ofertas">Ofertas</a>
       <a href="#destinos">Destinos</a>
-      <a href="#cupones">Cupones<span class="n" v-if="cuponesVisibles.length">{{cuponesVisibles.length}}</span></a>
+      <a href="#cupones">Cupones<span class="n" v-if="cuponesCodigos.length">{{cuponesCodigos.length}}</span></a>
       <a href="#alertas">Alertas</a>
     </nav>
     <div class="hstat">
@@ -566,21 +571,32 @@ footer .flogo b{color:#fff;font-size:1rem}
     <div class="shead">
       <h2>Cupones y promociones activos</h2>
       <span class="note-r" v-if="D && D.cupones">
-        {{D.cupones.stats.total}} cupones verificados · última revisión <b>{{ago(D.cupones.ts)}}</b> · fuente cupon.cl
+        {{cuponesCodigos.length}} códigos + {{cuponesBenef.length}} beneficios activos<template v-if="D.cupones.stats&&D.cupones.stats.expirados_filtrados"> · {{D.cupones.stats.expirados_filtrados}} vencidos filtrados</template> · última revisión <b>{{ago(D.cupones.ts)}}</b> · fuentes: cupon.cl, redes oficiales y portales de beneficios
       </span>
     </div>
+    <div class="cpfilters">
+      <button class="fbtn" :class="{on:cpTipo==='codigos'}" @click="cpTipo='codigos'">Códigos ({{cuponesCodigos.length}})</button>
+      <button class="fbtn" :class="{on:cpTipo==='beneficios'}" @click="cpTipo='beneficios'">Beneficios ({{cuponesBenef.length}})</button>
+      <button class="fbtn" :class="{on:cpTipo==='todos'}" @click="cpTipo='todos'">Todos ({{cupones.length}})</button>
+    </div>
     <div class="cpfilters" v-if="merchants.length>1">
-      <button class="fbtn" :class="{on:cpF==='todas'}" @click="cpF='todas'">Todas ({{cupones.length}})</button>
+      <button class="fbtn" :class="{on:cpF==='todas'}" @click="cpF='todas'">Todas las tiendas ({{cupones.length}})</button>
       <button class="fbtn" v-for="m in merchants" :key="m" :class="{on:cpF===m}" @click="cpF=m">{{m}} ({{porMerchant(m)}})</button>
     </div>
     <div class="cpgrid" v-if="cuponesVisibles.length">
       <div class="cpcard" v-for="c in cuponesVisibles" :key="c.id">
         <div class="hd">
-          <span class="amt">{{c.amount || (c.kind==='codigo' ? 'CUPÓN' : 'OFERTA')}}</span>
+          <span class="amt">{{c.amount || (c.kind==='codigo' ? 'CUPÓN' : 'BENEFICIO')}}</span>
           <span class="mr">{{c.merchant}}</span>
           <span class="ok" v-if="c.verified">✓ verificado</span>
         </div>
         <div class="bd">
+          <div class="chips" v-if="c.banco||c.dias||c.kind==='beneficio'||c.conf==='media'">
+            <span class="bchip warn" v-if="c.banco" title="Requiere pagar con ese medio"> Solo {{c.banco}}</span>
+            <span class="bchip info" v-if="c.dias" title="Solo aplica esos días"> Solo {{c.dias}}</span>
+            <span class="bchip" v-if="c.kind==='beneficio'">beneficio sin código</span>
+            <span class="bchip soft" v-if="c.conf==='media'" title="Confirmar vigencia al cotizar">sin confirmar hoy</span>
+          </div>
           <div class="tt">{{c.title}}</div>
           <div class="ds" v-if="c.desc">{{c.desc}}</div>
           <div class="kv" v-if="countConds(c)">
@@ -592,19 +608,19 @@ footer .flogo b{color:#fff;font-size:1rem}
           </div>
           <div class="actrow">
             <a class="btn" :class="c.code?'ghost':'org'" style="flex:1" :href="c.url" target="_blank" rel="noopener nofollow">
-              {{c.code?'Aplicar en '+c.merchant:'Activar oferta'}}
+              {{c.code?'Aplicar en '+c.merchant:(c.kind==='beneficio'?'Ver beneficio':'Activar oferta')}}
             </a>
-            <span class="where">{{c.expires?('vence: '+c.expires):''}}</span>
+            <span class="where">{{c.vigencia?('vigencia: '+c.vigencia):(c.expires?('vence: '+c.expires):'')}}</span>
           </div>
         </div>
       </div>
     </div>
     <div class="panel" v-else style="text-align:center">
-      <h3>Sin cupones publicados en este momento</h3>
-      <p class="pp">Revisamos cupon.cl automáticamente cada pocas horas. Cuando aparezcan códigos nuevos para JetSMART, LATAM, Despegar, Cocha o Falabella, aparecerán aquí.</p>
+      <h3>Sin cupones activos en este momento</h3>
+      <p class="pp">Revisamos cupon.cl, redes sociales oficiales de las aerolíneas y portales de beneficios en cada ciclo. Los códigos vencidos se filtran automáticamente: aquí solo verás cupones con vigencia plausible.</p>
     </div>
     <p style="font-size:.7rem;color:var(--faint);margin:14px 0 0" v-if="D && D.cupones">
-      Los códigos provienen de cupon.cl (verificados {{ago(D.cupones.ts)}}). Aplican términos y condiciones de cada comercio; Radar Río no es responsable de su vigencia.
+      Fuentes: cupon.cl + capa editorial (redes oficiales de aerolíneas, portales de beneficios y páginas de ofertas, última revisión humana de la editorial: ver campo vigencia de cada cupón). Los cupones con restricción de banco o día se marcan con etiqueta. Aplican términos y condiciones de cada comercio; Radar Río no es responsable de su vigencia — confirma siempre al cotizar.
     </p>
   </div>
 </section>
@@ -743,7 +759,7 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 createApp({
   data(){ return {
     D:null, mob:false, pax:1, selWin:0, filterMax:0, onlyDirect:false,
-    cpF:'todas', copied:null, mail:'', obj:'', susEnvio:false, susMsg:'', susOk:null, cfg:null
+    cpF:'todas', cpTipo:'codigos', copied:null, mail:'', obj:'', susEnvio:false, susMsg:'', susOk:null, cfg:null
   }},
   computed:{
     f(){ return (this.D && this.D.fuentes) || {}; },
@@ -886,10 +902,19 @@ createApp({
     ofertas(){ return this.destinos.filter(d=>d.cod!=='GIG').slice(0,6); },
     ofertaRio(){ return this.destinos.find(d=>d.cod==='GIG')||null; },
 
-    /* ---- cupones ---- */
-    cupones(){ return (this.D&&this.D.cupones&&this.D.cupones.items)||[]; },
+    /* ---- cupones: solo códigos y beneficios reales; las ofertas de precio de
+       vuelos (kind='oferta') y los vencidos (expired) se excluyen aquí y en el
+       fetcher. BCIMACHD y compañía llegan con etiqueta de banco/día. ---- */
+    cupones(){ const a=(this.D&&this.D.cupones&&this.D.cupones.items)||[]; return a.filter(c=>c.kind!=='oferta'&&!c.expired); },
+    cuponesCodigos(){ return this.cupones.filter(c=>c.kind==='codigo'); },
+    cuponesBenef(){ return this.cupones.filter(c=>c.kind==='beneficio'); },
     merchants(){ return [...new Set(this.cupones.map(c=>c.merchant))]; },
-    cuponesVisibles(){ return this.cpF==='todas'?this.cupones:this.cupones.filter(c=>c.merchant===this.cpF); },
+    cuponesVisibles(){
+      let l=this.cupones;
+      if(this.cpTipo==='codigos') l=this.cuponesCodigos;
+      else if(this.cpTipo==='beneficios') l=this.cuponesBenef;
+      return this.cpF==='todas'?l:l.filter(c=>c.merchant===this.cpF);
+    },
 
     alertas(){ return (this.D&&this.D.alerts||[]).slice(0,8); },
     subs(){ return (this.D&&this.D.suscriptores)||null; },
