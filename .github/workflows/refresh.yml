@@ -152,13 +152,13 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/actions/workflows/refresh.yml/dispatches" \
               -d '{"ref":"main"}')
             echo "auto-dispatch HTTP $CODE (intento $i)"
-            if [ "$CODE" = "202" ]; then break; fi
+            if [ "$CODE" = "204" ] || [ "$CODE" = "202" ]; then break; fi
             if [ "$CODE" = "401" ]; then
               echo "::error::dispatch devolvio 401 (PUSH_TOKEN invalido o recien rotado). El cron de respaldo cada 10 min retomara el ciclo — no se pierde nada."
               break
             fi
             sleep 15
           done
-          if [ "$CODE" != "202" ]; then
+          if [ "$CODE" != "204" ] && [ "$CODE" != "202" ]; then
             echo "::warning::cadena no re-dispateada (HTTP $CODE). El cron */10 de respaldo garantiza el proximo ciclo."
           fi
