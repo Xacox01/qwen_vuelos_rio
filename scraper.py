@@ -24,7 +24,8 @@ PLAYAS_TRAMOS = ("FLN", "SSA", "REC", "FOR", "MCZ", "NAT", "BPS", "CTG",
 TRAMO_LO, TRAMO_HI = "2026-12-01", "2027-03-31"
 AL_NOMBRE = {"JA": "JetSMART", "LA": "LATAM", "H2": "SKY", "G3": "GOL",
              "AR": "Aerolíneas Argentinas", "AV": "Avianca", "CM": "Copa",
-             "AM": "Aeroméxico", "IB": "Iberia"}
+             "AM": "Aeroméxico", "IB": "Iberia", "DL": "Delta", "AC": "Air Canada",
+             "UA": "United", "AA": "American", "KL": "KLM", "AF": "Air France"}
 
 try:
     from curl_cffi import requests as cr
