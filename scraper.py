@@ -676,19 +676,37 @@ def main():
     LIVE = old if old else seed()
     cycle = int(LIVE.get("cycle", 0))
 
+    def _merge_fuente(key, data, campo):
+        """Regla anti-borrado: una fuente solo se actualiza si trajo datos.
+        Si la captura vino vacía (ej. respuesta degradada por WARP) se conserva
+        la última data buena con su ts original (la auditoría reflejará la
+        frescura real). Nunca se reemplaza data buena con vacío.
+        Devuelve True si se actualizó."""
+        if data.get(campo):
+            LIVE["fuentes"][key] = {"ts": now_iso(), "ok": True, **data}
+            return True
+        previo = LIVE["fuentes"].get(key) or {}
+        if previo.get(campo):
+            print(f"{key}: captura vacía (0 {campo}) — se conserva la última data buena", flush=True)
+            return False
+        LIVE["fuentes"].setdefault(key, {})["ok"] = False
+        print(f"{key}: captura vacía y sin data previa — ok=False", flush=True)
+        return False
+
     # 1) JetSMART
     try:
         js = fetch_jetsmart()
-        LIVE["fuentes"]["jetsmart"] = {"ts": now_iso(), "ok": True, **js}
-        print(f"JetSMART OK: {len(js['idas'])} idas, mejor combo {js['combos'][0]['clp']:,.0f}", flush=True)
+        if _merge_fuente("jetsmart", js, "combos"):
+            mejor = js["combos"][0]["clp"]
+            print(f"JetSMART OK: {len(js['idas'])} idas, mejor combo {mejor:,.0f}", flush=True)
     except Exception as e:
         print(f"JetSMART FAIL: {str(e)[:100]}", flush=True)
         LIVE["fuentes"].setdefault("jetsmart", {})["ok"] = False
     # 2) SKY
     try:
         sk = fetch_sky()
-        LIVE["fuentes"]["sky"] = {"ts": now_iso(), "ok": True, **sk}
-        print(f"SKY OK: {len(sk['pairs'])} pares, mejor {sk['pairs'][0]['clp']:,.0f}", flush=True)
+        if _merge_fuente("sky", sk, "pairs"):
+            print(f"SKY OK: {len(sk['pairs'])} pares, mejor {sk['pairs'][0]['clp']:,.0f}", flush=True)
     except Exception as e:
         print(f"SKY FAIL: {str(e)[:100]}", flush=True)
         LIVE["fuentes"].setdefault("sky", {})["ok"] = False
@@ -794,8 +812,8 @@ def main():
     # 5) LATAM oficial (BFF calendario)
     try:
         la = fetch_latam()
-        LIVE["fuentes"]["latam"] = {"ts": now_iso(), "ok": True, **la}
-        print(f"LATAM OK: {len(la['dias_out'])}+{len(la['dias_in'])} días, mejor combo {la['combos'][0]['clp']:,.0f}", flush=True)
+        if _merge_fuente("latam", la, "combos"):
+            print(f"LATAM OK: {len(la['dias_out'])}+{len(la['dias_in'])} días, mejor combo {la['combos'][0]['clp']:,.0f}", flush=True)
     except Exception as e:
         print(f"LATAM FAIL: {str(e)[:100]}", flush=True)
         cur = LIVE["fuentes"].get("latam")
