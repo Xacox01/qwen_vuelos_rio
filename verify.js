@@ -242,8 +242,13 @@ ok(filasBad.length === 0, 'todas las filas con deep link a su fuente', filasBad.
 ok(filas.every(r => YEAR.test(r.link || '')), 'filas con fecha 2027 en el enlace');
 const vw0 = vw[0] || {};
 ok((vm.dpRT(vw0.ida, vw0.vuelta) || '').includes('2027'), 'buscador hero: url con fecha');
-const dss = ds.filter(d => (d.link || '').includes('cocha.com/resultado/vuelos/')).length;
+/* Task 23: el link PRINCIPAL de un destino integrado apunta al tramo más barato
+   (jetsmart.com / latam.com / cocha por tramo) — el deep link del redondo Cocha
+   vive en linkCocha/linkRt. Lo que exigimos: TODO destino tiene un enlace Cocha
+   del redondo disponible en la tarjeta y todo link principal es http. */
+const dss = ds.filter(d => String(d.linkCocha || d.linkRt || d.link || '').includes('cocha.com/resultado/vuelos/')).length;
 ok(dss >= ds.length - 1, 'destinos con deep link Cocha (agencia chilena)', dss + '/' + ds.length);
+ok(ds.every(d => (d.link || '').startsWith('http')), 'destinos: link principal http (cruce apunta al tramo)');
 ok(!/skiplagged/i.test(html), 'sin NINGUNA referencia a Skiplagged en la interfaz');
 ok(html.includes('Precios referenciales capturados automáticamente'), 'disclaimer de precios referenciales visible');
 ok(html.includes('Comparar') && html.includes('en más sitios'), 'fila de comparación con agencias visible');
