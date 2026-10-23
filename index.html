@@ -880,13 +880,21 @@ createApp({
         is.forEach(i=>vs.forEach(v=>{ const n=Math.round((new Date(v.fecha)-new Date(i.fecha))/864e5);
           if(n>=6&&n<=30){ const t=i.min_clp+v.min_clp; if(!best||t<best.t) best={t,i,v,n}; } }));
         if(best) return best;
-        const i=is.sort((a,b)=>a.min_clp-b.min_clp)[0], v=vs.sort((a,b)=>a.min_clp-b.min_clp)[0];
-        return i?{t:i.min_clp+(v?v.min_clp:0),i,v,n:null}:null;
+        /* Degradación honesta (Task 22): si las anclas de este ciclo no forman un
+           viaje real (rotativas incoherentes + base bloqueada por DataDome), se
+           exige al menos vuelta POSTERIOR a la ida; si nada calza, el tile pasa a
+           SOLO IDA (precio one-way real) en vez de armar un roundtrip imposible. */
+        let any=null;
+        is.forEach(i=>vs.forEach(v=>{ const n=Math.round((new Date(v.fecha)-new Date(i.fecha))/864e5);
+          if(n>=1){ const t=i.min_clp+v.min_clp; if(!any||t<any.t) any={t,i,v,n}; } }));
+        if(any) return any;
+        const i=is.sort((a,b)=>a.min_clp-b.min_clp)[0];
+        return i?{t:i.min_clp,i,v:null,n:null}:null;
       };
       const dpl=combo('despegar');
-      if(dpl) out.push({key:'despegar',cod:'DP',nombre:'Despegar',corto:'Despegar',clp:dpl.t,sub:'ida '+this.dshortISO(dpl.i.fecha)+(dpl.v?' · vuelta '+this.dshortISO(dpl.v.fecha):' · solo ida')+(dpl.n?' · '+dpl.n+' noches':''),url:this.otaLink('despegar',dpl.i,dpl.v),ts:F.despegar.ts,nota:'agencia · ida y vuelta en las fechas mostradas',fresco:this.fresco(F.despegar.ts)});
+      if(dpl) out.push({key:'despegar',cod:'DP',nombre:'Despegar',corto:'Despegar',clp:dpl.t,sub:'ida '+this.dshortISO(dpl.i.fecha)+(dpl.v?' · vuelta '+this.dshortISO(dpl.v.fecha):' · solo ida')+(dpl.n?' · '+dpl.n+' noches':''),url:this.otaLink('despegar',dpl.i,dpl.v),ts:F.despegar.ts,nota:dpl.v?'agencia · ida y vuelta en las fechas mostradas':'agencia · precio one-way de ida — sin vuelta coherente este ciclo',fresco:this.fresco(F.despegar.ts)});
       const fal=combo('falabella');
-      if(fal) out.push({key:'falabella',cod:'FV',nombre:'Viajes Falabella',corto:'Falabella',clp:fal.t,sub:'ida '+this.dshortISO(fal.i.fecha)+(fal.v?' · vuelta '+this.dshortISO(fal.v.fecha):' · solo ida')+(fal.n?' · '+fal.n+' noches':''),url:this.otaLink('falabella',fal.i,fal.v),ts:F.falabella.ts,nota:'agencia · ida y vuelta en las fechas mostradas',fresco:this.fresco(F.falabella.ts)});
+      if(fal) out.push({key:'falabella',cod:'FV',nombre:'Viajes Falabella',corto:'Falabella',clp:fal.t,sub:'ida '+this.dshortISO(fal.i.fecha)+(fal.v?' · vuelta '+this.dshortISO(fal.v.fecha):' · solo ida')+(fal.n?' · '+fal.n+' noches':''),url:this.otaLink('falabella',fal.i,fal.v),ts:F.falabella.ts,nota:fal.v?'agencia · ida y vuelta en las fechas mostradas':'agencia · precio one-way de ida — sin vuelta coherente este ciclo',fresco:this.fresco(F.falabella.ts)});
       /* Cocha: SOLO la ventana verificada (min_clp validado contra la página real de
          resultados cuando el navegador pudo leerla — scraper marca base:'pagina';
          si no, cotización API declarada). El fallback promocional de portada

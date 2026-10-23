@@ -251,11 +251,20 @@ const CO = (DATA.fuentes || {}).cocha || {};
 ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base === 'pagina' || v.base === 'api'), 'cocha ventanas con base declarada (pagina/api)');
 ok((CO.ventanas || []).length === 0 || (CO.ventanas || []).every(v => v.base !== 'pagina' || !!v.api_min), 'cocha: api_min queda como auditoría cuando se verificó en página');
 ok((CO.ventanas || []).every(v => v.min_clp > 100000), 'cocha: mínimos plausibles (sin promos de portada)');
-/* coherencia combo: si el tile de una OTA declara fechas, el deep link debe abrir EXACTAMENTE esas fechas */
+/* coherencia combo: si el tile de una OTA declara fechas, el deep link debe abrir
+   EXACTAMENTE esas fechas. Con la degradación honesta (Task 22) el tile puede caer
+   a SOLO IDA cuando ninguna ancla del ciclo forma un viaje real: se acepta el
+   link oneway PERO se prohibe todo roundtrip con vuelta anterior a ida+6d. */
 tiles.filter(t => t.key === 'despegar' || t.key === 'falabella').forEach(t => {
-  const m = String(t.url || '').match(/roundtrip\/SCL\/GIG\/(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/);
-  ok(!!m, 'tile ' + t.nombre + ': deep link roundtrip con ambas fechas', t.url);
-  if (m) ok(new Date(m[2]) - new Date(m[1]) >= 6 * 864e5, 'tile ' + t.nombre + ': ventana >= 6 noches (combo real)', m[1] + ' → ' + m[2]);
+  const u = String(t.url || '');
+  const m = u.match(/roundtrip\/SCL\/GIG\/(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/);
+  if (m) {
+    ok(!!m, 'tile ' + t.nombre + ': deep link roundtrip con ambas fechas', u);
+    ok(new Date(m[2]) - new Date(m[1]) >= 6 * 864e5, 'tile ' + t.nombre + ': ventana >= 6 noches (combo real)', m[1] + ' → ' + m[2]);
+  } else {
+    const mo = u.match(/oneway\/SCL\/GIG\/(\d{4}-\d{2}-\d{2})\/1\/0\/0/);
+    ok(!!mo, 'tile ' + t.nombre + ': deep link válido (roundtrip real o degradación a solo ida)', u);
+  }
 });
 vm.filterMax = 0; vm.onlyDirect = true;
 const directas = vm.filasFiltradas.length;

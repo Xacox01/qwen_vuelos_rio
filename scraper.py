@@ -1198,6 +1198,10 @@ def main():
     # Acumulación de la MATRIZ DE FECHAS OTA: los calendarios por sentido se UNEN
     # entre ciclos (mínimo por fecha). Con anclas rotativas (fetch_otas), en ~5
     # escaneos stealth (≈12 h) el motor de combos cubre dic 2026 → mar 2027.
+    # FIX Task 22: además se acumulan las filas min_clp por fecha — si este ciclo
+    # DataDome bloqueó una ancla base pero leyó las rotativas, el reemplazo dejaba
+    # un sentido sin fecha coherente y el tile armaba un roundtrip imposible
+    # (vuelta anterior a la ida) que cortaba el gate de publicación.
     for _src in ("despegar", "falabella"):
         cur = LIVE["fuentes"].get(_src) or {}
         if not cur.get("dias"):
@@ -1213,6 +1217,22 @@ def main():
                 if f and p and (f not in acc or p < acc[f]):
                     acc[f] = p
             nd["calendario"] = [{"fecha": k, "clp": v} for k, v in sorted(acc.items())][-250:]
+        # filas min_clp: la lectura nueva de una fecha SIEMPRE gana; si la fecha no
+        # se escaneó este ciclo (o se escaneó y salió sin precio), conserva la
+        # última lectura buena de esa fecha (máx 12 filas por sentido).
+        cur["dias"] = [d for d in cur["dias"] if d.get("min_clp")]
+        for pd in (prev.get("dias") or []):
+            if not pd.get("min_clp"):
+                continue
+            nd = next((x for x in cur["dias"] if x.get("sentido") == pd.get("sentido")
+                       and x.get("fecha") == pd.get("fecha")), None)
+            if nd is not None:
+                continue
+            if sum(1 for x in cur["dias"] if x.get("sentido") == pd.get("sentido")) >= 12:
+                continue
+            fila = dict(pd)
+            fila["base"] = (pd.get("base") or "prev") + "+acc"
+            cur["dias"].append(fila)
 
     # 5) LATAM oficial (BFF calendario)
     try:
