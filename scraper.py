@@ -979,6 +979,16 @@ def combos_playas(live):
                 if isinstance(w, dict) and w.get("clp") and HOR_INI <= str(f)[:10] <= HOR_FIN:
                     m.setdefault(str(f)[:10], []).append(
                         (float(w["clp"]), w.get("al") or "CO", w.get("det") or w.get("al_nom") or "Cocha"))
+            # Task 23 (coherencia): GIG es el mismo par SCL⇄GIG que fetch_jetsmart
+            # ya captura completo (idas/vueltas, ~64 fechas por sentido). Sin esto,
+            # el cruce de GIG solo veía los tramos de la respuesta de red y su
+            # 'mejor' quedaba ~40 mil sobre el mínimo que muestra 'Precios hoy'.
+            if cod == "GIG":
+                jsx = (F.get("jetsmart") or {})
+                for x in ((jsx.get("idas") if sentido == "idas" else jsx.get("vueltas")) or []):
+                    f = str(x.get("fecha", ""))[:10]
+                    if x.get("clp") and HOR_INI <= f <= HOR_FIN:
+                        m.setdefault(f, []).append((float(x["clp"]), "JA", "JetSMART matriz completa"))
             return m
         idas = _lado("idas", f"SCL-{cod}")
         vueltas = _lado("vueltas", f"{cod}-SCL")
