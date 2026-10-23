@@ -60,9 +60,12 @@ jobs:
           except Exception:
               due = True
           try:
+              DESTS = ("GIG","FLN","SSA","REC","FOR","MCZ","NAT","BPS","CTG","ADZ",
+                       "PUJ","CUN","HAV","LIR","SJO","PTY")
               ow = ((d.get("fuentes") or {}).get("playas") or {}).get("one_way") or {}
-              pend = [k for k, v in ow.items() if isinstance(v, dict)
-                      and not (v.get("SCL-" + k) and v.get(k + "-SCL"))]
+              # pendiente = destino sin key O con algún sentido vacío
+              pend = [k for k in DESTS if not isinstance(ow.get(k), dict)
+                      or not (ow[k].get("SCL-" + k) and ow[k].get(k + "-SCL"))]
               due = due or bool(pend)
           except Exception:
               pass
