@@ -269,6 +269,16 @@ def main():
         verif = [m for m in muestra if m.get("veredicto") == "VERIFICADO"]
         correg = [m for m in muestra if m.get("veredicto") == "CORREGIDO"]
         nover = [m for m in muestra if m.get("veredicto") == "NO VERIFICABLE"]
+        # TASK 23: la corrección en vivo reconstruye 'mejor' desde Cocha (y aunque
+        # no corrija, el cruce pudo haber bajado) — se re-aplica la integración del
+        # cruce para que lo publicado siga siendo el MÍNIMO REAL (cruce vs redondo).
+        # Idempotente, sin red: solo reordena 'mejor' con los cruce ya guardados.
+        try:
+            n_int_a, _nm_a = S.integrar_cruce_en_mejor(playas)
+            if n_int_a:
+                det += f" · mejor integrado con cruce: {n_int_a}"
+        except Exception as ex_i:
+            print(f"re-integración cruce en auditoría falló: {ex_i}", flush=True)
         if correg:
             det += f" · CORREGIDOS EN VIVO: {','.join(c['cod'] for c in correg)}"
             estado = "CORREGIDO"
@@ -295,7 +305,17 @@ def main():
                 ciclo = int(data.get("cycle") or 0)
                 nueva = S.fetch_playas(playas, ciclo)
                 if nueva and nueva.get("destinos"):
+                    # fetch_playas no devuelve 'cruce': conservarlo (si se pierde,
+                    # el sitio queda sin cruce hasta el ciclo siguiente)
+                    cru_prev = playas.get("cruce")
                     fuentes["playas"] = {"ts": TS, "ok": True, **nueva}
+                    if cru_prev:
+                        fuentes["playas"]["cruce"] = cru_prev
+                    # y re-integrar: 'mejor' = mínimo real (cruce vs redondo Cocha)
+                    try:
+                        S.integrar_cruce_en_mejor(fuentes["playas"])
+                    except Exception:
+                        pass
                     cambios_data[0] = True
                     for d in nueva["destinos"]:
                         m = (d.get("mejor") or {}).get("clp")

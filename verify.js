@@ -114,6 +114,20 @@ ok(crList.every(c => c.mejor.al_ida && c.mejor.al_vue && typeof c.mejor.mixta ==
 const dConCru = vm.destinos.filter(d => d.cruce && d.cruce.clp > 0).length;
 ok(dConCru >= 1, 'UI destinos: cruce visible en tarjeta', dConCru);
 crList.slice(0, 4).forEach(c => console.log('     cruce ' + c.mejor.al_ida + '+' + c.mejor.al_vue + ' ' + c.mejor.ida + '→' + c.mejor.vuelta + ': $' + Math.round(c.mejor.clp).toLocaleString('es-CL') + (c.delta_rt_pct != null ? ' (' + (c.delta_rt_pct > 0 ? '+' : '') + c.delta_rt_pct + '% vs redondo)' : '')));
+/* TASK 23 (bug del dueño): 'Ofertas de la semana' congelada en el redondo de Cocha
+   aunque el motor tenía combinaciones ~100 mil más baratas. 'mejor' ahora es el
+   MÍNIMO REAL (cruce vs redondo) → dos invariantes duros: */
+const invMejor = (PL.destinos || []).filter(d => d.mejor && d.mejor.clp > 0 && d.cocha && d.cocha.min_clp > 0);
+ok(invMejor.every(d => d.mejor.clp <= d.cocha.min_clp + 1),
+   'integración mejor: NINGÚN destino publicado cuesta más que su redondo Cocha',
+   invMejor.filter(d => d.mejor.clp > d.cocha.min_clp + 1).map(d => d.cod).join(',') || 'ok');
+const nInteg = (PL.destinos || []).filter(d => d.mejor && d.mejor.cruce).length;
+ok(invMejor.filter(d => d.mejor.cruce).every(d =>
+    d.mejor.al_ida_nom && d.mejor.al_vue_nom && (d.mejor.link_vue || '').startsWith('http') && d.mejor.rt_clp > 0),
+   'integración mejor: cruces publicados con aerolíneas, link de vuelta y redondo de referencia', nInteg);
+const nGan = invMejor.filter(d => d.mejor.clp < d.cocha.min_clp - 1).length;
+if (nInteg === 0) console.log('     aviso: hoy ningún cruce gana al redondo (integración sin efecto, no es error)');
+else console.log('     mejor integrado: ' + nInteg + ' destinos publican el cruce (' + nGan + ' estrictamente más barato que el redondo)');
 ds.forEach(d => console.log('     ' + d.cod + ' ' + d.ciudad + ': $' + Math.round(d.clp).toLocaleString('es-CL') + (d.enPresupuesto ? '' : ' (sobre presupuesto)')));
 
 console.log('== 6. cupones ==');

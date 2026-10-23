@@ -233,6 +233,9 @@ section.band{background:var(--bg);border-top:1px solid var(--line);border-bottom
 .ofbd .pr{font-size:1.3rem;font-weight:800;color:var(--ink)}
 .ofbd .pr small{font-size:.68rem;color:var(--faint);font-weight:600;display:block}
 .ofbd .row{display:flex;gap:8px;margin-top:auto}
+/* Task 23: nota pequeña del cruce integrado en Ofertas (combinación real + redondo de referencia) */
+.mini-note{font-size:.72rem;color:var(--mut);line-height:1.45}
+.mini-note a{color:var(--cta);font-weight:700;text-decoration:none;border-bottom:1px dashed currentcolor}
 .btn{display:inline-block;background:var(--brand);color:#fff!important;font-weight:800;font-size:.82rem;border-radius:7px;padding:10px 16px;text-align:center;transition:.15s}
 .btn:hover{background:var(--brand-d);text-decoration:none}
 .btn.ghost{background:var(--white);color:var(--ink)!important;border:1px solid var(--line2)}
@@ -598,6 +601,7 @@ footer .flogo b{color:#fff;font-size:1rem}
         <div class="ofbd">
           <div class="ln"><span>{{dshort(ofertaRio.ida)}} → {{dshort(ofertaRio.vuelta)}}</span><span>{{ofertaRio.noches}} noches</span></div>
           <div class="pr"><small>IDA + VUELTA POR PERSONA DESDE</small>${{fmt(ofertaRio.clp)}} <span style="font-size:.72rem;color:var(--mut);font-weight:600">· {{ofertaRio.al}}</span></div>
+          <div class="mini-note" v-if="ofertaRio.esCruce">Precio real: ida {{ofertaRio.alIda}} + vuelta {{ofertaRio.alVue}} — 2 tickets one-way sin protección entre tramos<template v-if="ofertaRio.rtClp"> · <a :href="ofertaRio.linkRt||ofertaRio.linkCocha" target="_blank" rel="noopener nofollow">redondo Cocha ${{fmt(ofertaRio.rtClp)}}</a></template></div>
           <div class="row">
             <a class="btn org" :href="ofertaRio.link" target="_blank" rel="noopener nofollow">Ver vuelos a Río</a>
             <a class="btn ghost" :href="'https://www.booking.com/city/br/rio-de-janeiro.es.html'" target="_blank" rel="noopener nofollow">Ver hoteles ↗</a>
@@ -612,9 +616,11 @@ footer .flogo b{color:#fff;font-size:1rem}
         <div class="ofbd">
           <div class="ln"><span>{{dshort(o.ida)}} → {{dshort(o.vuelta)}}</span><span>{{o.noches}} noches</span></div>
           <div class="pr"><small>IDA + VUELTA DESDE</small>${{fmt(o.clp)}}</div>
+          <div class="mini-note" v-if="o.esCruce">ida {{o.alIda}} + vuelta {{o.alVue}} · 2 tickets one-way<template v-if="o.rtClp"> · <a :href="o.linkRt||o.linkCocha" target="_blank" rel="noopener nofollow">redondo Cocha ${{fmt(o.rtClp)}}</a></template></div>
           <div class="row">
-            <a class="btn" :href="o.link" target="_blank" rel="noopener nofollow">Ver vuelos</a>
-            <a class="btn ghost" :href="o.linkCocha" target="_blank" rel="noopener nofollow">Cocha</a>
+            <a class="btn" :href="o.link" target="_blank" rel="noopener nofollow">{{o.esCruce ? 'Ida · '+o.alIda : 'Ver vuelos'}}</a>
+            <a class="btn ghost" v-if="o.esCruce" :href="o.linkVue||o.link" target="_blank" rel="noopener nofollow">Vuelta · {{o.alVue}}</a>
+            <a class="btn ghost" v-else :href="o.linkCocha" target="_blank" rel="noopener nofollow">Cocha</a>
           </div>
         </div>
       </div>
@@ -643,7 +649,7 @@ footer .flogo b{color:#fff;font-size:1rem}
           <div class="srcs">mejor vía {{d.src}} · Cocha desde ${{fmtK(d.cocha)}}</div>
           <div class="cruce" v-if="d.cruce" title="Mejor ida + vuelta compradas por separado; pueden ser de aerolíneas distintas (2 tickets, sin protección entre tramos)">
             <span class="mixtag">{{d.cruce.mixta?'MIXTO':'1 AERO'}}</span>
-            <span>{{d.cruce.alIda}} + {{d.cruce.alVue}} = <b>${{fmt(d.cruce.clp)}}</b></span>
+            <span>{{d.esCruce ? 'precio mostrado: ' : ''}}{{d.cruce.alIda}} + {{d.cruce.alVue}} = <b>${{fmt(d.cruce.clp)}}</b></span>
             <span class="bchip gan" v-if="d.cruce.delta<0" title="Más barato que el pasaje redondo">−{{Math.abs(d.cruce.delta)}}% vs redondo</span>
             <span class="lnks"><a :href="d.cruce.linkIda" target="_blank" rel="noopener nofollow">ida</a><a :href="d.cruce.linkVue" target="_blank" rel="noopener nofollow">vuelta</a></span>
           </div>
@@ -998,6 +1004,11 @@ createApp({
         const c=(CR[p.cod]&&CR[p.cod].mejor)||null;
         return {cod:p.cod,ciudad:p.ciudad,pais:p.pais,flag:p.flag,clp:m.clp,ida:m.ida,vuelta:m.vuelta,
           noches:m.noches||'',al:m.aerolinea,escalas:m.escalas||0,src:m.src,link:m.link,
+          /* Task 23: cuando 'mejor' es un cruce integrado, la tarjeta muestra la
+             combinación real (ida X + vuelta Y, 2 tickets) y deja el redondo de
+             Cocha a la vista para comparar con honestidad */
+          esCruce:!!m.cruce,mixta:!!m.mixta,alIda:m.al_ida_nom||'',alVue:m.al_vue_nom||'',
+          linkVue:m.link_vue||'',rtClp:m.rt_clp||0,linkRt:m.link_rt||'',
           cocha:(p.cocha&&p.cocha.min_clp)||0,linkCocha:(p.cocha&&p.cocha.link)||m.link,
           enPresupuesto:m.clp<=B, ahorro, ahorroVentana:wBest.ida?this.dshort(wBest.ida).replace(/^\w+ /,''):'',
           cruce:c?{clp:c.clp,ida:c.ida,vuelta:c.vuelta,noches:c.noches,alIda:c.al_ida_nom,alVue:c.al_vue_nom,

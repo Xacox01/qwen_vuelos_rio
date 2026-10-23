@@ -808,7 +808,7 @@ def fetch_playas(prev, cycle):
     print(f"playas one-way: {n_ow_ok}/16 destinos con grilla", flush=True)
     return {"destinos": out, "one_way": one_way, "fx": round(fx, 2), "budget": PLAYAS_BUDGET,
             "ventanas": [f"{a} → {b}" for a, b in PLAYAS_WIN],
-            "nota": "Cotización en vivo de Cocha (agencia chilena) — precios verificados con fecha de itinerario exacta; el precio final puede variar ~10% al reservar."}
+            "nota": "Cotización en vivo de Cocha (agencia chilena) — precios verificados con fecha de itinerario exacta; el precio final puede variar ~10% al reservar. El 'mejor' de cada destino es el mínimo real entre este redondo y armar ida+vuelta por separado (cruce de aerolíneas, ver bloque de cruce)."}
 
 # ---------------- Motor de combinaciones (tramos separados, cruce de aerolíneas) ----------------
 # Pedido del dueño: dejar de fijar ventanas — el algoritmo recorre TODAS las fechas
@@ -1033,7 +1033,10 @@ def combos_playas(live):
             b = min(lst, key=lambda c: c["tot"])
             mono[al] = {"clp": round(b["tot"]), "ida": b["ida"], "vuelta": b["vuelta"]}
         mixta = _pick(best_mix)
-        rt = (d.get("mejor") or {}).get("clp")
+        # delta SIEMPRE contra el redondo de Cocha (no contra d['mejor']): tras la
+        # integración (Task 23) 'mejor' puede SER el cruce, y comparar cruce vs
+        # cruce daría 0% y escondería el chip "−N% vs redondo".
+        rt = (d.get("cocha") or {}).get("min_clp") or (d.get("mejor") or {}).get("clp")
         delta_rt = round((mejor["tot"] / rt - 1) * 100, 1) if rt else None
         out[cod] = {"ts": now_iso(),
                     "cobertura": {"fechas_ida": len(idas), "fechas_vue": len(vueltas),
@@ -1048,6 +1051,57 @@ def combos_playas(live):
                      "incluyendo aerolíneas distintas (2 tickets separados, sin "
                      "protección entre tramos). Compara contra el pasaje redondo de Cocha.")
             , "secs": round(time.time() - t0, 1)}
+
+def integrar_cruce_en_mejor(pl):
+    """TASK 23 (reporte del dueño): 'Ofertas de la semana' mostraba el redondo de
+    Cocha aunque el motor tuviera combinaciones hasta ~100 mil más baratas — la
+    sección parecía congelada porque los mínimos de ventanas Cocha acumuladas
+    casi no cambian entre ciclos.
+
+    FIX: el 'mejor' de cada destino pasa a ser el MÍNIMO REAL entre el pasaje
+    redondo de Cocha y armar el viaje con ida + vuelta one-way por separado
+    (cruce de aerolíneas, pueden ser distintas — 2 tickets). Así 'Ofertas de la
+    semana', 'Precios hoy' y las tarjetas de destinos cuentan la misma historia:
+    el mínimo de verdad. El redondo sigue siempre a la vista (d['cocha'] y
+    rt_clp/link_rt) para comparar con honestidad.
+
+    Idempotente y sin red: puede correr en cada ciclo y tras la corrección en
+    vivo de la auditoría. Devuelve (n_integrados, n_mixtos)."""
+    crs = ((pl or {}).get("cruce") or {}).get("destinos") or {}
+    n_int = n_mix = 0
+    for d in ((pl or {}).get("destinos") or []):
+        if not isinstance(d, dict):
+            continue
+        cr = crs.get(d.get("cod")) or {}
+        mj_cru = cr.get("mejor") or {}
+        rt = d.get("mejor") or {}
+        rt_clp = rt.get("clp") or 0
+        if not mj_cru.get("clp"):
+            rt.pop("cruce", None)  # limpieza defensiva de etiquetas huérfanas
+            continue
+        # si 'mejor' ya era un cruce integrado (p.ej. fetch_playas falló este
+        # ciclo y el destino viene del ciclo anterior), el redondo de referencia
+        # es el rt_clp guardado, no el precio del propio cruce
+        if rt.get("cruce"):
+            rt_clp = rt.get("rt_clp") or rt_clp or 0
+        if mj_cru["clp"] < (rt_clp or 1e18):
+            mixta = bool(mj_cru.get("mixta"))
+            d["mejor"] = {
+                "clp": round(mj_cru["clp"]), "src": "Cruce", "cruce": True, "mixta": mixta,
+                "ida": mj_cru.get("ida"), "vuelta": mj_cru.get("vuelta"), "noches": mj_cru.get("noches"),
+                "aerolinea": (f"{mj_cru.get('al_ida_nom', '')} + {mj_cru.get('al_vue_nom', '')}" if mixta
+                              else (mj_cru.get("al_ida_nom") or "one-way")),
+                "al_ida_nom": mj_cru.get("al_ida_nom"), "al_vue_nom": mj_cru.get("al_vue_nom"),
+                "escalas": 0, "det": mj_cru.get("det_ida") or "",
+                "link": mj_cru.get("link_ida"), "link_vue": mj_cru.get("link_vue"),
+                "rt_clp": (rt_clp or None),
+                "link_rt": (d.get("cocha") or {}).get("link") or rt.get("link") or ""}
+            n_int += 1
+            if mixta:
+                n_mix += 1
+        else:
+            rt.pop("cruce", None)
+    return n_int, n_mix
 
 def minimos_de(live):
     """Mejor precio por serie para comparar entre ciclos (alimenta alertas)."""
@@ -1358,6 +1412,17 @@ def main():
             print(f"Cruce playas OK: {len(cru['destinos'])} destinos · {n_mix} con opción mixta · {cru['secs']}s", flush=True)
     except Exception as e:
         print(f"Cruce playas FAIL: {str(e)[:80]} — se conserva el anterior", flush=True)
+    # 8c) INTEGRACIÓN (Task 23): 'mejor' por destino = mínimo real entre el redondo
+    #     de Cocha y el cruce one-way. Sin esto, 'Ofertas de la semana' publicaba el
+    #     redondo Cocha aunque existieran combinaciones ~100 mil más baratas y la
+    #     sección parecía congelada (los mínimos de ventanas acumuladas casi no
+    #     cambian). Corre contra el cruce fresco O el previo si este ciclo falló.
+    try:
+        n_int, n_mix_int = integrar_cruce_en_mejor(LIVE["fuentes"].get("playas") or {})
+        if n_int:
+            print(f"Playas mejor integrado: {n_int} destinos donde el cruce es el precio publicado ({n_mix_int} mixtos)", flush=True)
+    except Exception as e:
+        print(f"Integración cruce FAIL: {str(e)[:80]}", flush=True)
     # (espejo Google eliminado por pedido del usuario)
     LIVE["fuentes"].pop("google", None)
 
