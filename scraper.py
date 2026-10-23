@@ -365,6 +365,7 @@ AER = {"H2": "SKY", "JA": "JetSMART", "LA": "LATAM", "G3": "GOL", "AR": "Aerolí
 COCHA_VENTANAS = [("2027-01-02", "2027-02-01"), ("2027-01-22", "2027-02-01"), ("2027-01-10", "2027-01-20"),
                   ("2027-01-15", "2027-01-29"), ("2027-02-05", "2027-02-19")]
 _cocha_last = [0.0]
+COCHA_GAP = float(os.environ.get("COCHA_GAP", "4.0"))  # espaciado entre queries al WAF de Cocha
 
 _cocha_sess_cache = {"init": False, "sess": None}
 
@@ -396,10 +397,13 @@ def cocha_sess():
 
 def _cocha_post(variables):
     """POST GraphQL a Cocha con la ruta WARP→directo y reintentos (compartido por
-    roundtrip y oneway). Respeta el espaciado global _cocha_last (2.5 s)."""
+    roundtrip y oneway). Respeta el espaciado global _cocha_last. El WAF de Cocha
+    devuelve 403 intermitentes cuando el ciclo suma muchas queries (RT + OW):
+    espaciado mayor y backoff antes de cambiar de ruta mejoran la tasa por query
+    sin inflar el runtime del ciclo."""
     gap = time.time() - _cocha_last[0]
-    if gap < 2.5:
-        time.sleep(2.5 - gap)
+    if gap < COCHA_GAP:
+        time.sleep(COCHA_GAP - gap)
     # intento 1 por WARP (IP consumidor, pasa el WAF), intento 2 directo
     rutas = []
     _w = cocha_sess()
@@ -420,8 +424,8 @@ def _cocha_post(variables):
             last_err = e
             r = None
             print(f"cocha {variables['itinerary'][0]['destination']}: {str(e)[:120]} [{nombre}] — cambio de ruta", flush=True)
-            if "429" in str(e):
-                time.sleep(20)
+            if "429" in str(e) or "403" in str(e):
+                time.sleep(15)
             else:
                 time.sleep(4)
             continue
