@@ -709,10 +709,19 @@ def fetch_playas(prev, cycle):
     prev_ow = prev.get("one_way") or {}
     one_way = {k: (dict(v) if isinstance(v, dict) else {}) for k, v in prev_ow.items()}
     win_starts = [a for a, _b in PLAYAS_WIN]
-    faltantes = [cod for cod, _c, _p, _f in PLAYAS_DEST
-                 if not isinstance(one_way.get(cod), dict) or not one_way[cod].get("SCL-" + cod)]
-    resto = [cod for cod, _c, _p, _f in PLAYAS_DEST if cod not in faltantes]
-    orden_ow = faltantes + resto
+    def _completo(cod):
+        v = one_way.get(cod)
+        return isinstance(v, dict) and v.get("SCL-" + cod) and v.get(cod + "-SCL")
+    # Prioridad: primero los destinos INCOMPLETOS (les falta algún sentido — una
+    # sola falla de Cocha no debe dejar un destino sin cruce hasta la rotación
+    # larga); después los que aún no tienen nada.
+    incompletos = [cod for cod, _c, _p, _f in PLAYAS_DEST
+                   if isinstance(one_way.get(cod), dict) and (one_way[cod].get("SCL-" + cod) or one_way[cod].get(cod + "-SCL"))
+                   and not _completo(cod)]
+    vacios = [cod for cod, _c, _p, _f in PLAYAS_DEST if not isinstance(one_way.get(cod), dict)
+              or not (one_way[cod].get("SCL-" + cod) or one_way[cod].get(cod + "-SCL"))]
+    resto = [cod for cod, _c, _p, _f in PLAYAS_DEST if _completo(cod)]
+    orden_ow = incompletos + vacios + resto
     n_ow = 1 if full else int(os.environ.get("PLAYAS_OW", "2"))
     for cod in orden_ow[:n_ow]:
         owc = one_way.setdefault(cod, {})
