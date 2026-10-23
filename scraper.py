@@ -713,6 +713,13 @@ def fetch_playas(prev, cycle):
     prev_ow = prev.get("one_way") or {}
     one_way = {k: (dict(v) if isinstance(v, dict) else {}) for k, v in prev_ow.items()}
     win_starts = [a for a, _b in PLAYAS_WIN]
+    # Las queries one-way SOLO por WARP: el WAF de Cocha responde 403 a la ruta
+    # directa del runner (el round trip ya aprendió esa lección). Si no hay WARP
+    # se omite la rotación este ciclo (refresh.yml bootea WARP cuando queda
+    # cobertura one-way pendiente); martillear el directo solo empeora la reputación.
+    warp_ok = cocha_sess() is not None
+    if not warp_ok:
+        print("playas one-way: omitido este ciclo (sin WARP — el directo recibe 403)", flush=True)
     def _completo(cod):
         v = one_way.get(cod)
         return isinstance(v, dict) and v.get("SCL-" + cod) and v.get(cod + "-SCL")
@@ -727,7 +734,7 @@ def fetch_playas(prev, cycle):
     resto = [cod for cod, _c, _p, _f in PLAYAS_DEST if _completo(cod)]
     orden_ow = incompletos + vacios + resto
     n_ow = 1 if full else int(os.environ.get("PLAYAS_OW", "2"))
-    for cod in orden_ow[:n_ow]:
+    for cod in (orden_ow[:n_ow] if warp_ok else []):
         owc = one_way.setdefault(cod, {})
         for o, d in (("SCL", cod), (cod, "SCL")):
             key = f"{o}-{d}"

@@ -47,7 +47,9 @@ jobs:
 
       - name: activar WARP (egress IP consumidor para OTAs/DataDome)
         run: |
-          # Solo levantar el túnel si el escaneo OTA vence en este ciclo (ahorra ~4 min/ciclo)
+          # Levantar el túnel si el escaneo OTA vence, o si queda cobertura one-way
+          # de playas pendiente (el WAF de Cocha rechaza con 403 la ruta directa
+          # del runner — las queries one-way solo pueden salir por WARP).
           DUE=$(python3 -c '
           import json, datetime, os
           try:
@@ -57,6 +59,13 @@ jobs:
               due = (datetime.datetime.now() - t).total_seconds() >= gap
           except Exception:
               due = True
+          try:
+              ow = ((d.get("fuentes") or {}).get("playas") or {}).get("one_way") or {}
+              pend = [k for k, v in ow.items() if isinstance(v, dict)
+                      and not (v.get("SCL-" + k) and v.get(k + "-SCL"))]
+              due = due or bool(pend)
+          except Exception:
+              pass
           print("yes" if due else "no")
           ')
           if [ "$DUE" != "yes" ]; then
