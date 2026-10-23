@@ -1,8 +1,12 @@
 name: refresh
 
-# COPIA ARCHIVO (qwen): sin cron automatico para no duplicar scraping ni correos.
-# Se puede refrescar a mano desde la pestana Actions (Ejecutar workflow).
+# qwen: cron de respaldo cada 10 min + cadena auto-dispatch (~5 min) como acelerador.
+# Leccion del 20-10-2026: la cadena sola muere en silencio si un POST de dispatch
+# falla (ej. durante la rotacion del PUSH_TOKEN) y el sitio queda congelado dias.
+# El cron garantiza que SIEMPRE haya un run de recaptura, pase lo que pase.
 on:
+  schedule:
+    - cron: "*/10 * * * *"   # red de seguridad: recaptura cada 10 min
   workflow_dispatch: {}
   push:
     paths:
@@ -141,9 +145,20 @@ jobs:
         if: always()
         run: |
           sleep 200
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            -H "Authorization: token ${{ secrets.PUSH_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/refresh.yml/dispatches" \
-            -d '{"ref":"main"}')
-          echo "auto-dispatch HTTP $CODE"
+          for i in 1 2 3; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+              -H "Authorization: token ${{ secrets.PUSH_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/refresh.yml/dispatches" \
+              -d '{"ref":"main"}')
+            echo "auto-dispatch HTTP $CODE (intento $i)"
+            if [ "$CODE" = "202" ]; then break; fi
+            if [ "$CODE" = "401" ]; then
+              echo "::error::dispatch devolvio 401 (PUSH_TOKEN invalido o recien rotado). El cron de respaldo cada 10 min retomara el ciclo — no se pierde nada."
+              break
+            fi
+            sleep 15
+          done
+          if [ "$CODE" != "202" ]; then
+            echo "::warning::cadena no re-dispateada (HTTP $CODE). El cron */10 de respaldo garantiza el proximo ciclo."
+          fi
