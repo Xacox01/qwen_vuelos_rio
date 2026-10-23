@@ -1,7 +1,7 @@
 {
- "ts": "2026-10-23 05:07:10",
- "ts_stgo": "2026-10-23 02:07:10",
- "n": 13,
+ "ts": "2026-10-23 17:55:08",
+ "ts_stgo": "2026-10-23 14:55:08",
+ "n": 14,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -12,8 +12,8 @@
    "nombre": "Vuelos JetSMART",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.1,
-   "detalle": "mínimo $270,506 · 20 registros · fresco 0.1 h (límite 26 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $269,931 · 20 registros · fresco 0.2 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -21,8 +21,8 @@
    "nombre": "Vuelos SKY",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.1,
-   "detalle": "mínimo $417,812.0 · 13 registros · fresco 0.1 h (límite 26 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $417,812.0 · 15 registros · fresco 0.2 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -30,8 +30,8 @@
    "nombre": "Vuelos LATAM",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.1,
-   "detalle": "mínimo $448,072 · 20 registros · fresco 0.1 h (límite 26 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $447,122 · 20 registros · fresco 0.2 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $347,747 · 5 registros · fresco 0.3 h (límite 30 h)",
+   "frescura_h": 0.5,
+   "detalle": "mínimo $298,614 · 5 registros · fresco 0.5 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -48,8 +48,8 @@
    "nombre": "Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $135,813 · 4 registros · fresco 0.3 h (límite 30 h)",
+   "frescura_h": 0.5,
+   "detalle": "mínimo $139,619 · 4 registros · fresco 0.5 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -57,8 +57,8 @@
    "nombre": "Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $135,813 · 4 registros · fresco 0.3 h (límite 30 h)",
+   "frescura_h": 0.5,
+   "detalle": "mínimo $139,619 · 4 registros · fresco 0.5 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -67,7 +67,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "diferencia 0% ($135,813 vs $135,813) — coherentes",
+   "detalle": "diferencia 0% ($139,619 vs $139,619) — coherentes",
    "muestra": []
   },
   {
@@ -76,75 +76,84 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.1,
-   "detalle": "16 destinos · 16 con precio · mínimo $271,866 · ventanas exactas 66/flex 0 · cruce 4/16 (1 mixtos) · fresco 0.1 h · muestra viva verificada 6/6 (exactas 66, flex 0)",
+   "detalle": "16 destinos · 16 con precio · mínimo $271,866 · ventanas exactas 172/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · muestra viva verificada 6/6 (exactas 172, flex 0)",
    "muestra": [
     {
-     "cod": "CUN",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 907630,
-     "vivo": 909742,
-     "diff_pct": 0.2,
+     "cod": "BPS",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 492004,
+     "vivo": 492004,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "GOL",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "FOR",
+     "ida": "2027-02-12",
+     "vuelta": "2027-02-22",
+     "pub": 495420,
+     "vivo": 509616,
+     "diff_pct": 2.9,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "LIR",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 1470349,
-     "vivo": 1467343,
-     "diff_pct": 0.2,
+     "cod": "SSA",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-29",
+     "pub": 505990,
+     "vivo": 511645,
+     "diff_pct": 1.1,
      "exacta": true,
-     "aerolinea": "AA",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "FLN",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 271866,
-     "vivo": 271866,
+     "cod": "MCZ",
+     "ida": "2027-02-12",
+     "vuelta": "2027-02-22",
+     "pub": 541443,
+     "vivo": 541443,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "GIG",
+     "cod": "NAT",
+     "ida": "2027-02-12",
+     "vuelta": "2027-02-22",
+     "pub": 564131,
+     "vivo": 564131,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "ADZ",
      "ida": "2027-02-05",
-     "vuelta": "2027-02-19",
-     "pub": 347747,
-     "vivo": 347747,
+     "vuelta": "2027-02-12",
+     "pub": 590670,
+     "vivo": 590670,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "REC",
-     "ida": "2027-02-05",
-     "vuelta": "2027-02-19",
-     "pub": 415896,
-     "vivo": 415896,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "CTG",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 463269,
-     "vivo": 462323,
-     "diff_pct": 0.2,
-     "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-sky",
+   "nombre": "Muestra viva SKY",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $417,812.0 ≈ vivo $417,812.0 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-latam",
@@ -152,16 +161,7 @@
    "estado": "VERIFICADO",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "publicado $448,072 ≈ vivo $448,072 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
-   "id": "viva-jetsmart",
-   "nombre": "Muestra viva JetSMART",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $270,506 ≈ vivo $270,506 (0.0%) — el precio publicado es REAL",
+   "detalle": "publicado $447,122 ≈ vivo $447,122 (0.0%) — el precio publicado es REAL",
    "muestra": []
   },
   {
@@ -169,8 +169,8 @@
    "nombre": "Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 2.0,
-   "detalle": "53 cupones vigentes · fresco 2.0 h",
+   "frescura_h": 2.6,
+   "detalle": "53 cupones vigentes · fresco 2.6 h",
    "muestra": []
   },
   {
@@ -179,7 +179,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.1,
-   "detalle": "1971 pares · mejor $270,506 (JetSMART vuelo JA762 04:46 + JetSMART vuelo JA753 10:45) · fresco 0.1 h",
+   "detalle": "1971 pares · mejor $269,931 (JetSMART vuelo JA762 04:46 + JetSMART vuelo JA753 10:45) · fresco 0.1 h",
    "muestra": []
   },
   {
@@ -197,7 +197,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "24 series activas",
+   "detalle": "36 series activas",
    "muestra": []
   },
   {
