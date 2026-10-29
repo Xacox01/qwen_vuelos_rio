@@ -128,6 +128,43 @@ ok(invMejor.filter(d => d.mejor.cruce).every(d =>
 const nGan = invMejor.filter(d => d.mejor.clp < d.cocha.min_clp - 1).length;
 if (nInteg === 0) console.log('     aviso: hoy ningún cruce gana al redondo (integración sin efecto, no es error)');
 else console.log('     mejor integrado: ' + nInteg + ' destinos publican el cruce (' + nGan + ' estrictamente más barato que el redondo)');
+/* TASK 26 (bug del dueño): "aparece un valor distinto entre los más baratos vs los
+   destinos — eso no puede suceder". La tarjeta GIG de 'Destinos' debe salir del
+   MISMO ciclo fresco que 'Precios hoy' / 'Mejores combinaciones' / 'Combos'.
+   Regla: si el pool fresco cubre las fechas del precio publicado, el valor de la
+   tarjeta debe ser IDÉNTICO al mínimo fresco y tener ts del ciclo (≤30 min).
+   Si el par no viene cubierto este ciclo (horizonte rotativo), no hay
+   contradicción visible y se informa como aviso, no como falla. */
+const gigD = (PL.destinos || []).find(x => x.cod === 'GIG');
+if (gigD && gigD.mejor && gigD.mejor.clp > 0) {
+  const ageH = ts => { if (!ts) return null; const t = Date.parse(String(ts).replace(' ', 'T') + 'Z'); return isFinite(t) ? (Date.now() - t) / 3600e3 : null; };
+  const poolRT = {};
+  const addRT = (i, v, c) => { if (i && v && typeof c === 'number' && c > 0) { const k = i + '_' + v; if (!(k in poolRT) || c < poolRT[k]) poolRT[k] = c; } };
+  ((F.jetsmart || {}).combos || []).forEach(c => addRT(c.ida, c.vuelta, c.clp));
+  ((F.sky || {}).pairs || []).forEach(p => addRT(p.ida, p.vuelta, p.clp));
+  ((F.latam || {}).combos || []).forEach(c => addRT(c.ida, c.vuelta, c.clp));
+  ((F.cocha || {}).ventanas || []).forEach(v => addRT(v.ida, v.vuelta, v.min_clp));
+  const wTop = (gigD.windows || [])[0] || {};
+  const fTop = poolRT[wTop.ida + '_' + wTop.vuelta];
+  if (fTop !== undefined) ok(Math.abs(wTop.min_clp - fTop) <= 1, 'GIG: redondo de tarjeta == mínimo fresco (mismas fechas)', { tarjeta: wTop.min_clp, fresco: fTop });
+  else console.log('     aviso: par top de GIG sin cobertura fresca este ciclo (' + wTop.ida + '→' + wTop.vuelta + ')');
+  if (gigD.mejor.cruce) {
+    const gCr = (CR.destinos || {}).GIG;
+    const eCr = ageH(gCr && gCr.ts);
+    ok(eCr !== null && eCr <= 1, 'GIG: cruce calculado en el ciclo (<= 1 h)', gCr && gCr.ts);
+    const cbTop = ((DATA.combos || {}).top || [])[0];
+    if (cbTop && cbTop.clp) ok(gigD.mejor.clp <= cbTop.clp + 1, 'GIG: cruce de tarjeta <= top de Combos (mismo motor)', { tarjeta: gigD.mejor.clp, combos: cbTop.clp });
+  } else {
+    const fMg = poolRT[gigD.mejor.ida + '_' + gigD.mejor.vuelta];
+    if (fMg !== undefined) {
+      const eMg = ageH(gigD.mejor.ts);
+      ok(eMg !== null && eMg <= 0.5, 'GIG: tarjeta destinos sincronizada al ciclo fresco (mejor.ts <= 30 min)', gigD.mejor.ts);
+      ok(Math.abs(gigD.mejor.clp - fMg) <= 1, 'GIG: precio de tarjeta == mínimo fresco (mismas fechas)', { tarjeta: gigD.mejor.clp, fresco: fMg });
+    } else console.log('     aviso: par mejor de GIG sin cobertura fresca este ciclo (' + gigD.mejor.ida + '→' + gigD.mejor.vuelta + ')');
+  }
+} else {
+  ok(false, 'GIG: tarjeta de destinos presente con mejor precio', 'falta GIG en playas.destinos');
+}
 ds.forEach(d => console.log('     ' + d.cod + ' ' + d.ciudad + ': $' + Math.round(d.clp).toLocaleString('es-CL') + (d.enPresupuesto ? '' : ' (sobre presupuesto)')));
 
 console.log('== 6. cupones ==');

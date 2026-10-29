@@ -133,8 +133,17 @@ def diag_modulo(m, d, gate_sitio):
             return "FALLA", "timestamp ilegible"
         if e > LIMIT_H["playas"]:
             return "ALERTA", f"desactualizado {e:.1f} h"
+        # Task 26: la tarjeta GIG debe salir del mismo ciclo fresco que las
+        # secciones de precios (sync GIG del scraper) — si está desfasada, la
+        # re-captura re-sincroniza y elimina la contradicción entre módulos.
+        gig = next((x for x in dests if x.get("cod") == "GIG"), None)
+        mg = (gig or {}).get("mejor") or {}
+        e_gig = horas(mg.get("ts")) if mg.get("ts") else None
+        if e_gig is None or e_gig > 0.5:
+            return "ALERTA", (f"tarjeta GIG desfasada del ciclo fresco (mejor.ts={mg.get('ts')}) "
+                              "— la re-captura re-sincroniza con 'Precios hoy'")
         return ("OK" if len(con_mejor) >= 10 else "ALERTA",
-                f"{len(con_mejor)}/{len(dests)} destinos con mejor precio · fresco {e:.1f} h")
+                f"{len(con_mejor)}/{len(dests)} destinos · GIG sincronizado ({e_gig*60:.0f} min) · fresco {e:.1f} h")
 
     if mid == "cupones":
         cp = d.get("cupones") or {}
