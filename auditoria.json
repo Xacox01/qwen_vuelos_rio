@@ -1,7 +1,7 @@
 {
- "ts": "2026-10-29 19:04:41",
- "ts_stgo": "2026-10-29 16:04:41",
- "n": 36,
+ "ts": "2026-10-29 21:57:23",
+ "ts_stgo": "2026-10-29 18:57:23",
+ "n": 37,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -9,61 +9,61 @@
  "modulos": [
   {
    "id": "vuelos-jetsmart",
-   "nombre": "Vuelos JetSMART",
+   "nombre": "M01 · Vuelos JetSMART",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $319,757 · 20 registros · fresco 0.2 h (límite 26 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $319,757 · 20 registros · fresco 0.3 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-sky",
-   "nombre": "Vuelos SKY",
+   "nombre": "M02 · Vuelos SKY",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $356,590.0 · 29 registros · fresco 0.2 h (límite 26 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $356,590.0 · 27 registros · fresco 0.3 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-latam",
-   "nombre": "Vuelos LATAM",
+   "nombre": "M03 · Vuelos LATAM",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $451,438 · 20 registros · fresco 0.2 h (límite 26 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $451,438 · 20 registros · fresco 0.3 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-cocha",
-   "nombre": "Vuelos Cocha",
+   "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.5,
-   "detalle": "mínimo $371,590 · 5 registros · fresco 0.5 h (límite 30 h)",
+   "frescura_h": 0.6,
+   "detalle": "mínimo $371,590 · 5 registros · fresco 0.6 h (límite 30 h)",
    "muestra": []
   },
   {
    "id": "vuelos-despegar",
-   "nombre": "Vuelos Despegar",
+   "nombre": "M05 · Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $139,583 · 10 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.7,
+   "detalle": "mínimo $139,583 · 10 registros · fresco 0.7 h (límite 30 h)",
    "muestra": []
   },
   {
    "id": "vuelos-falabella",
-   "nombre": "Vuelos Viajes Falabella",
+   "nombre": "M06 · Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $163,159 · 10 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.7,
+   "detalle": "mínimo $163,159 · 10 registros · fresco 0.7 h (límite 30 h)",
    "muestra": []
   },
   {
    "id": "consistencia-otas",
-   "nombre": "Consistencia Despegar↔Falabella",
+   "nombre": "M07 · Consistencia Despegar↔Falabella",
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
@@ -72,83 +72,92 @@
   },
   {
    "id": "playas",
-   "nombre": "Playas del extranjero",
+   "nombre": "M08 · Playas del extranjero",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.1,
-   "detalle": "16 destinos · 16 con precio · mínimo $285,927 · ventanas exactas 208/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · mejor integrado con cruce: 4 · muestra viva verificada 6/6 (exactas 208, flex 0)",
+   "frescura_h": 0.2,
+   "detalle": "16 destinos · 16 con precio · mínimo $285,927 · ventanas exactas 208/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 5 · muestra viva verificada 6/6 (exactas 208, flex 0)",
    "muestra": [
     {
-     "cod": "MCZ",
+     "cod": "CUN",
+     "ida": "2027-02-19",
+     "vuelta": "2027-02-26",
+     "pub": 745437,
+     "vivo": 745437,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Aeroméxico",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "LIR",
+     "ida": "2027-01-29",
+     "vuelta": "2027-02-08",
+     "pub": 1483864,
+     "vivo": 1483864,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "AA",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "FLN",
+     "ida": "2027-01-08",
+     "vuelta": "2027-01-15",
+     "pub": 325995,
+     "vivo": 325995,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "JetSMART",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "GIG",
+     "ida": "2027-01-29",
+     "vuelta": "2027-02-08",
+     "pub": 371590,
+     "vivo": 371590,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "SKY",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "BPS",
      "ida": "2026-12-15",
      "vuelta": "2026-12-22",
-     "pub": 545204,
-     "vivo": 545204,
+     "pub": 469121,
+     "vivo": 469121,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "LATAM",
+     "aerolinea": "GOL",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "NAT",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 562757,
-     "vivo": 562757,
+     "cod": "CTG",
+     "ida": "2027-01-29",
+     "vuelta": "2027-02-08",
+     "pub": 492530,
+     "vivo": 492530,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "ADZ",
-     "ida": "2027-01-15",
-     "vuelta": "2027-01-29",
-     "pub": 597173,
-     "vivo": 597173,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "PUJ",
-     "ida": "2027-01-02",
-     "vuelta": "2027-01-12",
-     "pub": 628211,
-     "vivo": 628211,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "Copa",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "PTY",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 691912,
-     "vivo": 691912,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "Copa",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "HAV",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 704625,
-     "vivo": 704625,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "Copa",
+     "aerolinea": "JetSMART",
      "veredicto": "VERIFICADO"
     }
    ]
   },
   {
+   "id": "viva-latam",
+   "nombre": "Muestra viva LATAM",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $451,438 ≈ vivo $451,438 (0.0%) — el precio publicado es REAL",
+   "muestra": []
+  },
+  {
    "id": "viva-jetsmart",
-   "nombre": "Muestra viva JetSMART",
+   "nombre": "M09 · Muestra viva JetSMART",
    "estado": "VERIFICADO",
    "color": "#10b981",
    "frescura_h": null,
@@ -156,35 +165,26 @@
    "muestra": []
   },
   {
-   "id": "viva-sky",
-   "nombre": "Muestra viva SKY",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $356,590.0 ≈ vivo $356,590.0 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
-   "nombre": "Cupones de descuento",
+   "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 2.1,
-   "detalle": "55 cupones vigentes · fresco 2.1 h",
+   "frescura_h": 5.0,
+   "detalle": "55 cupones vigentes · fresco 5.0 h",
    "muestra": []
   },
   {
    "id": "combos",
-   "nombre": "Motor de combinaciones",
+   "nombre": "M12 · Motor de combinaciones",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.1,
-   "detalle": "1971 pares · mejor $286,885 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.1 h",
+   "frescura_h": 0.2,
+   "detalle": "1971 pares · mejor $286,885 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.2 h",
    "muestra": []
   },
   {
    "id": "noche",
-   "nombre": "Resumen nocturno (digest matutino)",
+   "nombre": "M13 · Resumen nocturno (digest matutino)",
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
@@ -193,7 +193,7 @@
   },
   {
    "id": "minimos",
-   "nombre": "Mínimos por serie (alertas)",
+   "nombre": "M14 · Mínimos por serie (alertas)",
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
@@ -202,7 +202,7 @@
   },
   {
    "id": "suscriptores",
-   "nombre": "Suscriptores de alertas",
+   "nombre": "M15 · Suscriptores de alertas",
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
@@ -211,7 +211,7 @@
   },
   {
    "id": "assets",
-   "nombre": "Imágenes de destinos",
+   "nombre": "M16 · Imágenes de destinos",
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
@@ -220,16 +220,16 @@
   },
   {
    "id": "sitio",
-   "nombre": "Funcional del sitio (arneses de regresión)",
+   "nombre": "M17 · Funcional del sitio (arneses de regresión)",
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "verify.js OK · 159/159 checks OK",
+   "detalle": "verify.js OK · 163/163 checks OK",
    "muestra": []
   }
  ],
  "sitio": {
-  "verify_js": "OK · 159/159 checks OK"
+  "verify_js": "OK · 163/163 checks OK"
  },
  "resumen": "17/17 módulos OK"
 }
