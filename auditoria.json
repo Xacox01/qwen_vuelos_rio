@@ -1,10 +1,10 @@
 {
- "ts": "2026-10-28 21:55:21",
- "ts_stgo": "2026-10-28 18:55:21",
- "n": 33,
+ "ts": "2026-10-29 01:11:28",
+ "ts_stgo": "2026-10-28 22:11:28",
+ "n": 34,
  "total": 17,
- "ok": 16,
- "alertas": 1,
+ "ok": 17,
+ "alertas": 0,
  "fallos": 0,
  "modulos": [
   {
@@ -12,8 +12,8 @@
    "nombre": "Vuelos JetSMART",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.4,
-   "detalle": "mínimo $335,629 · 20 registros · fresco 0.4 h (límite 26 h)",
+   "frescura_h": 0.1,
+   "detalle": "mínimo $335,629 · 20 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -21,8 +21,8 @@
    "nombre": "Vuelos SKY",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.4,
-   "detalle": "mínimo $358,397.0 · 27 registros · fresco 0.4 h (límite 26 h)",
+   "frescura_h": 0.1,
+   "detalle": "mínimo $358,397.0 · 28 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -30,8 +30,8 @@
    "nombre": "Vuelos LATAM",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $453,821 · 20 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 0.1,
+   "detalle": "mínimo $453,821 · 20 registros · fresco 0.1 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -49,7 +49,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.3,
-   "detalle": "mínimo $139,583 · 9 registros · fresco 0.3 h (límite 30 h)",
+   "detalle": "mínimo $139,583 · 10 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -58,7 +58,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.3,
-   "detalle": "mínimo $163,159 · 9 registros · fresco 0.3 h (límite 30 h)",
+   "detalle": "mínimo $163,159 · 10 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -73,48 +73,87 @@
   {
    "id": "playas",
    "nombre": "Playas del extranjero",
-   "estado": "NO VERIFICABLE",
-   "color": "#d97706",
-   "frescura_h": 0.2,
-   "detalle": "16 destinos · 16 con precio · mínimo $285,927 · ventanas exactas 208/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 6 (exactas 208, flex 0)",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.1,
+   "detalle": "16 destinos · 16 con precio · mínimo $285,927 · ventanas exactas 208/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · mejor integrado con cruce: 6 · muestra viva verificada 6/6 (exactas 208, flex 0)",
    "muestra": [
     {
-     "cod": "SSA",
-     "pub": 517788,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "PTY",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 696115,
+     "vivo": 696115,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "SJO",
-     "pub": 539072,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "HAV",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 708742,
+     "vivo": 708742,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "MCZ",
-     "pub": 548444,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "CUN",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-25",
+     "pub": 725547,
+     "vivo": 725547,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Aeroméxico",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "NAT",
-     "pub": 570545,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "LIR",
+     "ida": "2027-02-05",
+     "vuelta": "2027-02-12",
+     "pub": 1492877,
+     "vivo": 1507543,
+     "diff_pct": 1.0,
+     "exacta": true,
+     "aerolinea": "AA",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "ADZ",
-     "pub": 600745,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "FLN",
+     "ida": "2027-01-02",
+     "vuelta": "2027-02-01",
+     "pub": 352679,
+     "vivo": 354724,
+     "diff_pct": 0.6,
+     "exacta": true,
+     "aerolinea": "JetSMART",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "PUJ",
-     "pub": 631279,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "GIG",
+     "ida": "2027-01-29",
+     "vuelta": "2027-02-08",
+     "pub": 373397,
+     "vivo": 373397,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "SKY",
+     "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-latam",
+   "nombre": "Muestra viva LATAM",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $453,821 ≈ vivo $453,821 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-jetsmart",
@@ -126,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-sky",
-   "nombre": "Muestra viva SKY",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $358,397.0 ≈ vivo $358,397.0 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 5.3,
-   "detalle": "55 cupones vigentes · fresco 5.3 h",
+   "frescura_h": 2.4,
+   "detalle": "55 cupones vigentes · fresco 2.4 h",
    "muestra": []
   },
   {
@@ -148,8 +178,8 @@
    "nombre": "Motor de combinaciones",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "1971 pares · mejor $286,885 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.2 h",
+   "frescura_h": 0.1,
+   "detalle": "1971 pares · mejor $286,885 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.1 h",
    "muestra": []
   },
   {
@@ -158,7 +188,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "fecha 2026-10-27 · series 36",
+   "detalle": "fecha 2026-10-28 · series 36",
    "muestra": []
   },
   {
@@ -201,5 +231,5 @@
  "sitio": {
   "verify_js": "OK · 159/159 checks OK"
  },
- "resumen": "16/17 módulos OK · 1 alertas"
+ "resumen": "17/17 módulos OK"
 }
