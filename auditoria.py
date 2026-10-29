@@ -38,8 +38,21 @@ COL = {"ok": "#10b981", "alerta": "#d97706", "fallo": "#dc2626", "neutro": "#647
 
 MODULOS = []
 
+# TASK 25 — numeración canónica de módulos (fuente de verdad: modulos.json).
+# El nombre publicado en auditoria.json (y en el panel del sitio) sale con
+# prefijo "M01 · ..." para que cada módulo sea referenciable y la
+# auto-reparación (reparar.py) pueda barrerlos en orden.
+try:
+    with open(os.path.join(BASE, "modulos.json"), encoding="utf-8") as _fh:
+        NUMS = {m["id"]: m["numero"] for m in json.load(_fh).get("modulos", [])}
+except Exception:
+    NUMS = {}
+
 
 def add(mid, nombre, estado, detalle, frescura_h=None, muestra=None):
+    num = NUMS.get(mid)
+    if num and not nombre.startswith(num):
+        nombre = f"{num} · {nombre}"
     est = estado.upper()
     color = COL["ok"] if est in ("OK", "VERIFICADO", "CORREGIDO") else (
         COL["alerta"] if est in ("ALERTA", "CONGELADO", "NO VERIFICABLE") else COL["fallo"])

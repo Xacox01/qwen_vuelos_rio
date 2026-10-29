@@ -670,7 +670,7 @@ footer .flogo b{color:#fff;font-size:1rem}
     <div class="shead">
       <h2>Cupones y promociones activos</h2>
       <span class="note-r" v-if="D && D.cupones">
-        {{cuponesCodigos.length}} códigos + {{cuponesBenef.length}} beneficios activos<template v-if="D.cupones.stats&&D.cupones.stats.expirados_filtrados"> · {{D.cupones.stats.expirados_filtrados}} vencidos filtrados</template> · última revisión <b>{{ago(D.cupones.ts)}}</b> · fuentes: cupon.cl, redes oficiales y portales de beneficios
+        {{cuponesCodigos.length}} códigos + {{cuponesBenef.length}} beneficios activos<template v-if="D.cupones.stats&&D.cupones.stats.expirados_filtrados"> · {{D.cupones.stats.expirados_filtrados}} vencidos filtrados</template> · última revisión <b>{{ago(D.cupones.ts)}}</b> · fuentes: cupon.cl (JetSMART, LATAM, Despegar, Cocha, Falabella, Atrápalo, Hoteles.com, Booking.com, Avianca, Grupo Xcaret), redes oficiales y portales de beneficios
       </span>
     </div>
     <div class="cpfilters">
@@ -706,10 +706,11 @@ footer .flogo b{color:#fff;font-size:1rem}
             <button class="cp" :class="{copied:copied===c.id}" @click="copiar(c)">{{copied===c.id?'¡Copiado!':'Copiar'}}</button>
           </div>
           <div class="actrow">
-            <a class="btn" :class="c.code?'ghost':'org'" style="flex:1" :href="c.url" target="_blank" rel="noopener nofollow">
+            <a class="btn" :class="c.code?'ghost':'org'" style="flex:1" :href="c.deep_link || c.url" target="_blank" rel="noopener nofollow" :title="c.deep_link ? 'Abre la sección de la tienda donde puedes usar el código' : ''">
               {{c.code?'Aplicar en '+c.merchant:(c.kind==='beneficio'?'Ver beneficio':'Activar oferta')}}
             </a>
-            <span class="where">{{c.vigencia?('vigencia: '+c.vigencia):(c.expires?('vence: '+c.expires):'')}}</span>
+            <a class="where" v-if="c.deep_link && c.url" :href="c.url" target="_blank" rel="noopener nofollow" style="text-decoration:underline;color:inherit">vía cupon.cl ↗</a>
+            <span class="where" v-else>{{c.vigencia?('vigencia: '+c.vigencia):(c.expires?('vence: '+c.expires):'')}}</span>
           </div>
         </div>
       </div>

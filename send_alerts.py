@@ -46,7 +46,7 @@ UMBRAL_DIF = 1000    # CLP mínimos para contar un movimiento en el resumen
 UMBRAL_PCT = 0.005   # 0,5 % (mismo criterio anti-ruido que las alertas)
 
 DATA = "data.json"
-SITE = "https://xacox01.github.io/vuelos-rio-live/"
+SITE = "https://xacox01.github.io/qwen_vuelos_rio/"
 LOGO_BLANCO = SITE + "assets/brand/logo-blanco-512.png"
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -187,6 +187,28 @@ def pendientes_de_envio(d):
                   key=lambda a: a["ts"])
 
 
+def cupones_digest(d, n=4):
+    """TASK 25 — top cupones para el digest matutino (cupones por email).
+    Códigos reales primero, luego beneficios; el fetch ya filtró los vencidos.
+    Devuelve [] si el módulo cupones no está sano (el digest nunca miente)."""
+    cps = d.get("cupones") or {}
+    items = cps.get("items") or []
+    if not cps.get("ok", False) or not items:
+        return []
+    cods = [x for x in items if x.get("code")]
+    ben = [x for x in items if x.get("kind") == "beneficio"]
+    out = []
+    for x in cods[:n] + ben[:2]:
+        out.append({
+            "merchant": x.get("merchant") or x.get("store", ""),
+            "code": x.get("code") or "",
+            "amount": x.get("amount") or ("beneficio" if x.get("kind") == "beneficio" else ""),
+            "title": (x.get("title") or "")[:70],
+            "vig": x.get("vigencia") or x.get("expires") or "",
+        })
+    return out[:n + 2]
+
+
 def email_text(alertas) -> str:
     lines = ["Bajada de precios detectada en vuelos Santiago ⇄ Río de Janeiro (ene–feb 2027):", ""]
     for a in alertas:
@@ -321,6 +343,13 @@ def digest_text(d) -> str:
         lines += ["", "Mejores precios ahora:"]
         for p, s in mejor:
             lines.append(f"• {ruta_bonita(s)}: {clp(p)}")
+    cps = cupones_digest(d)
+    if cps:
+        lines += ["", "Cupones vigentes para tu viaje:"]
+        for c in cps:
+            code = f" código {c['code']} ·" if c["code"] else ""
+            vig = f" ({c['vig']})" if c["vig"] else ""
+            lines.append(f"• {c['merchant']}:{code} {c['amount']} {c['title']}{vig}".strip())
     lines += ["", f"Ver el panel actualizado: {SITE}", "",
               "Este es el primer correo del día; los envíos salen entre 09:00 y 20:00 hora "
               "de Santiago y las alertas de bajada llegan en vivo dentro de esa ventana.", "",
@@ -425,6 +454,26 @@ def digest_html(d) -> str:
         secciones += f"""
       <h2 style="margin:22px 0 10px;font-family:Arial,sans-serif;font-size:16px;color:#1a2b49;">Mejores precios ahora</h2>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{lis}</table>"""
+
+    # TASK 25 — cupones por email: tabla con códigos reales para usar hoy
+    cps = cupones_digest(d)
+    if cps:
+        filas_cp = "".join(
+            f'<tr><td style="padding:9px 16px;border-bottom:1px solid #eef1f5;font-family:Arial,sans-serif;font-size:13px;color:#1a2b49;">'
+            f'<b>{c["merchant"]}</b>'
+            + (f' &middot; c&oacute;digo <b style="color:#0a7d43;letter-spacing:1px;">{c["code"]}</b>' if c["code"] else "")
+            + f'<br><span style="color:#5e6d85;font-size:12px;">{c["title"]}</span></td>'
+            f'<td align="right" style="padding:9px 16px;border-bottom:1px solid #eef1f5;font-family:Arial,sans-serif;font-size:13px;color:#0a7d43;font-weight:bold;white-space:nowrap;">{c["amount"] or "&nbsp;"}</td></tr>'
+            for c in cps)
+        secciones += f"""
+      <h2 style="margin:22px 0 10px;font-family:Arial,sans-serif;font-size:16px;color:#1a2b49;">Cupones vigentes para tu viaje</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e3e7ec;border-radius:10px;">
+        <tr style="background:#eef3fe;">
+          <th align="left" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#5e6d85;text-transform:uppercase;letter-spacing:.5px;">Tienda / cup&oacute;n</th>
+          <th align="right" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#5e6d85;text-transform:uppercase;letter-spacing:.5px;">Ahorro</th>
+        </tr>{filas_cp}
+      </table>
+      <p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:11px;color:#8a97ab;">C&oacute;digos verificados en cada ciclo; aplica t&eacute;rminos del comercio. Copia el c&oacute;digo y &uacute;salo en la web de la tienda (secci&oacute;n de vuelos o pagos).</p>"""
 
     kpis = (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
             f'style="margin:0 0 18px;border-radius:10px;">'

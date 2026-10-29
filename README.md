@@ -60,17 +60,68 @@ ese archivo.
 | `probe_waf.py` / `diag_otas.py` | Diagnóstico del WAF DataDome |
 | `assets/dest/*.jpg` | Fotos de los 16 destinos (Wikipedia Commons, ver `CREDITS.txt`) |
 | `.github/workflows/refresh.yml` | Ciclo cada ~5 min con auto-encadenado + paso de cupones (gate 6 h) |
-| `verify.js` | Arnés de regresión (127 checks) — `node verify.js index.html data.json` |
+| `.github/workflows/auto-reparacion.yml` | TASK 25: ante cada falla de refresh/auditoría, revisa y repara TODOS los módulos numerados y re-publica |
+| `reparar.py` | Auto-reparación numerada M01..Mnn: barrido diagnóstico + re-captura + gate + `reparacion.json` |
+| `modulos.json` | Registro canónico y numerado de TODOS los módulos de la web (fuente de auditoría y reparación) |
+| `verify.js` | Arnés de regresión (163 checks) — `node verify.js index.html data.json` |
+
+## 🔢 Módulos numerados de la web (M01..M17)
+
+La numeración canónica vive en `modulos.json`. `auditoria.py` publica cada
+módulo con prefijo `M## · Nombre` en `auditoria.json` (visible en el panel
+"Auditoría 4×día" del sitio), y `reparar.py` los barre en ese mismo orden ante
+cada falla:
+
+| # | Módulo | Qué cubre |
+|---|---|---|
+| M01 | Vuelos JetSMART | API oficial JetSMART (tiles, calendario, combos) |
+| M02 | Vuelos SKY | API Sputnik de SKY |
+| M03 | Vuelos LATAM | BFF LATAM |
+| M04 | Vuelos Cocha | GraphQL Cocha verificado contra página real (WARP) |
+| M05 | Vuelos Despegar | Grilla DataDome vía Camoufox+WARP |
+| M06 | Vuelos Viajes Falabella | Igual que M05 sobre Falabella |
+| M07 | Consistencia Despegar↔Falabella | cruce de mínimos OTA |
+| M08 | Playas del extranjero | 16 destinos + cruce one-way multi-aerolínea |
+| M09 | Muestra viva JetSMART | verificación activa 4×día |
+| M10 | Muestra viva SKY | verificación activa 4×día |
+| M11 | Cupones de descuento | 10 tiendas cupon.cl + capa editorial |
+| M12 | Motor de combinaciones | idas×vueltas todas las fuentes, mixtas |
+| M13 | Resumen nocturno | digest matutino con movimientos + cupones |
+| M14 | Mínimos por serie | mínimos históricos y alertas de bajada |
+| M15 | Suscriptores | alta/baja con correo cifrado RSA |
+| M16 | Imágenes de destinos | assets/ de los 16 destinos |
+| M17 | Funcional del sitio | gate verify.js + arneses de regresión |
+
+## 🩺 Auto-reparación ante fallas (TASK 25)
+
+1. El workflow `auto-reparacion` se dispara **solo** cuando `refresh` o
+   `auditoria-modulos` terminan en failure (o por dispatch manual).
+2. `reparar.py` corre 4 fases: gate sobre el dato publicado → barrido
+   diagnóstico M01..Mnn (con anotaciones `::notice::/::error:: [M##]` visibles
+   sin login en la página del run) → **re-captura completa** (scraper +
+   cupones forzados) → re-barrido + gate final.
+3. Si el gate final pasa, publica `data.json` + `reparacion.json` (reporte por
+   módulo: antes/después/acción). Si no pasa, no publica nada y el correo de
+   failure incluye el módulo exacto y el motivo.
+4. Anti-bucle triple: no dispara a otros workflows, concurrencia propia en
+   serie, y omite la re-captura si la última fue hace < 90 min y el dato
+   publicado está sano (`estado_reparacion.json`).
 
 ## 🎟️ Cupones automáticos
-1. Se rastrean 5 tiendas de cupon.cl (`/jetsmart`, `/latam`, `/despegar-com`,
-   `/cocha`, `/falabella`) con `requests` plano — sin navegador, ideal para CI.
+1. Se rastrean **10 tiendas de viaje** de cupon.cl (`/jetsmart`, `/latam`,
+   `/despegar-com`, `/cocha`, `/falabella`, `/atrapalo-chile`, `/hoteles-com`,
+   `/booking-com`, `/avianca`, `/grupo-xcaret`) con `requests` plano — sin
+   navegador, ideal para CI. (TASK 25: de 5 a 10 tiendas, +60% de cupones.)
 2. Cada cupón aporta: título, % o monto, descripción, condiciones (mínimo, validez,
-   medios de pago), estado "verificado" y enlace de clickout.
+   medios de pago), estado "verificado", **deep-link de la tienda** (el botón
+   "Aplicar en X" abre la sección de vuelos del comercio, no su home) y enlace
+   de clickout de cupon.cl (enlace secundario "vía cupon.cl").
 3. Los de tipo `coupon` resuelven su **código real** consultando
    `cupon.cl/modals/coupon_clickout?id=<id>` (texto plano o base64).
 4. Filtrado de relevancia de viaje para tiendas retail (Falabella) y dedupe por título.
 5. Degradación suave: si cupon.cl falla, se conserva el último set y se marca `stale`.
+6. **Cupones por email** (TASK 25): el digest matutino (M13) incluye una tabla
+   "Cupones vigentes para tu viaje" con los códigos reales del día.
 
 ## 🤖 Falabella/Despegar 100% automático (sin PC, sin pagos)
 DataDome (el WAF de estas OTAs) puntúa la **reputación de IP** y las de datacenter

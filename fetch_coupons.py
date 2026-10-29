@@ -37,13 +37,40 @@ S = requests.Session()
 S.headers.update({"User-Agent": UA, "Accept-Language": "es-CL,es;q=0.9,en;q=0.6"})
 
 # tiendas cupon.cl: slug -> nombre comercial visible
+# TASK 25: expansión de 5 a 10 tiendas de viaje (Atrápalo, Hoteles.com,
+# Booking.com, Avianca, Grupo Xcaret) — cupon.cl las lista en cupon.cl/<slug>.
 STORES = [
-    ("jetsmart",     "JetSMART"),
-    ("latam",        "LATAM"),
-    ("despegar-com", "Despegar"),
-    ("cocha",        "Cocha"),
-    ("falabella",    "Viajes Falabella"),
+    ("jetsmart",       "JetSMART"),
+    ("latam",          "LATAM"),
+    ("despegar-com",   "Despegar"),
+    ("cocha",          "Cocha"),
+    ("falabella",      "Viajes Falabella"),
+    ("atrapalo-chile", "Atrápalo"),
+    ("hoteles-com",    "Hoteles.com"),
+    ("booking-com",    "Booking.com"),
+    ("avianca",       "Avianca"),
+    ("grupo-xcaret",   "Grupo Xcaret"),
 ]
+
+# TASK 25: landing de cada tienda para el CTA "Aplicar en X" — el clickout de
+# cupon.cl suele caer en la HOME del comercio (p.ej. Cocha), inútil para
+# ingresar un código de vuelo. Con deep_link el botón abre la sección correcta
+# (p.ej. cocha.com/vuelos) donde el código sí se puede aplicar.
+DEEP_LINKS = {
+    "jetsmart":       "https://jetsmart.com/cl/es",
+    "latam":          "https://www.latam.com/cl/es/",
+    "despegar-com":   "https://www.despegar.cl/vuelos/",
+    "cocha":          "https://www.cocha.com/vuelos",
+    "falabella":      "https://www.viajesfalabella.cl/",
+    "atrapalo-chile": "https://www.atrapalo.cl/",
+    "hoteles-com":    "https://www.hoteles.com/",
+    "booking-com":    "https://www.booking.com/index.es.html",
+    "avianca":        "https://www.avianca.com/cl/es/",
+    "grupo-xcaret":   "https://www.grupoxcaret.com/",
+}
+
+# cap por tienda (controla el tamaño de data.json con 10 tiendas)
+CAP_POR_TIENDA = 12
 
 # keywords de viaje para filtrar tiendas retail (falabella)
 TRAVEL_KW = re.compile(
@@ -58,7 +85,24 @@ BLOCK_RE = re.compile(
 TITLE_RE = re.compile(r"data-coupon-title=['\"]([^'\"]+)['\"]")
 TYPE_RE = re.compile(r'data-coupon-type=[\"\'](\w+)[\"\']')
 CLICK_RE = re.compile(r"data-coupon-url=['\"]([^'\"]+)['\"]")
-AMOUNT_RE = re.compile(r'<span class="amount"><b>([^<]+)</b>([^<]*)</span>')
+# TASK 25: cupon.cl cambió el formato del monto: ahora puede venir
+# '<span class="amount">$ <b>50000</b></span>' (antes '<b>50%</b>'). Se captura
+# todo el contenido del span, se le quitan tags y si es un número puro se
+# formatea con separador de miles chileno.
+AMOUNT_RE = re.compile(r'<span class="amount">\s*(.*?)\s*</span>', re.S)
+
+
+def parse_amount(raw: str) -> str:
+    t = clean(re.sub(r"<[^>]+>", " ", raw or ""))
+    if not t:
+        return ""
+    m = re.fullmatch(r"[\$\s]*([\d.]{1,12})", t)
+    if m:
+        try:
+            return "$" + f"{int(m.group(1).replace('.', '')):,}".replace(",", ".")
+        except ValueError:
+            pass
+    return t
 DESC_RE = re.compile(r'<div class="coupon__description[^"]*"[^>]*>.*?'
                      r'<p>(.*?)</p>', re.S)
 TABLE_RE = re.compile(r'<span class="key">([^<]+)</span>\s*'
@@ -171,7 +215,10 @@ def fetch_store(store_slug: str):
     r.raise_for_status()
     h = r.text
     upd = UPD_RE.search(h)
-    upd = clean(upd.group(1)) if upd else ""
+    # TASK 25: cupon.cl eliminó el elemento card-shop-header__updated del HTML;
+    # si no aparece, se declara la fecha de revisión del propio fetch para que
+    # fuentes_upd nunca vuelva vacío (antes Cocha/Despegar quedaban sin nota).
+    upd = clean(upd.group(1)) if upd else f"revisado {datetime.now(timezone.utc).strftime('%d-%m-%Y')} (fetch)"
     items = []
     for cid, attrs, body in BLOCK_RE.findall(h):
         title = TITLE_RE.search(attrs + body)
@@ -190,7 +237,8 @@ def fetch_store(store_slug: str):
             "store": store_slug,
             "kind": "codigo" if (ctype and ctype.group(1) == "coupon") else "oferta",
             "title": title,
-            "amount": clean(f"{amount.group(1)}{amount.group(2)}") if amount else "",
+            "amount": parse_amount(amount.group(1)) if amount else "",
+            "deep_link": DEEP_LINKS.get(store_slug, ""),
             "desc": clean(desc.group(1))[:300] if desc else "",
             "conds": conds,
             "verified": verified,
@@ -240,7 +288,7 @@ def main():
                 uniq.append(x)
             uniq.sort(key=lambda x: (0 if x["code"] else (1 if x["verified"] else 2),
                                      x["kind"] == "oferta"))
-            uniq = uniq[:16]
+            uniq = uniq[:CAP_POR_TIENDA]
             per_store[slug] = {"name": name, "updated": upd,
                                "n": len(uniq), "total": len(raw)}
             items.extend(uniq)

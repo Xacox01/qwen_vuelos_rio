@@ -1,0 +1,90 @@
+name: auto-reparacion
+
+# TASK 25 — ante CADA falla de refresh o auditoria-modulos, revisa y repara
+# automáticamente TODOS los módulos numerados de la web (M01..Mnn, registro en
+# modulos.json) y re-publica si el gate final pasa. El barrido deja una
+# anotación por módulo (::notice::/::error:: [M##] ...) visible sin login en la
+# página del run, así el correo de failure se explica solo.
+#
+# Anti-bucle triple:
+#  1. Este workflow NUNCA dispara a otros (workflow_run solo escucha refresh y
+#     auditoria-modulos; sus propias fallas no re-triggerean nada).
+#  2. Concurrency group propio: corre en serie, nunca dos reparaciones a la vez.
+#  3. reparar.py omite la re-captura si la última fue hace < 90 min y el dato
+#     publicado pasa el gate (estado_reparacion.json).
+on:
+  workflow_run:
+    workflows: ["refresh", "auditoria-modulos"]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-reparacion
+  cancel-in-progress: false
+
+jobs:
+  reparar:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/camoufox
+          key: camoufox-browser-v156
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.warp
+          key: warp-device-v1
+
+      - name: dependencias
+        run: |
+          pip install -q "camoufox[geoip]" curl_cffi
+          python -m camoufox fetch || (python -m camoufox sync && python -m camoufox fetch) || echo "::warning::camoufox no disponible, se usará fallback SSR"
+
+      - name: activar WARP (M04 Cocha y OTAs lo requieren)
+        run: |
+          chmod +x warp_boot.sh
+          timeout 260 bash warp_boot.sh || echo "::warning::bootstrap WARP excedió tiempo"
+          echo "WARP_OK=${WARP_OK:-0}"
+
+      - name: barrido numerado de diagnóstico + reparación (M01..Mnn)
+        env:
+          REPARAR_TRIGGER: ${{ github.event_name == 'workflow_run' && format('fallo de {0} #{1}', github.event.workflow_run.name, github.event.workflow_run.run_number) || 'manual' }}
+        run: python3 reparar.py
+
+      - name: publicar reparación (solo si el gate final pasó)
+        if: success()
+        run: |
+          git config core.fileMode false
+          git config user.name "arena-bot"
+          git config user.email "arena-bot@users.noreply.github.com"
+          git add data.json reparacion.json estado_reparacion.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios que publicar."
+          else
+            git commit -m "auto-reparacion $(date -u +%Y-%m-%dT%H:%MZ)"
+            git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
+            OK=0
+            for i in 1 2 3 4 5; do
+              if git push; then OK=1; echo "push OK (intento $i)"; break; fi
+              echo "push rechazado (intento $i) — rebase sobre origin/main y reintento"
+              git pull --rebase --autostash || git rebase --abort || true
+              sleep 10
+            done
+            if [ "$OK" != "1" ]; then
+              echo "::error::push de la reparación rechazado tras 5 intentos"
+              exit 1
+            fi
+          fi

@@ -140,6 +140,14 @@ vm.cpTipo = 'todos';
 ok(vm.cuponesVisibles.length === cp.length, 'filtro "todas" muestra todo');
 if (vm.merchants.length) { vm.cpF = vm.merchants[0]; ok(vm.cuponesVisibles.every(c => c.merchant === vm.merchants[0]), 'filtro por merchant funciona'); vm.cpF = 'todas'; }
 ok(vm.cupones.filter(c => c.kind === 'oferta').length === 0, 'sin ofertas de vuelo en cupones (solo codigos/beneficios)');
+
+/* TASK 25: registro numerado de módulos (fuente: modulos.json) + saneo estructural de cupones */
+let REG = null;
+try { REG = JSON.parse(fs.readFileSync(require('path').join(require('path').dirname(require('path').resolve(dataPath)), 'modulos.json'), 'utf8')); } catch (e) {}
+ok(!!REG && Array.isArray(REG.modulos) && REG.modulos.length >= 15, 'registro modulos.json: >= 15 módulos numerados', REG ? (REG.modulos || []).length : 'sin archivo');
+ok(!!REG && REG.modulos.every(m => /^M\d{2}$/.test(m.numero || '') && m.id && m.nombre), 'números de módulo M01..Mnn válidos con id y nombre');
+ok(!!REG && new Set(REG.modulos.map(m => m.numero)).size === REG.modulos.length, 'números de módulo únicos (sin duplicados)');
+ok((DATA.cupones.items || []).every(x => x.store && x.kind && (x.url || '').startsWith('http')), 'cupones con estructura completa (store/kind/url)', (DATA.cupones.items || []).filter(x => !x.store).length);
 vm.cpTipo = 'codigos';
 console.log('     merchants: ' + vm.merchants.join(', '));
 console.log('     codigos: ' + cp.filter(c => c.code).map(c => c.merchant + ':' + c.code).join(', '));
