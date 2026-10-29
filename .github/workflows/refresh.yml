@@ -148,9 +148,18 @@ jobs:
             echo "Sin cambios: no se publica commit."
           else
             git commit -m "refresh $(date -u +%Y-%m-%dT%H:%MZ)"
-            git pull --rebase --autostash || true
             git remote set-url origin "https://Xacox01:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}.git"
-            git push
+            OK=0
+            for i in 1 2 3 4 5; do
+              if git push; then OK=1; echo "push OK (intento $i)"; break; fi
+              echo "push rechazado (intento $i) — rebase sobre origin/main y reintento"
+              git pull --rebase --autostash || git rebase --abort || true
+              sleep 10
+            done
+            if [ "$OK" != "1" ]; then
+              echo "::error::push rechazado tras 5 intentos (colisión con auditoría u otra cadena). El cron */10 re-recaptura y reintenta el próximo ciclo."
+              exit 1
+            fi
           fi
 
       - name: encadenar siguiente ciclo (~5 min)

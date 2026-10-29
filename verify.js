@@ -25,7 +25,7 @@ for (const [k, f] of Object.entries(cfg.computed || {})) Object.defineProperty(v
 vm.D = DATA;
 
 let fails = 0, checks = 0;
-function ok(cond, msg, extra) { checks++; if (!cond) { fails++; console.log('  FAIL ' + msg + (extra !== undefined ? ' -> ' + JSON.stringify(extra) : '')); } else console.log('  ok   ' + msg); }
+function ok(cond, msg, extra) { checks++; if (!cond) { fails++; const det = 'FAIL ' + msg + (extra !== undefined ? ' -> ' + JSON.stringify(extra) : ''); console.log('  ' + det); console.error('::error::[verify] ' + det.slice(0, 250)); } else console.log('  ok   ' + msg); }
 const money = n => typeof n === 'number' && isFinite(n) && n > 30000 && n < 5000000;
 const fresh = ts => { if (!ts) return false; const t = Date.parse(String(ts).replace(' ', 'T') + 'Z'); return isFinite(t) && (Date.now() - t) < 26 * 3600e3; };
 
