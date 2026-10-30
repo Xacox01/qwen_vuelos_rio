@@ -1,7 +1,7 @@
 {
- "ts": "2026-10-29 21:57:23",
- "ts_stgo": "2026-10-29 18:57:23",
- "n": 37,
+ "ts": "2026-10-30 01:16:43",
+ "ts_stgo": "2026-10-29 22:16:43",
+ "n": 38,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -12,8 +12,8 @@
    "nombre": "M01 · Vuelos JetSMART",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $319,757 · 20 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 0.4,
+   "detalle": "mínimo $319,757 · 20 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -21,8 +21,8 @@
    "nombre": "M02 · Vuelos SKY",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $356,590.0 · 27 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 0.4,
+   "detalle": "mínimo $356,590.0 · 25 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -30,8 +30,8 @@
    "nombre": "M03 · Vuelos LATAM",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $451,438 · 20 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 0.4,
+   "detalle": "mínimo $451,438 · 20 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -48,8 +48,8 @@
    "nombre": "M05 · Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.7,
-   "detalle": "mínimo $139,583 · 10 registros · fresco 0.7 h (límite 30 h)",
+   "frescura_h": 0.6,
+   "detalle": "mínimo $139,583 · 11 registros · fresco 0.6 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -57,8 +57,8 @@
    "nombre": "M06 · Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.7,
-   "detalle": "mínimo $163,159 · 10 registros · fresco 0.7 h (límite 30 h)",
+   "frescura_h": 0.6,
+   "detalle": "mínimo $163,159 · 11 registros · fresco 0.6 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -76,75 +76,84 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.2,
-   "detalle": "16 destinos · 16 con precio · mínimo $285,927 · ventanas exactas 208/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 5 · muestra viva verificada 6/6 (exactas 208, flex 0)",
+   "detalle": "16 destinos · 16 con precio · mínimo $285,927 · ventanas exactas 193/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 4 · muestra viva verificada 6/6 (exactas 193, flex 0)",
    "muestra": [
     {
-     "cod": "CUN",
+     "cod": "FOR",
      "ida": "2027-02-19",
      "vuelta": "2027-02-26",
-     "pub": 745437,
-     "vivo": 745437,
+     "pub": 524320,
+     "vivo": 524320,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "Aeroméxico",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "LIR",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 1483864,
-     "vivo": 1483864,
+     "cod": "REC",
+     "ida": "2027-02-05",
+     "vuelta": "2027-02-19",
+     "pub": 524113,
+     "vivo": 524113,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "AA",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "FLN",
-     "ida": "2027-01-08",
-     "vuelta": "2027-01-15",
-     "pub": 325995,
-     "vivo": 325995,
+     "cod": "SSA",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-29",
+     "pub": 515570,
+     "vivo": 515570,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "GIG",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 371590,
-     "vivo": 371590,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "SKY",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "BPS",
+     "cod": "SJO",
      "ida": "2026-12-15",
      "vuelta": "2026-12-22",
-     "pub": 469121,
-     "vivo": 469121,
+     "pub": 535820,
+     "vivo": 535820,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "GOL",
+     "aerolinea": "Copa",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "CTG",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 492530,
-     "vivo": 492530,
+     "cod": "MCZ",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 545204,
+     "vivo": 545204,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "NAT",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 562757,
+     "vivo": 562757,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-sky",
+   "nombre": "M10 · Muestra viva SKY",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $356,590.0 ≈ vivo $356,590.0 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-latam",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-jetsmart",
-   "nombre": "M09 · Muestra viva JetSMART",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $319,757 ≈ vivo $319,757 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 5.0,
-   "detalle": "55 cupones vigentes · fresco 5.0 h",
+   "frescura_h": 2.2,
+   "detalle": "88 cupones vigentes · fresco 2.2 h",
    "muestra": []
   },
   {
@@ -188,7 +188,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "fecha 2026-10-28 · series 36",
+   "detalle": "fecha 2026-10-29 · series 36",
    "muestra": []
   },
   {
@@ -224,12 +224,12 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "verify.js OK · 163/163 checks OK",
+   "detalle": "verify.js OK · 166/166 checks OK",
    "muestra": []
   }
  ],
  "sitio": {
-  "verify_js": "OK · 163/163 checks OK"
+  "verify_js": "OK · 166/166 checks OK"
  },
  "resumen": "17/17 módulos OK"
 }
