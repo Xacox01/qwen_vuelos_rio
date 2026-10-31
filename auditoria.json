@@ -1,10 +1,10 @@
 {
- "ts": "2026-10-31 17:50:40",
- "ts_stgo": "2026-10-31 14:50:40",
- "n": 43,
+ "ts": "2026-10-31 20:37:17",
+ "ts_stgo": "2026-10-31 17:37:17",
+ "n": 44,
  "total": 17,
- "ok": 17,
- "alertas": 0,
+ "ok": 16,
+ "alertas": 1,
  "fallos": 0,
  "modulos": [
   {
@@ -21,8 +21,8 @@
    "nombre": "M02 · Vuelos SKY",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $355,852.0 · 2 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 2.9,
+   "detalle": "mínimo $355,852.0 · 1 registros · fresco 2.9 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.5,
-   "detalle": "mínimo $372,215 · 5 registros · fresco 0.5 h (límite 30 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $372,215 · 5 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -48,8 +48,8 @@
    "nombre": "M05 · Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $139,583 · 12 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $139,583 · 12 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -57,8 +57,8 @@
    "nombre": "M06 · Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $147,900 · 12 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $147,900 · 12 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -75,60 +75,16 @@
    "nombre": "M08 · Playas del extranjero",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "16 destinos · 16 con precio · mínimo $250,292 · ventanas exactas 196/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 4 · muestra viva verificada 6/6 (exactas 196, flex 0)",
+   "frescura_h": 0.1,
+   "detalle": "16 destinos · 16 con precio · mínimo $250,292 · ventanas exactas 192/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · mejor integrado con cruce: 4 · muestra viva verificada 6/6 (exactas 192, flex 0)",
    "muestra": [
     {
-     "cod": "CTG",
-     "ida": "2027-02-12",
-     "vuelta": "2027-02-22",
-     "pub": 347359,
-     "vivo": 357822,
-     "diff_pct": 3.0,
-     "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "REC",
-     "ida": "2027-02-05",
-     "vuelta": "2027-02-19",
-     "pub": 419626,
-     "vivo": 419626,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "BPS",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 518586,
-     "vivo": 518586,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "GOL",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "FOR",
+     "cod": "MCZ",
      "ida": "2027-02-05",
      "vuelta": "2027-02-12",
-     "pub": 499174,
-     "vivo": 499174,
+     "pub": 545269,
+     "vivo": 545269,
      "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "SSA",
-     "ida": "2027-01-08",
-     "vuelta": "2027-01-15",
-     "pub": 508875,
-     "vivo": 510276,
-     "diff_pct": 0.3,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
@@ -137,14 +93,67 @@
      "cod": "SJO",
      "ida": "2026-12-15",
      "vuelta": "2026-12-22",
-     "pub": 536364,
-     "vivo": 536364,
+     "pub": 552430,
+     "vivo": 552430,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "NAT",
+     "ida": "2027-01-08",
+     "vuelta": "2027-01-15",
+     "pub": 564114,
+     "vivo": 564114,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "ADZ",
+     "ida": "2027-01-22",
+     "vuelta": "2027-01-29",
+     "pub": 597675,
+     "vivo": 597675,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "PTY",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 692614,
+     "vivo": 692614,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "HAV",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-29",
+     "pub": 709238,
+     "vivo": 709427,
      "diff_pct": 0.0,
      "exacta": true,
      "aerolinea": "Copa",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-sky",
+   "nombre": "M10 · Muestra viva SKY",
+   "estado": "NO VERIFICABLE",
+   "color": "#d97706",
+   "frescura_h": null,
+   "detalle": "la fuente no devolvió precios en vivo",
+   "muestra": []
   },
   {
    "id": "viva-latam",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-jetsmart",
-   "nombre": "M09 · Muestra viva JetSMART",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $301,300 ≈ vivo $301,300 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 6.0,
-   "detalle": "84 cupones vigentes · fresco 6.0 h",
+   "frescura_h": 2.7,
+   "detalle": "85 cupones vigentes · fresco 2.7 h",
    "muestra": []
   },
   {
@@ -178,8 +178,8 @@
    "nombre": "M12 · Motor de combinaciones",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "1971 pares · mejor $271,720 (JetSMART vuelo JA720 06:54 + JetSMART vuelo JA721 13:45) · fresco 0.2 h",
+   "frescura_h": 0.1,
+   "detalle": "1971 pares · mejor $271,720 (JetSMART vuelo JA720 06:54 + JetSMART vuelo JA721 13:45) · fresco 0.1 h",
    "muestra": []
   },
   {
@@ -231,5 +231,5 @@
  "sitio": {
   "verify_js": "OK · 166/166 checks OK"
  },
- "resumen": "17/17 módulos OK"
+ "resumen": "16/17 módulos OK · 1 alertas"
 }
