@@ -1,10 +1,10 @@
 {
- "ts": "2026-11-01 18:32:29",
- "ts_stgo": "2026-11-01 15:32:29",
- "n": 46,
+ "ts": "2026-11-01 21:21:08",
+ "ts_stgo": "2026-11-01 18:21:08",
+ "n": 47,
  "total": 17,
- "ok": 16,
- "alertas": 1,
+ "ok": 15,
+ "alertas": 2,
  "fallos": 0,
  "modulos": [
   {
@@ -12,17 +12,17 @@
    "nombre": "M01 · Vuelos JetSMART",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.4,
-   "detalle": "mínimo $301,300 · 20 registros · fresco 0.4 h (límite 26 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $301,300 · 20 registros · fresco 0.3 h (límite 26 h)",
    "muestra": []
   },
   {
    "id": "vuelos-sky",
    "nombre": "M02 · Vuelos SKY",
-   "estado": "OK",
-   "color": "#10b981",
-   "frescura_h": 24.8,
-   "detalle": "mínimo $355,852.0 · 1 registros · fresco 24.8 h (límite 26 h)",
+   "estado": "ALERTA",
+   "color": "#d97706",
+   "frescura_h": 27.6,
+   "detalle": "mínimo $355,852.0 · 1 registros · fresco 27.6 h (límite 26 h) — la cadena de refresh debería refrescarlo en el próximo ciclo",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $381,739 · 5 registros · fresco 0.3 h (límite 30 h)",
+   "frescura_h": 0.5,
+   "detalle": "mínimo $381,739 · 5 registros · fresco 0.5 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -48,8 +48,8 @@
    "nombre": "M05 · Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $116,348 · 13 registros · fresco 0.3 h (límite 30 h)",
+   "frescura_h": 0.5,
+   "detalle": "mínimo $139,359 · 13 registros · fresco 0.5 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -57,8 +57,8 @@
    "nombre": "M06 · Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $116,348 · 13 registros · fresco 0.3 h (límite 30 h)",
+   "frescura_h": 0.5,
+   "detalle": "mínimo $140,012 · 13 registros · fresco 0.5 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -67,54 +67,93 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "diferencia 0% ($116,348 vs $116,348) — coherentes",
+   "detalle": "diferencia 0% ($139,359 vs $140,012) — coherentes",
    "muestra": []
   },
   {
    "id": "playas",
    "nombre": "M08 · Playas del extranjero",
-   "estado": "NO VERIFICABLE",
-   "color": "#d97706",
-   "frescura_h": 0.2,
-   "detalle": "16 destinos · 16 con precio · mínimo $250,292 · ventanas exactas 197/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 5 (exactas 197, flex 0)",
+   "estado": "OK",
+   "color": "#10b981",
+   "frescura_h": 0.1,
+   "detalle": "16 destinos · 16 con precio · mínimo $250,292 · ventanas exactas 198/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · mejor integrado con cruce: 5 · muestra viva verificada 6/6 (exactas 198, flex 0)",
    "muestra": [
     {
-     "cod": "BPS",
-     "pub": 565577,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
-    },
-    {
-     "cod": "FOR",
-     "pub": 499174,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
-    },
-    {
-     "cod": "SSA",
-     "pub": 510276,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "ADZ",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 592494,
+     "vivo": 592494,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
     },
     {
      "cod": "PUJ",
-     "pub": 540664,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "ida": "2027-01-02",
+     "vuelta": "2027-01-12",
+     "pub": 628851,
+     "vivo": 628851,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "MCZ",
-     "pub": 545269,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "PTY",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 692614,
+     "vivo": 692614,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
     },
     {
-     "cod": "SJO",
-     "pub": 564212,
-     "veredicto": "NO VERIFICABLE",
-     "nota": "HTTP Error 403: "
+     "cod": "HAV",
+     "ida": "2027-02-19",
+     "vuelta": "2027-02-26",
+     "pub": 709238,
+     "vivo": 709427,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "CUN",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-25",
+     "pub": 766608,
+     "vivo": 766608,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Aeroméxico",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "LIR",
+     "ida": "2027-01-22",
+     "vuelta": "2027-01-29",
+     "pub": 1485368,
+     "vivo": 1499960,
+     "diff_pct": 1.0,
+     "exacta": true,
+     "aerolinea": "AA",
+     "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-sky",
+   "nombre": "M10 · Muestra viva SKY",
+   "estado": "NO VERIFICABLE",
+   "color": "#d97706",
+   "frescura_h": null,
+   "detalle": "la fuente no devolvió precios en vivo",
+   "muestra": []
   },
   {
    "id": "viva-latam",
@@ -126,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-jetsmart",
-   "nombre": "M09 · Muestra viva JetSMART",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $301,300 ≈ vivo $301,300 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 6.0,
-   "detalle": "85 cupones vigentes · fresco 6.0 h",
+   "frescura_h": 2.8,
+   "detalle": "87 cupones vigentes · fresco 2.8 h",
    "muestra": []
   },
   {
@@ -148,8 +178,8 @@
    "nombre": "M12 · Motor de combinaciones",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "2080 pares · mejor $281,580 (JetSMART vuelo JA720 06:54 + JetSMART vuelo JA721 13:45) · fresco 0.2 h",
+   "frescura_h": 0.1,
+   "detalle": "2080 pares · mejor $271,720 (JetSMART vuelo JA720 06:54 + JetSMART vuelo JA721 13:45) · fresco 0.1 h",
    "muestra": []
   },
   {
@@ -201,5 +231,5 @@
  "sitio": {
   "verify_js": "OK · 166/166 checks OK"
  },
- "resumen": "16/17 módulos OK · 1 alertas"
+ "resumen": "15/17 módulos OK · 2 alertas"
 }
