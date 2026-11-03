@@ -61,8 +61,18 @@ jobs:
 
       - name: barrido numerado de diagnóstico + reparación (M01..Mnn)
         env:
-          REPARAR_TRIGGER: ${{ github.event_name == 'workflow_run' && format('fallo de {0} #{1}', github.event.workflow_run.name, github.event.workflow_run.run_number) || 'manual' }}
-        run: python3 reparar.py
+          REP_EVT: ${{ github.event_name }}
+          REP_FALLO_DE: ${{ github.event.workflow_run.name }}
+          REP_RUN: ${{ github.event.workflow_run.run_number }}
+        run: |
+          # REPARAR_TRIGGER se arma en el shell: GitHub rechaza format() con
+          # llaves dentro de expresiones ${{ }} (error de parseo del workflow).
+          REPARAR_TRIGGER="manual"; export REPARAR_TRIGGER
+          if [ "$REP_EVT" = "workflow_run" ]; then
+            REPARAR_TRIGGER="fallo de ${REP_FALLO_DE:-flujo anterior} #${REP_RUN:-?}"
+            export REPARAR_TRIGGER
+          fi
+          python3 reparar.py
 
       - name: publicar reparación (solo si el gate final pasó)
         if: success()
