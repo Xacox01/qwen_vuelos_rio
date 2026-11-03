@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-03 05:27:00",
- "ts_stgo": "2026-11-03 02:27:00",
- "trigger": "manual",
+ "ts": "2026-11-03 07:26:13",
+ "ts_stgo": "2026-11-03 04:26:13",
+ "trigger": "fallo de refresh #4531",
  "gate_publicado": "PASS",
  "gate_final": "PASS",
  "recaptura": true,
@@ -10,7 +10,7 @@
   {
    "cmd": "scraper.py",
    "rc": 0,
-   "tail": "Sync GIG OK: 10 ventanas alineadas al ciclo fresco (JA/SKY/LA/Cocha)\nCruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $272,458 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\ndata.json actualizado"
+   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $272,458 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $282,348→$272,458\ndata.json actualizado"
   },
   {
    "cmd": "fetch_coupons.py",
@@ -23,14 +23,14 @@
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…9a2c1b56 rotado=False"
   }
  ],
- "secs": 671.3,
+ "secs": 511.1,
  "modulos": [
   {
    "numero": "M01",
    "id": "vuelos-jetsmart",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 combos · fresco 0.2 h",
+   "detalle": "20 combos · fresco 0.1 h",
    "accion": "sin cambio"
   },
   {
@@ -38,7 +38,7 @@
    "id": "vuelos-sky",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "1 pares · fresco 0.2 h",
+   "detalle": "1 pares · fresco 0.1 h",
    "accion": "sin cambio"
   },
   {
@@ -46,7 +46,7 @@
    "id": "vuelos-latam",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 combos · fresco 0.2 h",
+   "detalle": "20 combos · fresco 0.1 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +54,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.2 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "15 fechas en grilla · fresco 0.8 h",
+   "detalle": "15 fechas en grilla · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "15 fechas en grilla · fresco 0.8 h",
+   "detalle": "15 fechas en grilla · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
