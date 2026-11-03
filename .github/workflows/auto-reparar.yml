@@ -90,11 +90,22 @@ jobs:
             for i in 1 2 3 4 5; do
               if git push; then OK=1; echo "push OK (intento $i)"; break; fi
               echo "push rechazado (intento $i) — rebase sobre origin/main y reintento"
-              git pull --rebase --autostash || git rebase --abort || true
+              git rebase --abort 2>/dev/null || true
+              git fetch origin
+              if git rebase origin/main; then
+                echo "rebase limpio"
+              else
+                # conflicto esperado en data.json: el ciclo refresh de ~5 min lo
+                # regenera completo, así que se toma la versión de origin y se
+                # conservan los archivos de auditoría (reparacion/estado).
+                git checkout --ours data.json 2>/dev/null || true
+                git add data.json 2>/dev/null || true
+                git -c core.editor=true rebase --continue || { git rebase --abort; sleep 10; continue; }
+              fi
               sleep 10
             done
             if [ "$OK" != "1" ]; then
-              echo "::error::push de la reparación rechazado tras 5 intentos"
+              echo "::error::push de la reparación rechazado tras 5 intentos (conflicto persistente en data.json)"
               exit 1
             fi
           fi
