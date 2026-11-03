@@ -1,0 +1,166 @@
+{
+ "ts": "2026-11-03 05:27:00",
+ "ts_stgo": "2026-11-03 02:27:00",
+ "trigger": "manual",
+ "gate_publicado": "PASS",
+ "gate_final": "PASS",
+ "recaptura": true,
+ "motivos_recaptura_omitida": [],
+ "comandos": [
+  {
+   "cmd": "scraper.py",
+   "rc": 0,
+   "tail": "Sync GIG OK: 10 ventanas alineadas al ciclo fresco (JA/SKY/LA/Cocha)\nCruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $272,458 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\ndata.json actualizado"
+  },
+  {
+   "cmd": "fetch_coupons.py",
+   "rc": 0,
+   "tail": "vuelos (mínimo $600.000)\n   · [CÓD PAQUETESCOPA80] Despegar         Despegar: $80.000 OFF en paquetes (mínimo $600.000)\n   · [CÓD AFILIADOSVUE] Cocha            $50.000 de Descuento en Vuelos con Cupón Cocha\n   · [  CÓD MASTERJS] JetSMART         JetSMART + Mastercard: hasta 35% OFF nacional / 25% Suramérica\n   · [     beneficio] JetSMART         Caja Los Andes: hasta 25% dcto en JetSMART (socios)"
+  },
+  {
+   "cmd": "bus_alertas.py",
+   "rc": 0,
+   "tail": "bus_alertas[ENSURE]: vivo=True uuid=…9a2c1b56 rotado=False"
+  }
+ ],
+ "secs": 671.3,
+ "modulos": [
+  {
+   "numero": "M01",
+   "id": "vuelos-jetsmart",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "20 combos · fresco 0.2 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M02",
+   "id": "vuelos-sky",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "1 pares · fresco 0.2 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M03",
+   "id": "vuelos-latam",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "20 combos · fresco 0.2 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M04",
+   "id": "vuelos-cocha",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.2 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M05",
+   "id": "vuelos-despegar",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "15 fechas en grilla · fresco 0.8 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M06",
+   "id": "vuelos-falabella",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "15 fechas en grilla · fresco 0.8 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M07",
+   "id": "consistencia-otas",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "Despegar y Falabella con grillas presentes",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M08",
+   "id": "playas",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "16/16 destinos · GIG sincronizado (0 min) · fresco 0.0 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M09",
+   "id": "viva-jetsmart",
+   "antes": "NEUTRO",
+   "despues": "NEUTRO",
+   "detalle": "se verifica con muestra viva en la próxima auditoría programada",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M10",
+   "id": "viva-sky",
+   "antes": "NEUTRO",
+   "despues": "NEUTRO",
+   "detalle": "se verifica con muestra viva en la próxima auditoría programada",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M11",
+   "id": "cupones",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "90 cupones (7 con código) · fresco 0.0 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M12",
+   "id": "combos",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "combos presentes · fresco 0.0 h",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M13",
+   "id": "noche",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "congelamiento del 2026-11-02 · 36 series",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M14",
+   "id": "minimos",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "36 series con mínimo histórico",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M15",
+   "id": "suscriptores",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "2 suscriptos (correos cifrados)",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M16",
+   "id": "assets",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "21 imágenes en assets/",
+   "accion": "sin cambio"
+  },
+  {
+   "numero": "M17",
+   "id": "sitio",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "verify.js PASS sobre el dato a publicar",
+   "accion": "sin cambio"
+  }
+ ],
+ "resumen": "15/17 módulos OK tras la reparación"
+}
