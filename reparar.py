@@ -301,7 +301,7 @@ def main():
                          "detalle": b["detalle"], "accion": accion})
     rep = {
         "ts": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
-        "ts_stgo": datetime.now(timezone.utc - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S"),
+        "ts_stgo": datetime.now(timezone(timedelta(hours=-3))).strftime("%Y-%m-%d %H:%M:%S"),
         "trigger": trigger,
         "gate_publicado": ("PASS" if gate_publicado else "FAIL"),
         "gate_final": ("PASS" if gate_final else "FAIL"),
