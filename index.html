@@ -1099,12 +1099,25 @@ createApp({
         const key=await crypto.subtle.importKey('spki',der,{name:'RSA-OAEP',hash:'SHA-256'},false,['encrypt']);
         const ct=new Uint8Array(await crypto.subtle.encrypt({name:'RSA-OAEP'},key,raw));
         let bin=''; for(let i=0;i<ct.length;i++) bin+=String.fromCharCode(ct[i]);
-        await fetch(this.cfg.webhook,{method:'POST',mode:'no-cors',body:'v1|'+btoa(bin)});
+        const blob='v1|'+btoa(bin);
         const mk=this.maskEmail(mail);
-        this.susOk=true;
-        this.susMsg= acc==='alta'
-          ? `✓ Listo: ${mk} quedó en la lista (procesado en ~5 min). Te avisaremos en cada bajada.`
-          : `✓ ${mk} será dado de baja en ~5 min.`;
+        // bus con CORS abierto: confirmamos la entrega REAL (lección del bus
+        // muerto del 18-oct, que fallaba en silencio con mode:'no-cors')
+        try{
+          const r=await fetch(this.cfg.webhook,{method:'POST',body:blob});
+          if(!r.ok) throw new Error('bus HTTP '+r.status);
+          this.susOk=true;
+          this.susMsg= acc==='alta'
+            ? `✓ Listo: ${mk} quedó en la lista (procesado en ~5 min). Te avisaremos en cada bajada.`
+            : `✓ ${mk} será dado de baja en ~5 min.`;
+        }catch(err1){
+          // fallback sin CORS (cfg vieja en caché del navegador): envío sin confirmar
+          await fetch(this.cfg.webhook,{method:'POST',mode:'no-cors',body:blob});
+          this.susOk=true;
+          this.susMsg= acc==='alta'
+            ? `✓ Solicitud enviada para ${mk} (se procesa en ~5 min). Si en 15 min no recibes avisos, recarga la página y reintenta.`
+            : `✓ Solicitud de baja enviada para ${mk} (se procesa en ~5 min).`;
+        }
         if(acc==='alta'){ this.mail=''; this.obj=''; }
       }catch(e){ console.error('suscribir', e); this.susOk=false; this.susMsg='No pudimos enviar tu solicitud. Revisa tu conexión e intenta otra vez.'; }
       finally{ this.susEnvio=false; }

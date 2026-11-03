@@ -50,7 +50,7 @@ SITE = "https://xacox01.github.io/qwen_vuelos_rio/"
 LOGO_BLANCO = SITE + "assets/brand/logo-blanco-512.png"
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from notificaciones import cargar_emails, mask  # noqa: E402
+from notificaciones import cargar_emails, mask, rsa_disponible  # noqa: E402
 
 NARANJA = "ff690f"  # color oficial del botón (bgcolor sin # para clientes antiguos)
 
@@ -592,6 +592,11 @@ def _resumen_del_dia(d, subs, nuevos, now) -> None:
     watermark de ALERTAS y puede quedar en la tarde del día anterior."""
     hoy = now.date().isoformat()
     if not subs:
+        if not rsa_disponible():
+            print("::error::[alertas] ALERT_RSA_PRIV sin configurar en ESTE repo — "
+                  "no puedo descifrar la lista de suscriptores; ningún correo de "
+                  "este sitio puede salir. Configúralo en Settings → Secrets and "
+                  "variables → Actions.", flush=True)
         if nuevos:
             d["alerts_sent_ts"] = max(a["ts"] for a in nuevos)
         d["email_pending"] = False
@@ -601,8 +606,10 @@ def _resumen_del_dia(d, subs, nuevos, now) -> None:
         return
     host, user, pwd, port = smtp_creds()
     if not (host and user and pwd):
-        print(f"SMTP sin configurar: el resumen de la mañana queda pendiente para "
-              f"{len(subs)} suscrito(s) ({', '.join(mask(s) for s in subs[:5])}).")
+        print(f"::error::[alertas] SMTP sin configurar en ESTE repo — el resumen de "
+              f"la mañana de {len(subs)} suscrito(s) queda pendiente. Copia "
+              f"SMTP_HOST/SMTP_USER/SMTP_PASS en Settings → Secrets and variables "
+              f"→ Actions (mismos valores que vuelos-rio-live).", flush=True)
         return
     ok = 0
     for dest in subs:
@@ -625,6 +632,22 @@ def _resumen_del_dia(d, subs, nuevos, now) -> None:
 
 def main():
     d = json.load(open(DATA, encoding="utf8"))
+    host, user, pwd, port = smtp_creds()
+    smtp_ok = bool(host and user and pwd)
+    # email_cfg (parte SMTP) para el panel de monitoreo; nunca secretos
+    try:
+        ec = d.get("email_cfg") or {}
+        ec["smtp"] = smtp_ok
+        ec["ts"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        d["email_cfg"] = ec
+        _guardar(d)
+    except Exception:
+        pass
+    if not smtp_ok:
+        print("::notice::[alertas] SMTP_HOST/SMTP_USER/SMTP_PASS sin configurar "
+              "en ESTE repo — los correos de este sitio están EN PAUSA (quedan "
+              "en cola, no se pierden). Configúralos en Settings → Secrets and "
+              "variables → Actions.", flush=True)
     now = ahora_stgo()
     # ---- Fuera de la ventana 09:00–20:00 (Santiago): no se envía nada ----
     if not dentro_ventana(now):
@@ -652,14 +675,20 @@ def main():
     subs = cargar_emails()
     max_ts = max(a["ts"] for a in nuevos)
     if not subs:
+        if not rsa_disponible():
+            print("::error::[alertas] ALERT_RSA_PRIV sin configurar en ESTE repo — "
+                  "no puedo descifrar suscriptores; correos bloqueados. "
+                  "Configúralo en Settings → Secrets and variables → Actions.", flush=True)
         d["alerts_sent_ts"] = max_ts; d["email_pending"] = False
         _guardar(d)
         print("Hay bajadas pero NADIE suscrito todavía: marcadas como notificadas.")
         return
     host, user, pwd, port = smtp_creds()
     if not (host and user and pwd):
-        print(f"SMTP sin configurar: {len(nuevos)} alerta(s) quedan pendientes para "
-              f"{len(subs)} suscrito(s) ({', '.join(mask(s) for s in subs[:5])}).")
+        print(f"::error::[alertas] SMTP sin configurar en ESTE repo — "
+              f"{len(nuevos)} alerta(s) para {len(subs)} suscrito(s) quedan "
+              f"pendientes. Copia SMTP_HOST/SMTP_USER/SMTP_PASS en Settings → "
+              f"Secrets and variables → Actions.", flush=True)
         return
     orden = sorted(nuevos, key=lambda a: a["baja"], reverse=True)
     ok = 0

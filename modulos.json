@@ -2,7 +2,7 @@
  "version": 1,
  "proyecto": "qwen_vuelos_rio",
  "nota": "Registro canónico y NUMERADO de todos los módulos de la web. Fuente de verdad para auditoria.py (numeración M01..Mnn en auditoria.json y en el panel del sitio), reparar.py (auto-reparación que barre todos los módulos ante cada falla) y verificación (verify.js). Agregar un módulo nuevo AQUÍ primero.",
- "actualizado": "2026-10-30 (Task 26: sync GIG al ciclo fresco)",
+ "actualizado": "2026-11-03 (bus auto-rotante por repo; correos activos en AMBOS sitios)",
  "modulos": [
   {
    "numero": "M01",
@@ -170,12 +170,15 @@
    "nombre": "Suscriptores de alertas",
    "archivos": [
     "notificaciones.py",
+    "send_alerts.py",
+    "bus_alertas.py",
+    "alertas.cfg.json",
     "subscribers.enc.json",
-    "index.html (form RSA)"
+    "estado_alertas.json"
    ],
-   "que_hace": "Alta/baja de suscriptores con correo cifrado RSA-2048 en el navegador; el servidor nunca ve el correo en claro en logs.",
-   "verificacion": "auditoria.py M15; verify.js maskEmail/suscriptores sin '@'.",
-   "reparacion": "módulo local sin red; fallos de cifrado cortan el gate vía verify.js."
+   "que_hace": "Alertas de bajada por correo. Suscripción: el navegador cifra el correo (RSA-OAEP) y lo publica en el bus webhook.site AUTO-ROTANTE de este repo (bus_alertas.py lo asegura/rota en cada refresh; el endpoint gratuito expira a los 7 días y se renueva solo — lección del bus muerto del 18-oct). notificaciones.py procesa el bus cada ciclo y borra cada blob SOLO tras procesarlo. send_alerts.py envía (ventana 09:00–20:00 Santiago + resumen de la mañana). data.json→email_cfg expone booleanos rsa/bus/smtp para el panel de monitoreo.",
+   "verificacion": "verify.js: cfg con clave pública + uuid de bus válido + endpoint VIVO (HTTP != 404). auditoria.py M15: estado email_cfg (bus/rsa/smtp). auto-reparación (reparar.py fase 2-bis): bus_alertas.py re-rota el bus si murió.",
+   "reparacion": "Rotación automática del bus (bus_alertas.py en refresh y en reparar.py). Si faltan secretos (ALERT_RSA_PRIV/SMTP_*), ::error:: visible en el run con las instrucciones; las alertas quedan en cola sin perderse."
   },
   {
    "numero": "M16",

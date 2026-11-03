@@ -211,6 +211,22 @@ let cfgOk = false, hookOk = false;
 try { const ac = JSON.parse(fs.readFileSync(cfgPath, 'utf8')); cfgOk = typeof ac.pub === 'string' && ac.pub.length > 200; hookOk = /^https:\/\//.test(ac.webhook || ''); } catch (e) {}
 ok(cfgOk, 'alertas.cfg.json con clave pública RSA', cfgOk);
 ok(hookOk, 'alertas.cfg.json con bus https', hookOk);
+/* bus auto-rotante (lección del bus muerto del 18-oct): cfg con uuid válido y
+   endpoint VIVO — bus_alertas.py rota antes en el mismo run, así que un bus
+   muerto aquí = rotación fallida = fallar el gate es correcto */
+let AC = null;
+try { AC = JSON.parse(fs.readFileSync(cfgPath, 'utf8')); } catch (e) {}
+ok(/^https:\/\/webhook\.site\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test((AC || {}).webhook || ''), 'bus: uuid webhook.site válido (auto-rotante)');
+if (AC && AC.webhook) {
+  const tok = AC.webhook.replace(/\/+$/, '').split('/').pop();
+  let code = '000';
+  try {
+    code = require('child_process').execSync(
+      'curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://webhook.site/token/' + tok,
+      { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch (e) { code = 'ERR'; }
+  ok(code !== '404' && code !== '000' && code !== 'ERR', 'bus de suscripciones VIVO (endpoint responde)', 'HTTP ' + code);
+}
 /* registro cifrado: jamás un correo en claro en el repo */
 const encPath = require('path').join(require('path').dirname(htmlPath), 'subscribers.enc.json');
 if (fs.existsSync(encPath)) {

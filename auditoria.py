@@ -449,9 +449,30 @@ def main():
         add("minimos", "Mínimos por serie (alertas)", "ALERTA", f"solo {len(mini)} series")
         cuenta("alerta")
     sus = data.get("suscriptores") or {}
+    ec = data.get("email_cfg") or {}
     if isinstance(sus, dict):
-        add("suscriptores", "Suscriptores de alertas", "OK", f"{sus.get('total', 0)} suscriptos (privacidad: correos cifrados)")
-        cuenta("ok")
+        bus, rsa, smtp = ec.get("bus"), ec.get("rsa"), ec.get("smtp")
+        det = [f"{sus.get('total', 0)} suscriptos (privacidad: correos cifrados)"]
+        if bus is False:
+            det.append("BUS de suscripciones MUERTO (bus_alertas.py rota en el próximo ciclo; altas nuevas en cola)")
+            add("suscriptores", "Suscriptores de alertas", "ALERTA", " · ".join(det))
+            cuenta("alerta")
+        elif rsa is False:
+            det.append("ALERT_RSA_PRIV sin configurar en este repo: correos bloqueados")
+            add("suscriptores", "Suscriptores de alertas", "ALERTA", " · ".join(det))
+            cuenta("alerta")
+        elif smtp is False:
+            det.append("SMTP sin configurar en este repo: correos EN PAUSA (en cola, no se pierden)")
+            add("suscriptores", "Suscriptores de alertas", "ALERTA", " · ".join(det))
+            cuenta("alerta")
+        elif bus is None and rsa is None and smtp is None:
+            det.append("email_cfg aún sin datos (primer ciclo tras el despliegue)")
+            add("suscriptores", "Suscriptores de alertas", "OK", " · ".join(det))
+            cuenta("ok")
+        else:
+            det.append(f"correo OK (bus …{ec.get('bus_uuid','?')})")
+            add("suscriptores", "Suscriptores de alertas", "OK", " · ".join(det))
+            cuenta("ok")
 
     # ---------- 7. assets de destinos ----------
     faltan = []

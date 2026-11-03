@@ -274,6 +274,16 @@ def main():
         for mo in motivos:
             ann("notice", f"[fase 2] omitida: {mo}")
 
+    # ---------- FASE 2-bis: bus de suscripciones (M15) ----------
+    # Un bus muerto NO se arregla con re-captura: bus_alertas.py lo rota solo.
+    print("\n=== FASE 2-bis · bus de suscripciones (M15, auto-rotante) ===", flush=True)
+    rc_bus, tail_bus = correr([sys.executable, "bus_alertas.py"], 120)
+    comandos.append({"cmd": "bus_alertas.py", "rc": rc_bus, "tail": tail_bus[-400:]})
+    ann("notice" if rc_bus == 0 else "error",
+        f"[M15] bus_alertas.py → rc={rc_bus}"
+        + (" (bus vivo o rotado a endpoint nuevo)" if rc_bus == 0
+           else " (no se pudo asegurar el bus; webhook.site caído — reintenta el próximo ciclo)"))
+
     # ---------- FASE 3: re-barrido + gate final ----------
     print("\n=== FASE 3 · re-barrido + GATE final ===", flush=True)
     rc3, _ = correr(["node", "verify.js", "index.html", "data.json"], 180)
