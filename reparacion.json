@@ -1,36 +1,28 @@
 {
- "ts": "2026-11-04 20:49:56",
- "ts_stgo": "2026-11-04 17:49:56",
- "trigger": "fallo de refresh #4668",
- "gate_publicado": "FAIL",
+ "ts": "2026-11-04 20:59:23",
+ "ts_stgo": "2026-11-04 17:59:23",
+ "trigger": "fallo de refresh #4669",
+ "gate_publicado": "PASS",
  "gate_final": "PASS",
- "recaptura": true,
- "motivos_recaptura_omitida": [],
+ "recaptura": false,
+ "motivos_recaptura_omitida": [
+  "última reparación hace 9 min (< 90) y el dato publicado pasa el gate — anti-bucle"
+ ],
  "comandos": [
-  {
-   "cmd": "scraper.py",
-   "rc": 0,
-   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $242,161 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas CUN $844,495→$737,591\ndata.json actualizado"
-  },
-  {
-   "cmd": "fetch_coupons.py",
-   "rc": 0,
-   "tail": "vuelos (mínimo $600.000)\n   · [CÓD PAQUETESCOPA80] Despegar         Despegar: $80.000 OFF en paquetes (mínimo $600.000)\n   · [CÓD AFILIADOSVUE] Cocha            $50.000 de Descuento en Vuelos con Cupón Cocha\n   · [  CÓD MASTERJS] JetSMART         JetSMART + Mastercard: hasta 35% OFF nacional / 25% Suramérica\n   · [     beneficio] JetSMART         Caja Los Andes: hasta 25% dcto en JetSMART (socios)"
-  },
   {
    "cmd": "bus_alertas.py",
    "rc": 0,
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…9a2c1b56 rotado=False"
   }
  ],
- "secs": 631.6,
+ "secs": 2.0,
  "modulos": [
   {
    "numero": "M01",
    "id": "vuelos-jetsmart",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 combos · fresco 0.2 h",
+   "detalle": "20 combos · fresco 0.3 h",
    "accion": "sin cambio"
   },
   {
@@ -38,7 +30,7 @@
    "id": "vuelos-sky",
    "antes": "ALERTA",
    "despues": "ALERTA",
-   "detalle": "desactualizado 30.1 h (límite 30 h)",
+   "detalle": "desactualizado 30.2 h (límite 30 h)",
    "accion": "sin cambio"
   },
   {
@@ -46,7 +38,7 @@
    "id": "vuelos-latam",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 combos · fresco 0.2 h",
+   "detalle": "20 combos · fresco 0.3 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +46,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.1 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.3 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +54,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "16 fechas en grilla · fresco 1.0 h",
+   "detalle": "16 fechas en grilla · fresco 1.1 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +62,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "16 fechas en grilla · fresco 1.0 h",
+   "detalle": "16 fechas en grilla · fresco 1.1 h",
    "accion": "sin cambio"
   },
   {
@@ -84,10 +76,10 @@
   {
    "numero": "M08",
    "id": "playas",
-   "antes": "ALERTA",
+   "antes": "OK",
    "despues": "OK",
-   "detalle": "16/16 destinos · GIG sincronizado (0 min) · fresco 0.0 h",
-   "accion": "ALERTA → OK"
+   "detalle": "16/16 destinos · GIG sincronizado (10 min) · fresco 0.2 h",
+   "accion": "sin cambio"
   },
   {
    "numero": "M09",
@@ -110,7 +102,7 @@
    "id": "cupones",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "90 cupones (7 con código) · fresco 0.0 h",
+   "detalle": "90 cupones (7 con código) · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -118,7 +110,7 @@
    "id": "combos",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "combos presentes · fresco 0.0 h",
+   "detalle": "combos presentes · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -156,10 +148,10 @@
   {
    "numero": "M17",
    "id": "sitio",
-   "antes": "FALLA",
+   "antes": "OK",
    "despues": "OK",
    "detalle": "verify.js PASS sobre el dato a publicar",
-   "accion": "FALLA → OK"
+   "accion": "sin cambio"
   }
  ],
  "resumen": "14/17 módulos OK tras la reparación"
