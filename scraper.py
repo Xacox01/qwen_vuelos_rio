@@ -171,7 +171,10 @@ def fetch_sky():
     b = {"autoSettings": {"language": "es", "market": "cl"},
          "origin": "SCL", "destination": "GIG", "journeyType": "ROUND_TRIP",
          "departure": {"start": "2027-01-01", "end": "2027-02-14"},
-         "tripDuration": {"minimum": 9, "maximum": 12},
+         # FIX M02 (2026-11-04): el rango 9-12 noches dejó de devolver tarifas
+         # (API HTTP 200 con fares=0 desde 2026-11-03); con 6-16 la MISMA
+         # ventana ene-feb 2027 devuelve ~29 tarifas (verificado en vivo).
+         "tripDuration": {"minimum": 6, "maximum": 16},
          "interval": "1d", "faresLimit": 8,
          "priceBuckets": {"active": True, "field": "TOTAL_PRICE"}}
     H = {"em-api-key": SKY_KEY, "Content-Type": "application/json",
