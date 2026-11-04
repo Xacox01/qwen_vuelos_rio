@@ -1,21 +1,29 @@
 {
- "ts": "2026-11-03 07:32:47",
- "ts_stgo": "2026-11-03 04:32:47",
- "trigger": "fallo de refresh #4532",
- "gate_publicado": "PASS",
+ "ts": "2026-11-04 01:54:16",
+ "ts_stgo": "2026-11-03 22:54:16",
+ "trigger": "fallo de refresh #4602",
+ "gate_publicado": "FAIL",
  "gate_final": "PASS",
- "recaptura": false,
- "motivos_recaptura_omitida": [
-  "última reparación hace 7 min (< 90) y el dato publicado pasa el gate — anti-bucle"
- ],
+ "recaptura": true,
+ "motivos_recaptura_omitida": [],
  "comandos": [
+  {
+   "cmd": "scraper.py",
+   "rc": 0,
+   "tail": "Sync GIG OK: 9 ventanas alineadas al ciclo fresco (JA/SKY/LA/Cocha)\nCruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 5 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $244,014 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\ndata.json actualizado"
+  },
+  {
+   "cmd": "fetch_coupons.py",
+   "rc": 0,
+   "tail": "vuelos (mínimo $600.000)\n   · [CÓD PAQUETESCOPA80] Despegar         Despegar: $80.000 OFF en paquetes (mínimo $600.000)\n   · [CÓD AFILIADOSVUE] Cocha            $50.000 de Descuento en Vuelos con Cupón Cocha\n   · [  CÓD MASTERJS] JetSMART         JetSMART + Mastercard: hasta 35% OFF nacional / 25% Suramérica\n   · [     beneficio] JetSMART         Caja Los Andes: hasta 25% dcto en JetSMART (socios)"
+  },
   {
    "cmd": "bus_alertas.py",
    "rc": 0,
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…9a2c1b56 rotado=False"
   }
  ],
- "secs": 1.8,
+ "secs": 659.2,
  "modulos": [
   {
    "numero": "M01",
@@ -28,9 +36,9 @@
   {
    "numero": "M02",
    "id": "vuelos-sky",
-   "antes": "OK",
-   "despues": "OK",
-   "detalle": "1 pares · fresco 0.2 h",
+   "antes": "ALERTA",
+   "despues": "ALERTA",
+   "detalle": "flag ok=false del último ciclo (fresco 11.1 h)",
    "accion": "sin cambio"
   },
   {
@@ -46,7 +54,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.8 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "15 fechas en grilla · fresco 0.8 h",
+   "detalle": "16 fechas en grilla · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "15 fechas en grilla · fresco 0.8 h",
+   "detalle": "16 fechas en grilla · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
@@ -76,10 +84,10 @@
   {
    "numero": "M08",
    "id": "playas",
-   "antes": "OK",
+   "antes": "ALERTA",
    "despues": "OK",
-   "detalle": "16/16 destinos · GIG sincronizado (7 min) · fresco 0.1 h",
-   "accion": "sin cambio"
+   "detalle": "16/16 destinos · GIG sincronizado (0 min) · fresco 0.0 h",
+   "accion": "ALERTA → OK"
   },
   {
    "numero": "M09",
@@ -102,7 +110,7 @@
    "id": "cupones",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "90 cupones (7 con código) · fresco 0.1 h",
+   "detalle": "90 cupones (7 con código) · fresco 0.0 h",
    "accion": "sin cambio"
   },
   {
@@ -110,7 +118,7 @@
    "id": "combos",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "combos presentes · fresco 0.1 h",
+   "detalle": "combos presentes · fresco 0.0 h",
    "accion": "sin cambio"
   },
   {
@@ -118,7 +126,7 @@
    "id": "noche",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "congelamiento del 2026-11-02 · 36 series",
+   "detalle": "congelamiento del 2026-11-03 · 35 series",
    "accion": "sin cambio"
   },
   {
@@ -126,7 +134,7 @@
    "id": "minimos",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "36 series con mínimo histórico",
+   "detalle": "35 series con mínimo histórico",
    "accion": "sin cambio"
   },
   {
@@ -148,11 +156,11 @@
   {
    "numero": "M17",
    "id": "sitio",
-   "antes": "OK",
+   "antes": "FALLA",
    "despues": "OK",
    "detalle": "verify.js PASS sobre el dato a publicar",
-   "accion": "sin cambio"
+   "accion": "FALLA → OK"
   }
  ],
- "resumen": "15/17 módulos OK tras la reparación"
+ "resumen": "14/17 módulos OK tras la reparación"
 }
