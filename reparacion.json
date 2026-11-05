@@ -1,36 +1,44 @@
 {
- "ts": "2026-11-04 20:59:23",
- "ts_stgo": "2026-11-04 17:59:23",
- "trigger": "fallo de refresh #4669",
+ "ts": "2026-11-05 23:12:25",
+ "ts_stgo": "2026-11-05 20:12:25",
+ "trigger": "fallo de refresh #4769",
  "gate_publicado": "PASS",
  "gate_final": "PASS",
- "recaptura": false,
- "motivos_recaptura_omitida": [
-  "última reparación hace 9 min (< 90) y el dato publicado pasa el gate — anti-bucle"
- ],
+ "recaptura": true,
+ "motivos_recaptura_omitida": [],
  "comandos": [
+  {
+   "cmd": "scraper.py",
+   "rc": 0,
+   "tail": "Sync GIG OK: 10 ventanas alineadas al ciclo fresco (JA/SKY/LA/Cocha)\nCruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $240,471 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\ndata.json actualizado"
+  },
+  {
+   "cmd": "fetch_coupons.py",
+   "rc": 0,
+   "tail": "vuelos (mínimo $600.000)\n   · [CÓD PAQUETESCOPA80] Despegar         Despegar: $80.000 OFF en paquetes (mínimo $600.000)\n   · [CÓD AFILIADOSVUE] Cocha            $50.000 de Descuento en Vuelos con Cupón Cocha\n   · [  CÓD MASTERJS] JetSMART         JetSMART + Mastercard: hasta 35% OFF nacional / 25% Suramérica\n   · [     beneficio] JetSMART         Caja Los Andes: hasta 25% dcto en JetSMART (socios)"
+  },
   {
    "cmd": "bus_alertas.py",
    "rc": 0,
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…9a2c1b56 rotado=False"
   }
  ],
- "secs": 2.0,
+ "secs": 643.8,
  "modulos": [
   {
    "numero": "M01",
    "id": "vuelos-jetsmart",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 combos · fresco 0.3 h",
+   "detalle": "20 combos · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
    "numero": "M02",
    "id": "vuelos-sky",
-   "antes": "ALERTA",
-   "despues": "ALERTA",
-   "detalle": "desactualizado 30.2 h (límite 30 h)",
+   "antes": "OK",
+   "despues": "OK",
+   "detalle": "4 pares · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -38,7 +46,7 @@
    "id": "vuelos-latam",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 combos · fresco 0.3 h",
+   "detalle": "20 combos · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -46,7 +54,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.3 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.1 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "16 fechas en grilla · fresco 1.1 h",
+   "detalle": "17 fechas en grilla · fresco 1.0 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "16 fechas en grilla · fresco 1.1 h",
+   "detalle": "17 fechas en grilla · fresco 1.0 h",
    "accion": "sin cambio"
   },
   {
@@ -76,9 +84,9 @@
   {
    "numero": "M08",
    "id": "playas",
-   "antes": "OK",
-   "despues": "OK",
-   "detalle": "16/16 destinos · GIG sincronizado (10 min) · fresco 0.2 h",
+   "antes": "ALERTA",
+   "despues": "ALERTA",
+   "detalle": "tarjeta GIG desfasada del ciclo fresco (mejor.ts=2026-11-05 19:11:52) — la re-captura re-sincroniza con 'Precios hoy'",
    "accion": "sin cambio"
   },
   {
@@ -102,7 +110,7 @@
    "id": "cupones",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "90 cupones (7 con código) · fresco 0.2 h",
+   "detalle": "90 cupones (7 con código) · fresco 0.0 h",
    "accion": "sin cambio"
   },
   {
@@ -110,7 +118,7 @@
    "id": "combos",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "combos presentes · fresco 0.2 h",
+   "detalle": "combos presentes · fresco 0.0 h",
    "accion": "sin cambio"
   },
   {
@@ -118,7 +126,7 @@
    "id": "noche",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "congelamiento del 2026-11-03 · 35 series",
+   "detalle": "congelamiento del 2026-11-04 · 35 series",
    "accion": "sin cambio"
   },
   {
@@ -126,7 +134,7 @@
    "id": "minimos",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "35 series con mínimo histórico",
+   "detalle": "36 series con mínimo histórico",
    "accion": "sin cambio"
   },
   {
