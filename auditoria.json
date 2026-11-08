@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-08 06:25:23",
- "ts_stgo": "2026-11-08 03:25:23",
- "n": 70,
+ "ts": "2026-11-08 18:24:38",
+ "ts_stgo": "2026-11-08 15:24:38",
+ "n": 71,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -13,7 +13,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.4,
-   "detalle": "mínimo $239,274 · 20 registros · fresco 0.4 h (límite 26 h)",
+   "detalle": "mínimo $264,624 · 20 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.7,
-   "detalle": "mínimo $305,086 · 5 registros · fresco 0.7 h (límite 30 h)",
+   "frescura_h": 0.6,
+   "detalle": "mínimo $305,086 · 5 registros · fresco 0.6 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -76,75 +76,84 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.3,
-   "detalle": "16 destinos · 16 con precio · mínimo $221,855 · ventanas exactas 152/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.3 h · mejor integrado con cruce: 3 · muestra viva verificada 6/6 (exactas 152, flex 0)",
+   "detalle": "16 destinos · 16 con precio · mínimo $221,855 · ventanas exactas 204/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.3 h · mejor integrado con cruce: 4 · muestra viva verificada 6/6 (exactas 204, flex 0)",
    "muestra": [
     {
-     "cod": "FOR",
+     "cod": "PUJ",
+     "ida": "2027-01-22",
+     "vuelta": "2027-01-29",
+     "pub": 567049,
+     "vivo": 578424,
+     "diff_pct": 2.0,
+     "exacta": true,
+     "aerolinea": "JetSMART",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "ADZ",
+     "ida": "2027-01-22",
+     "vuelta": "2027-01-29",
+     "pub": 586479,
+     "vivo": 586479,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "HAV",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 649876,
+     "vivo": 649984,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "PTY",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 664422,
+     "vivo": 664422,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "CUN",
      "ida": "2027-02-19",
      "vuelta": "2027-02-26",
-     "pub": 494984,
-     "vivo": 494984,
+     "pub": 689836,
+     "vivo": 689836,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "LATAM",
+     "aerolinea": "Aeroméxico",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "REC",
+     "cod": "LIR",
      "ida": "2027-01-22",
-     "vuelta": "2027-01-29",
-     "pub": 526131,
-     "vivo": 526131,
+     "vuelta": "2027-02-01",
+     "pub": 1458333,
+     "vivo": 1458333,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "SSA",
-     "ida": "2027-01-15",
-     "vuelta": "2027-01-29",
-     "pub": 506010,
-     "vivo": 516496,
-     "diff_pct": 2.1,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "MCZ",
-     "ida": "2027-02-05",
-     "vuelta": "2027-02-19",
-     "pub": 536922,
-     "vivo": 535825,
-     "diff_pct": 0.2,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "NAT",
-     "ida": "2027-01-22",
-     "vuelta": "2027-01-29",
-     "pub": 552350,
-     "vivo": 552350,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "SJO",
-     "ida": "2027-02-12",
-     "vuelta": "2027-02-22",
-     "pub": 561710,
-     "vivo": 561710,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "LATAM",
+     "aerolinea": "AA",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-sky",
+   "nombre": "M10 · Muestra viva SKY",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $414,270.0 ≈ vivo $414,270.0 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-latam",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-jetsmart",
-   "nombre": "M09 · Muestra viva JetSMART",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $239,274 ≈ vivo $239,274 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 5.2,
-   "detalle": "90 cupones vigentes · fresco 5.2 h",
+   "frescura_h": 4.9,
+   "detalle": "90 cupones vigentes · fresco 4.9 h",
    "muestra": []
   },
   {
