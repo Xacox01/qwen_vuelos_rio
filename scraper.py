@@ -431,7 +431,10 @@ def _cocha_post(variables):
     _w = cocha_sess()
     if _w is not None:
         rutas.append(("warp", _w))
-    rutas.append(("directo", cr))
+    if HAS_CURL:
+        rutas.append(("directo", cr))
+    # sin curl_cffi ni WARP no hay ruta: se devuelve error limpio (antes esto
+    # reventaba con NameError 'cr' is not defined — degradación silenciosa)
     r = None
     last_err = None
     for nombre, ses in rutas:

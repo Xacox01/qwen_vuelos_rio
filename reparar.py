@@ -36,6 +36,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASE)
 
 COOLDOWN_MIN = 90          # anti-bucle: gap mínimo entre recapturas completas
+FALLOS_MODO_OBS = 3        # anti-tormenta: N fallos consecutivos → modo observación
 SCRAPER_TIMEOUT = 1250     # s (el workflow da 32 min totales)
 COUPONS_TIMEOUT = 300
 
@@ -242,20 +243,32 @@ def main():
     print(f"\n=== FASE 1 · barrido de {len(modulos)} módulos (dato publicado) ===", flush=True)
     antes = barrido(modulos, d, gate_publicado, "antes")
 
-    # ---------- FASE 2: re-captura completa (con anti-bucle) ----------
+    # ---------- FASE 2: re-captura completa (con anti-bucle + anti-tormenta) ----------
     recaptura = True
     motivos = []
+    fallos_consec = 0
     try:
         with open("estado_reparacion.json", encoding="utf-8") as fh:
-            last = parse_ts(json.load(fh).get("ts"))
+            st_prev = json.load(fh)
+        last = parse_ts(st_prev.get("ts"))
+        fallos_consec = int(st_prev.get("fallos_consec", 0) or 0)
         gap_min = (datetime.utcnow() - last).total_seconds() / 60 if last else 1e9
         if gap_min < COOLDOWN_MIN and gate_publicado:
             recaptura = False
             motivos.append(f"última reparación hace {gap_min:.0f} min (< {COOLDOWN_MIN}) y el dato publicado pasa el gate — anti-bucle")
     except Exception:
         pass
+    # Anti-tormenta (2026-11-09): si la reparación falla N veces seguidas, la
+    # causa raíz es externa y recapturar cada 5 min solo genera runs y correos
+    # sin arreglar nada. Se pasa a modo observación (reporte sin recaptura).
+    if fallos_consec >= FALLOS_MODO_OBS:
+        recaptura = False
+        motivos.append(f"modo observación: {fallos_consec} reparaciones consecutivas sin gate PASS — se omite la recaptura hasta que la causa raíz desaparezca")
     if not gate_publicado and any(x["estado"] == "FALLA" for x in antes):
-        recaptura = True  # hay algo roto de verdad: recapturar pese al cooldown
+        recaptura = True  # hay algo roto de verdad: recapturar pese al cooldown (pero no pese al modo observación)
+        if fallos_consec >= FALLOS_MODO_OBS:
+            recaptura = False
+            motivos.append("modo observación: recaptura omitida pese a módulo FALLA (la causa raíz persiste entre ciclos)")
 
     comandos = []
     if recaptura:
@@ -312,10 +325,12 @@ def main():
         "modulos": acciones,
         "resumen": f"{sum(1 for x in acciones if x['despues'] in ('OK', 'VERIFICADO'))}/{len(acciones)} módulos OK tras la reparación",
     }
+    fallos_nuevos = 0 if gate_final else (fallos_consec + 1)
+    modo_obs = fallos_nuevos >= FALLOS_MODO_OBS
     with open("reparacion.json", "w", encoding="utf-8") as fh:
         json.dump(rep, fh, ensure_ascii=False, indent=1)
     with open("estado_reparacion.json", "w", encoding="utf-8") as fh:
-        json.dump({"ts": rep["ts"], "trigger": trigger}, fh, ensure_ascii=False)
+        json.dump({"ts": rep["ts"], "trigger": trigger, "fallos_consec": fallos_nuevos}, fh, ensure_ascii=False)
 
     n_ok = sum(1 for x in acciones if x["despues"] in ("OK", "VERIFICADO"))
     n_falla = sum(1 for x in acciones if x["despues"] == "FALLA")
@@ -325,7 +340,13 @@ def main():
         for x in acciones:
             if x["despues"] == "FALLA":
                 ann("error", f"[{x['numero']}] irreparable automáticamente: {x['detalle']}")
-    sys.exit(0 if gate_final else 1)
+    if modo_obs:
+        ann("warning", f"[anti-tormenta] {fallos_nuevos} fallos consecutivos del gate: modo observación "
+                       f"(sin recaptura ni fallo duro). La próxima refresh que publique dato fresco resetea el contador.")
+    # Exit: 0 si el gate pasa (publica normal) o en modo observación (el reporte
+    # ya quedó en reparacion.json y el workflow lo publica; un exit 1 aquí solo
+    # generaría un correo más sin arreglo — tormenta nocturna 2026-11-09).
+    sys.exit(0 if (gate_final or modo_obs) else 1)
 
 
 if __name__ == "__main__":

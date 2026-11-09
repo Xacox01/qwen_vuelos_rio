@@ -22,7 +22,10 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 28
+    # 40 min (antes 28): con el dato publicado viejo, WARP y cupones se fuerzan
+    # cada ciclo (+6 min) y el job moría crónicamente a los 28 — espiral de la
+    # que no salía sola (diagnóstico 2026-11-09). Headroom para el régimen lento.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -83,7 +86,11 @@ jobs:
         env:
           OTAS_GAP: "1800"
           OTA_PROXY: ${{ env.OTA_PROXY }}
-        run: python scraper.py
+        run: |
+          timeout 1400 python3 scraper.py || {
+            echo "::error::[refresh] scraper.py falló o excedió 1400s (rc=$?) — no se publica este ciclo"
+            exit 1
+          }
 
       - name: refrescar cupones (gate 6 h)
         run: |
@@ -169,7 +176,7 @@ jobs:
       - name: encadenar siguiente ciclo (~5 min)
         if: always()
         run: |
-          sleep 200
+          sleep 120
           for i in 1 2 3; do
             CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
               -H "Authorization: token ${{ secrets.PUSH_TOKEN }}" \
