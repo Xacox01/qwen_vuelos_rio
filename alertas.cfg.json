@@ -1,9 +1,9 @@
 {
- "webhook": "https://webhook.site/6afe8457-5b0a-4e4a-9382-c2809a2c1b56",
+ "webhook": "https://webhook.site/faff40f4-c149-4bb5-bd3d-1c90eef193d6",
  "pub": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4fkSqZWL6f8VVHex4k4gBtWu2swPXXNBhP37fE1PByxRVlkIwVaWBN1tjarEBRjjB3YlWBoSP7K0LsK4/RfVWtDsfe5dqZ3/mpIwCrRpOZctSOdo5VpXpyX6vYbzdHit7DukFtKilcf7mEOQi+uxUFLIvfNqoOj4DHL3rh0MGKY2ml2xp2yUYwA7tZ2Nj6bwIUAQ2jgs3dLQXe6gaL3IYlT1wOXAG2CkJp7sX2rRYd/3J4P3b0DKjdj24yiik5BroTpNr2Ztr/n2TrKUgTqMUmz+yKgCvU7uaGokkRFvRah9A8m0IA2w2B+98GFGIMcUvnYps2EsWLucWWnBy01uAQIDAQAB",
  "v": 1,
  "nota": "Config pública del módulo de alertas. La clave pública RSA-2048 cifra el correo EN EL NAVEGADOR del visitante; el bus solo ve texto cifrado. La clave privada vive en el secreto ALERT_RSA_PRIV de Actions.",
- "bus_rotado_ts": "2026-11-03 03:08:25",
- "bus_expira": "2026-11-10 03:01:45",
- "nota_bus": "endpoint auto-rotante: expira en 7 días y bus_alertas.py (refresh) crea el siguiente solo; CADA repo tiene su propio bus (sin consumo cruzado)"
+ "bus_rotado_ts": "2026-11-10 14:27:26",
+ "bus_expira": "2026-11-17 14:27:26",
+ "nota_bus": "endpoint auto-rotante: expira en 7 días y bus_alertas.py (refresh) crea el siguiente solo"
 }
