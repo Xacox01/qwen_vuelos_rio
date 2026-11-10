@@ -1,0 +1,58 @@
+name: watchdog (revive la cadena de refresh si murió)
+
+# Historia: el motor real del ciclo */5 es la CADENA (cada run despacha el
+# siguiente con workflow_dispatch); el cron */5 de GitHub es best-effort y en
+# la práctica solo dispara cada 3–6 h. Si un refresh se cuelga y muere por
+# timeout ANTES del paso "encadenar siguiente ciclo", la cadena queda muerta
+# y el sitio se congela (le pasó a este repo el 10-nov 17:51→20:18Z).
+#
+# Este watchdog corre cada 15 min: si no hay ningún refresh activo/encolado y
+# el último run es más viejo que 25 min, despacha un refresh nuevo. Idempotente
+# con el grupo de concurrencia del refresh.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: watchdog
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: ¿Cadena viva? Si no, despachar refresh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import calendar, json, os, subprocess, time
+          REPO = os.environ["GITHUB_REPOSITORY"]
+          now = time.time()
+          j = subprocess.check_output(
+              ["gh", "api", f"repos/{REPO}/actions/workflows/refresh.yml/runs?per_page=5"]).decode()
+          runs = json.loads(j).get("workflow_runs", [])
+          activos = [r for r in runs if r["status"] in ("queued", "in_progress")]
+          if activos:
+              print(f"refresh {activos[0]['status']} en curso (#{activos[0]['run_number']}): cadena viva, no toco nada")
+              raise SystemExit
+          if not runs:
+              subprocess.check_call(["gh", "workflow", "run", "refresh.yml", "--ref", "main"])
+              print("sin runs previos: refresh despachado")
+              raise SystemExit
+          last = runs[0]["created_at"]
+          t = calendar.timegm(time.strptime(last[:19], "%Y-%m-%dT%H:%M:%S"))
+          edad = now - t
+          if edad > 25 * 60:
+              subprocess.check_call(["gh", "workflow", "run", "refresh.yml", "--ref", "main"])
+              print(f"último refresh hace {edad/60:.0f} min ({runs[0]['conclusion']}): cadena muerta -> refresh despachado")
+          else:
+              print(f"último refresh hace {edad/60:.0f} min ({runs[0]['conclusion']}): cadena viva")
+          PY
