@@ -886,8 +886,8 @@ createApp({
          el enlace (varianza reportada por el dueño). */
       const combo = k => {
         const ds=((F[k]||{}).dias||[]).filter(d=>d.min_clp);
-        const is=ds.filter(d=>(d.sentido||'').startsWith('SCL'));
-        const vs=ds.filter(d=>!(d.sentido||'').startsWith('SCL'));
+        const is=ds.filter(d=>(d.sentido||'').startsWith('SCL') && d.fecha>='2027-01-05' && d.fecha<='2027-02-12');
+        const vs=ds.filter(d=>!(d.sentido||'').startsWith('SCL') && d.fecha>='2027-01-05' && d.fecha<='2027-02-23');
         let best=null;
         is.forEach(i=>vs.forEach(v=>{ const n=Math.round((new Date(v.fecha)-new Date(i.fecha))/864e5);
           if(n>=6&&n<=30){ const t=i.min_clp+v.min_clp; if(!best||t<best.t) best={t,i,v,n}; } }));
@@ -895,7 +895,13 @@ createApp({
         /* Degradación honesta (Task 22): si las anclas de este ciclo no forman un
            viaje real (rotativas incoherentes + base bloqueada por DataDome), se
            exige al menos vuelta POSTERIOR a la ida; si nada calza, el tile pasa a
-           SOLO IDA (precio one-way real) en vez de armar un roundtrip imposible. */
+           SOLO IDA (precio one-way real) en vez de armar un roundtrip imposible.
+           Task 27: TODAS las combinaciones quedan además dentro de la ventana
+           operativa del sitio (ida 05-ene..12-feb 2027, vuelta hasta 23-feb 2027),
+           la misma de las APIs de aerolíneas. Antes el cruzado podía tomar una
+           ida de diciembre (fuera de la promesa "ene–feb 2027") con estancias de
+           hasta 30 noches y ganar el "MEJOR HOY" con un monto que no calzaba con
+           lo que la agencia mostraba para enero–febrero. */
         let any=null;
         is.forEach(i=>vs.forEach(v=>{ const n=Math.round((new Date(v.fecha)-new Date(i.fecha))/864e5);
           if(n>=1){ const t=i.min_clp+v.min_clp; if(!any||t<any.t) any={t,i,v,n}; } }));
