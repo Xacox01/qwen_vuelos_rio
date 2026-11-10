@@ -393,10 +393,17 @@ def main():
         e = horas(cup.get("ts"))
         items = cup.get("items")
         n_it = len(items) if isinstance(items, list) else (items or 0)
-        if e <= 168 and n_it >= 5:
-            add("cupones", "Cupones de descuento", "OK", f"{n_it} cupones vigentes · fresco {htxt(e)}", frescura_h=e)
+        # criterio alineado con el gate verify.js (2026-11-10): cuentan los
+        # VISIBLES (kind!='oferta' sin vencer), no el total de items
+        n_vis = len([x for x in (items or []) if isinstance(x, dict)
+                     and x.get("kind") != "oferta" and not x.get("expired")]) if isinstance(items, list) else n_it
+        if e <= 168 and n_vis >= 10:
+            add("cupones", "Cupones de descuento", "OK", f"{n_vis} visibles de {n_it} cupones · fresco {htxt(e)}", frescura_h=e)
             cuenta("ok")
             hashes_now["cupones"] = sha([n_it, str(sorted([str(x)[:40] for x in items]))[:200] if isinstance(items, list) else ""])
+        elif e <= 168 and n_it >= 5:
+            add("cupones", "Cupones de descuento", "ALERTA", f"sólo {n_vis} visibles de {n_it} (piso gate 10) · fresco {htxt(e)}")
+            cuenta("alerta")
         else:
             add("cupones", "Cupones de descuento", "ALERTA", f"{n_it} cupones · fresco {htxt(e)} (límite 7 días)")
             cuenta("alerta")

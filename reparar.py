@@ -149,14 +149,21 @@ def diag_modulo(m, d, gate_sitio):
     if mid == "cupones":
         cp = d.get("cupones") or {}
         e = horas(cp.get("ts")) if cp.get("ts") else None
-        n = len(cp.get("items") or [])
+        items_cp = cp.get("items") or []
+        vis = [x for x in items_cp if x.get("kind") != "oferta" and not x.get("expired")]
         if e is None:
             return "FALLA", "sin timestamp de cupones"
         if e > LIMIT_H["cupones"]:
             return "ALERTA", f"desactualizado {e/24:.1f} días (límite 7)"
-        if not n:
+        if not items_cp:
             return "ALERTA", "sin cupones en este ciclo (degradación suave activa)"
-        return "OK", f"{n} cupones ({(cp.get('stats') or {}).get('con_codigo', 0)} con código) · fresco {e:.1f} h"
+        # criterio alineado con el gate verify.js (2026-11-10): cuenta los
+        # VISIBLES (kind!='oferta' sin vencer), no el total de items
+        if len(vis) < 10:
+            return "FALLA", (f"sólo {len(vis)} cupones visibles (piso 10; total {len(items_cp)}) "
+                             "— el gate no publicaría")
+        return "OK", (f"{len(vis)} visibles de {len(items_cp)} "
+                      f"({(cp.get('stats') or {}).get('con_codigo', 0)} con código) · fresco {e:.1f} h")
 
     if mid == "combos":
         cb = d.get("combos") or {}

@@ -71,6 +71,10 @@ DEEP_LINKS = {
 
 # cap por tienda (controla el tamaño de data.json con 10 tiendas)
 CAP_POR_TIENDA = 12
+# Piso de cupones VISIBLES (kind!='oferta' sin vencer) que la página debe mostrar.
+# El gate verify.js exige >= 10; se rellena hasta 12 con items aún válidos de la
+# última publicación para que el gate no dependa de la suerte del scraping.
+PISO_VISIBLE = 10
 
 # keywords de viaje para filtrar tiendas retail (falabella)
 TRAVEL_KW = re.compile(
@@ -145,9 +149,40 @@ def _blob(it: dict) -> str:
 def detect_expired(it: dict) -> bool:
     """True si el cupón menciona un mes pasado, una fecha dd/mm/yyyy pasada o un
     'válido hasta' vencido. El patrón 'miércoles de <mes>' de cupon.cl (ej. BCIMACHD
-    de septiembre) cae aquí automáticamente."""
+    de septiembre) cae aquí automáticamente.
+
+    FIX 2026-11-10 (causa raíz de la tormenta nocturna): las VENTANAS
+    'inicio-fin' (ej. 'ventana de viaje 09/11/2026-18/03/2027') se evaluaban
+    con la fecha de INICIO: al cumplirse el inicio (09/11) el cupón se marcaba
+    vencido aunque la ventana siguiera abierta hasta marzo-2027. Un solo cupón
+    así bastaba para dejar el gate 'cupones >= 10' en 9 y disparar el bucle
+    refresh→auto-reparación de toda la noche. Ahora las ventanas sólo se
+    consideran vencidas cuando su FIN ya pasó (y se enmascaran para que las
+    reglas de fecha simple no re-evalúen el inicio)."""
     today = datetime.now()
     blob = _blob(it).lower()
+
+    # 1) ventanas dd/mm/yyyy[-a]dd/mm/yyyy: vencida sólo si el fin pasó;
+    #    las válidas se enmascaran (espacios) para las reglas siguientes
+    def _mdy(d, mo, y):
+        y = int(y)
+        if y < 100:
+            y += 2000
+        return datetime(y, int(mo), int(d))
+    for m in re.finditer(r"(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})\s*(?:[-–—]|al?|hasta|y)\s*(?:el\s+|la\s+)?(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})", blob):
+        try:
+            if _mdy(m.group(4), m.group(5), m.group(6)) >= today:
+                blob = blob[:m.start()] + " " * (m.end() - m.start()) + blob[m.end():]
+        except ValueError:
+            pass
+    # 2) ventanas ISO yyyy-mm-dd..yyyy-mm-dd (idem)
+    for m in re.finditer(r"(\d{4})-(\d{2})-(\d{2})\s*(?:[-–—]|al?|hasta|y)\s*(?:el\s+|la\s+)?(\d{4})-(\d{2})-(\d{2})", blob):
+        try:
+            if datetime(int(m.group(4)), int(m.group(5)), int(m.group(6))) >= today:
+                blob = blob[:m.start()] + " " * (m.end() - m.start()) + blob[m.end():]
+        except ValueError:
+            pass
+
     for m in re.finditer(r"\bde\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\b", blob):
         if MONTHS_ES[m.group(1)] < today.month:
             return True
@@ -325,6 +360,41 @@ def main():
         detect_banco_dias(s)
         items.append(s)
 
+    # PISO VISIBLE (2026-11-10, tormenta nocturna): la página (y el gate
+    # 'cupones >= 10') sólo cuentan los items kind!='oferta' sin vencer. La
+    # captura viva oscila (códigos Flash que desaparecen, una tienda caída) y
+    # con margen 9/10 cualquier noche rompe el gate en bucle: refresh falla →
+    # auto-reparación re-captura lo mismo → gate falla otra vez. Si faltan
+    # visibles, se completan con los visibles aún válidos de la última
+    # publicación (items reales ya verificados, marcados salvado:True).
+    def _visibles(lst):
+        return [x for x in lst if x.get("kind") != "oferta" and not detect_expired(x)]
+
+    n_salvados = 0
+    if len(_visibles(items)) < PISO_VISIBLE + 2:
+        try:
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json"), encoding="utf-8") as fh:
+                prev_items = (json.load(fh).get("cupones") or {}).get("items") or []
+        except Exception:
+            prev_items = []
+        _key = lambda x: (x.get("merchant"), re.sub(r"[^a-z0-9]", "", x.get("title", "").lower())[:60])
+        have_k = {_key(x) for x in items}
+        have_codes = {x.get("code") for x in items if x.get("code")}
+        prev_vis = [x for x in prev_items if x.get("kind") != "oferta" and not detect_expired(x)]
+        prev_vis.sort(key=lambda x: (0 if x.get("code") else 1, 0 if x.get("conf") == "alta" else 1))
+        for x in prev_vis:
+            if len(_visibles(items)) >= PISO_VISIBLE + 2:
+                break
+            if _key(x) in have_k or (x.get("code") and x["code"] in have_codes):
+                continue
+            y = dict(x)
+            y["salvado"] = True
+            items.append(y)
+            have_k.add(_key(y))
+            n_salvados += 1
+        if n_salvados:
+            print(f"  [piso visible] faltaban visibles: salvados {n_salvados} de la última publicación")
+
     # orden global: códigos primero (conf alta primero), luego beneficios, ofertas al final
     items.sort(key=lambda x: (0 if x.get("code") else (1 if x.get("kind") == "beneficio" else 2),
                               0 if x.get("conf") == "alta" else 1))
@@ -340,6 +410,7 @@ def main():
             "beneficios": sum(1 for x in items if x.get("kind") == "beneficio"),
             "ofertas": sum(1 for x in items if x.get("kind") == "oferta"),
             "expirados_filtrados": n_exp,
+            "salvados_prev": n_salvados,
             "por_tienda": {k: v["n"] for k, v in per_store.items()},
         },
         "fuentes_upd": {k: v["updated"] for k, v in per_store.items()},
