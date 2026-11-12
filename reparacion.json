@@ -1,8 +1,8 @@
 {
- "ts": "2026-11-11 21:13:57",
- "ts_stgo": "2026-11-11 18:13:57",
- "trigger": "fallo de refresh #5311",
- "gate_publicado": "PASS",
+ "ts": "2026-11-12 00:02:47",
+ "ts_stgo": "2026-11-11 21:02:47",
+ "trigger": "fallo de refresh #5313",
+ "gate_publicado": "FAIL",
  "gate_final": "PASS",
  "recaptura": true,
  "motivos_recaptura_omitida": [],
@@ -10,7 +10,7 @@
   {
    "cmd": "scraper.py",
    "rc": 0,
-   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (1 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: SKY SCL-Río $335,415.0→$328,455.0\ndata.json actualizado"
+   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (1 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $315,426→$257,710; Playas PTY $683,508→$667,843; Playas HAV $695,826→$672,480\ndata.json actualizado"
   },
   {
    "cmd": "fetch_coupons.py",
@@ -23,7 +23,7 @@
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…eef193d6 rotado=False"
   }
  ],
- "secs": 697.2,
+ "secs": 808.5,
  "modulos": [
   {
    "numero": "M01",
@@ -38,7 +38,7 @@
    "id": "vuelos-sky",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "101 pares · fresco 0.2 h",
+   "detalle": "109 pares · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +54,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.2 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.1 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 1.2 h",
+   "detalle": "20 fechas en grilla · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 1.2 h",
+   "detalle": "20 fechas en grilla · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -156,10 +156,10 @@
   {
    "numero": "M17",
    "id": "sitio",
-   "antes": "OK",
+   "antes": "FALLA",
    "despues": "OK",
    "detalle": "verify.js PASS sobre el dato a publicar",
-   "accion": "sin cambio"
+   "accion": "FALLA → OK"
   }
  ],
  "resumen": "15/17 módulos OK tras la reparación"
