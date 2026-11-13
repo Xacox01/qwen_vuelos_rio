@@ -1,9 +1,9 @@
 {
- "n": 92,
- "ts": "2026-11-13 20:33:51",
+ "n": 93,
+ "ts": "2026-11-13 22:47:18",
  "hashes": {
   "vuelos-jetsmart": "961789164a91",
-  "vuelos-sky": "0b7bbbae424a",
+  "vuelos-sky": "ce066bc47c63",
   "vuelos-latam": "7f159d82cfb3",
   "vuelos-cocha": "818657989b5c",
   "vuelos-despegar": "517ea8650daa",
@@ -12,5 +12,5 @@
   "cupones": "adf1989c42c7",
   "combos": "7b6f926b9c2a"
  },
- "congelado_streak": 0
+ "congelado_streak": 1
 }
