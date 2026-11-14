@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-13 22:47:18",
- "ts_stgo": "2026-11-13 19:47:18",
- "n": 93,
+ "ts": "2026-11-14 06:49:43",
+ "ts_stgo": "2026-11-14 03:49:43",
+ "n": 94,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -22,7 +22,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.4,
-   "detalle": "mínimo $327,979.0 · 101 registros · fresco 0.4 h (límite 26 h)",
+   "detalle": "mínimo $331,053.0 · 98 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -31,7 +31,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.4,
-   "detalle": "mínimo $390,093 · 20 registros · fresco 0.4 h (límite 26 h)",
+   "detalle": "mínimo $391,571 · 20 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.5,
-   "detalle": "mínimo $350,016 · 5 registros · fresco 0.5 h (límite 30 h)",
+   "frescura_h": 0.8,
+   "detalle": "mínimo $351,323 · 5 registros · fresco 0.8 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -73,78 +73,87 @@
   {
    "id": "playas",
    "nombre": "M08 · Playas del extranjero",
-   "estado": "CORREGIDO",
+   "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "16 destinos · 16 con precio · mínimo $249,532 · ventanas exactas 199/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.2 h · mejor integrado con cruce: 4 · CORREGIDOS EN VIVO: LIR,GIG (exactas 199, flex 0)",
+   "frescura_h": 0.3,
+   "detalle": "16 destinos · 16 con precio · mínimo $249,532 · ventanas exactas 200/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.3 h · mejor integrado con cruce: 4 · muestra viva verificada 6/6 (exactas 200, flex 0)",
    "muestra": [
     {
-     "cod": "CUN",
-     "ida": "2027-02-19",
-     "vuelta": "2027-02-26",
-     "pub": 732677,
-     "vivo": 732677,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "Aeroméxico",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "LIR",
-     "ida": "2027-01-22",
+     "cod": "FOR",
+     "ida": "2027-01-15",
      "vuelta": "2027-01-29",
-     "pub": 1477857,
-     "vivo": 1702945,
-     "diff_pct": 15.2,
+     "pub": 495557,
+     "vivo": 497259,
+     "diff_pct": 0.3,
      "exacta": true,
-     "aerolinea": "AA",
-     "veredicto": "CORREGIDO"
-    },
-    {
-     "cod": "FLN",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 314582,
-     "vivo": 314582,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "SKY",
+     "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "GIG",
-     "ida": "2027-01-07",
-     "vuelta": "2027-01-16",
-     "pub": 315145,
-     "vivo": 355551,
-     "diff_pct": 12.8,
-     "exacta": true,
-     "aerolinea": "SKY",
-     "veredicto": "CORREGIDO"
-    },
-    {
-     "cod": "BPS",
+     "cod": "REC",
      "ida": "2026-12-15",
      "vuelta": "2026-12-22",
-     "pub": 455435,
-     "vivo": 455435,
+     "pub": 571249,
+     "vivo": 571249,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "GOL",
+     "aerolinea": "SKY",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "CTG",
-     "ida": "2027-02-19",
-     "vuelta": "2027-02-26",
-     "pub": 489663,
-     "vivo": 489663,
+     "cod": "SSA",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-29",
+     "pub": 507148,
+     "vivo": 508983,
+     "diff_pct": 0.4,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "MCZ",
+     "ida": "2027-01-08",
+     "vuelta": "2027-01-15",
+     "pub": 542064,
+     "vivo": 543795,
+     "diff_pct": 0.3,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "NAT",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 558962,
+     "vivo": 560946,
+     "diff_pct": 0.4,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "SJO",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 607510,
+     "vivo": 607510,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "JetSMART",
+     "aerolinea": "Copa",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-latam",
+   "nombre": "Muestra viva LATAM",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $391,571 ≈ vivo $391,571 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-jetsmart",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-sky",
-   "nombre": "M10 · Muestra viva SKY",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $327,979.0 ≈ vivo $327,979.0 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 5.1,
-   "detalle": "10 visibles de 93 cupones · fresco 5.1 h",
+   "frescura_h": 1.6,
+   "detalle": "10 visibles de 93 cupones · fresco 1.6 h",
    "muestra": []
   },
   {
@@ -178,8 +178,8 @@
    "nombre": "M12 · Motor de combinaciones",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "2134 pares · mejor $257,710 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.2 h",
+   "frescura_h": 0.3,
+   "detalle": "2134 pares · mejor $257,710 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.3 h",
    "muestra": []
   },
   {
@@ -188,7 +188,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "fecha 2026-11-12 · series 36",
+   "detalle": "fecha 2026-11-13 · series 36",
    "muestra": []
   },
   {
@@ -224,12 +224,12 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "verify.js OK · 167/167 checks OK",
+   "detalle": "verify.js OK · 168/168 checks OK",
    "muestra": []
   }
  ],
  "sitio": {
-  "verify_js": "OK · 167/167 checks OK"
+  "verify_js": "OK · 168/168 checks OK"
  },
  "resumen": "17/17 módulos OK"
 }
