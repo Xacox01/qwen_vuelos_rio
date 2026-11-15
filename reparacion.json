@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-15 01:28:40",
- "ts_stgo": "2026-11-14 22:28:40",
- "trigger": "fallo de refresh #5639",
+ "ts": "2026-11-15 19:47:52",
+ "ts_stgo": "2026-11-15 16:47:52",
+ "trigger": "fallo de refresh #5723",
  "gate_publicado": "PASS",
  "gate_final": "PASS",
  "recaptura": true,
@@ -23,7 +23,7 @@
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…eef193d6 rotado=False"
   }
  ],
- "secs": 630.9,
+ "secs": 657.5,
  "modulos": [
   {
    "numero": "M01",
@@ -62,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.6 h",
+   "detalle": "20 fechas en grilla · fresco 0.8 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.6 h",
+   "detalle": "20 fechas en grilla · fresco 0.8 h",
    "accion": "sin cambio"
   },
   {
