@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-16 06:56:55",
- "ts_stgo": "2026-11-16 03:56:55",
- "n": 101,
+ "ts": "2026-11-16 22:57:12",
+ "ts_stgo": "2026-11-16 19:57:12",
+ "n": 102,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -12,8 +12,8 @@
    "nombre": "M01 · Vuelos JetSMART",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $317,957 · 20 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 0.4,
+   "detalle": "mínimo $325,108 · 20 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -21,8 +21,8 @@
    "nombre": "M02 · Vuelos SKY",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.3,
-   "detalle": "mínimo $332,291.0 · 123 registros · fresco 0.3 h (límite 26 h)",
+   "frescura_h": 0.4,
+   "detalle": "mínimo $332,291.0 · 118 registros · fresco 0.4 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.2,
-   "detalle": "mínimo $351,323 · 5 registros · fresco 0.2 h (límite 30 h)",
+   "frescura_h": 0.3,
+   "detalle": "mínimo $383,847 · 5 registros · fresco 0.3 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -73,78 +73,87 @@
   {
    "id": "playas",
    "nombre": "M08 · Playas del extranjero",
-   "estado": "CORREGIDO",
+   "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.1,
-   "detalle": "16 destinos · 16 con precio · mínimo $249,532 · ventanas exactas 199/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · mejor integrado con cruce: 4 · CORREGIDOS EN VIVO: GIG (exactas 199, flex 0)",
+   "detalle": "16 destinos · 16 con precio · mínimo $249,532 · ventanas exactas 199/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.1 h · mejor integrado con cruce: 5 · muestra viva verificada 6/6 (exactas 199, flex 0)",
    "muestra": [
     {
-     "cod": "HAV",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 697891,
-     "vivo": 698135,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "Copa",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "LIR",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 1483864,
-     "vivo": 1483864,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "AA",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "FLN",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 315616,
-     "vivo": 324937,
-     "diff_pct": 3.0,
-     "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "GIG",
-     "ida": "2027-01-20",
-     "vuelta": "2027-02-01",
-     "pub": 317957,
-     "vivo": 351323,
-     "diff_pct": 10.5,
-     "exacta": true,
-     "aerolinea": "JetSMART",
-     "veredicto": "CORREGIDO"
-    },
-    {
-     "cod": "BPS",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 457023,
-     "vivo": 457023,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "GOL",
-     "veredicto": "VERIFICADO"
-    },
-    {
      "cod": "FOR",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 496272,
-     "vivo": 496272,
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-29",
+     "pub": 497259,
+     "vivo": 497259,
      "diff_pct": 0.0,
      "exacta": true,
      "aerolinea": "LATAM",
      "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "REC",
+     "ida": "2027-01-22",
+     "vuelta": "2027-01-29",
+     "pub": 557393,
+     "vivo": 579801,
+     "diff_pct": 4.0,
+     "exacta": true,
+     "aerolinea": "SKY",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "SSA",
+     "ida": "2027-01-22",
+     "vuelta": "2027-01-29",
+     "pub": 508983,
+     "vivo": 508983,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "MCZ",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 542912,
+     "vivo": 542912,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "NAT",
+     "ida": "2027-01-22",
+     "vuelta": "2027-02-01",
+     "pub": 560946,
+     "vivo": 560946,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "LATAM",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "SJO",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 607510,
+     "vivo": 607510,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "Copa",
+     "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-jetsmart",
+   "nombre": "M09 · Muestra viva JetSMART",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $325,108 ≈ vivo $325,108 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-sky",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-latam",
-   "nombre": "Muestra viva LATAM",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $450,851 ≈ vivo $450,851 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 5.1,
-   "detalle": "10 visibles de 93 cupones · fresco 5.1 h",
+   "frescura_h": 1.5,
+   "detalle": "10 visibles de 93 cupones · fresco 1.5 h",
    "muestra": []
   },
   {
@@ -224,12 +224,12 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": null,
-   "detalle": "verify.js OK · 168/168 checks OK",
+   "detalle": "verify.js OK · 167/167 checks OK",
    "muestra": []
   }
  ],
  "sitio": {
-  "verify_js": "OK · 168/168 checks OK"
+  "verify_js": "OK · 167/167 checks OK"
  },
  "resumen": "17/17 módulos OK"
 }
