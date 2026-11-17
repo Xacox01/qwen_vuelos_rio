@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-17 04:30:43",
- "ts_stgo": "2026-11-17 01:30:43",
- "trigger": "fallo de refresh #5862",
+ "ts": "2026-11-17 22:13:15",
+ "ts_stgo": "2026-11-17 19:13:15",
+ "trigger": "fallo de refresh #5939",
  "gate_publicado": "PASS",
  "gate_final": "PASS",
  "recaptura": true,
@@ -10,20 +10,20 @@
   {
    "cmd": "scraper.py",
    "rc": 0,
-   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 7 destinos donde el cruce es el precio publicado (3 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $325,108→$257,710\ndata.json actualizado"
+   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 7 destinos donde el cruce es el precio publicado (3 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $334,000→$257,710\ndata.json actualizado"
   },
   {
    "cmd": "fetch_coupons.py",
    "rc": 0,
-   "tail": "vuelos (mínimo $600.000)\n   · [CÓD PAQUETESCOPA80] Despegar         Despegar: $80.000 OFF en paquetes (mínimo $600.000)\n   · [CÓD AFILIADOSVUE] Cocha            $50.000 de descuento en Vuelos con Cupón Cocha\n   · [  CÓD MASTERJS] JetSMART         JetSMART + Mastercard: hasta 35% OFF nacional / 25% Suramérica\n   · [     beneficio] JetSMART         Caja Los Andes: hasta 25% dcto en JetSMART (socios)"
+   "tail": " OFF en vuelos (mínimo $600.000)\n   · [CÓD PAQUETESCOPA80] Despegar         Despegar: $80.000 OFF en paquetes (mínimo $600.000)\n   · [  CÓD OCEANCAR] Cocha            $120.000 cupón descuento Cocha en Caribe\n   · [  CÓD MASTERJS] JetSMART         JetSMART + Mastercard: hasta 35% OFF nacional / 25% Suramérica\n   · [     beneficio] JetSMART         Caja Los Andes: hasta 25% dcto en JetSMART (socios)"
   },
   {
    "cmd": "bus_alertas.py",
    "rc": 0,
-   "tail": "bus_alertas[ENSURE]: vivo=True uuid=…eef193d6 rotado=False"
+   "tail": "bus_alertas[ENSURE]: vivo=True uuid=…f8fa8569 rotado=False"
   }
  ],
- "secs": 647.0,
+ "secs": 687.5,
  "modulos": [
   {
    "numero": "M01",
@@ -38,7 +38,7 @@
    "id": "vuelos-sky",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "116 pares · fresco 0.2 h",
+   "detalle": "122 pares · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +54,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.1 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.6 h",
+   "detalle": "20 fechas en grilla · fresco 0.8 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.6 h",
+   "detalle": "20 fechas en grilla · fresco 0.8 h",
    "accion": "sin cambio"
   },
   {
