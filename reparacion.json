@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-16 07:18:46",
- "ts_stgo": "2026-11-16 04:18:46",
- "trigger": "fallo de refresh #5775",
+ "ts": "2026-11-17 04:30:43",
+ "ts_stgo": "2026-11-17 01:30:43",
+ "trigger": "fallo de refresh #5862",
  "gate_publicado": "PASS",
  "gate_final": "PASS",
  "recaptura": true,
@@ -10,7 +10,7 @@
   {
    "cmd": "scraper.py",
    "rc": 0,
-   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 4 destinos donde el cruce es el precio publicado (1 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $317,957→$257,710\ndata.json actualizado"
+   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 7 destinos donde el cruce es el precio publicado (3 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $325,108→$257,710\ndata.json actualizado"
   },
   {
    "cmd": "fetch_coupons.py",
@@ -23,7 +23,7 @@
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…eef193d6 rotado=False"
   }
  ],
- "secs": 653.7,
+ "secs": 647.0,
  "modulos": [
   {
    "numero": "M01",
@@ -38,7 +38,7 @@
    "id": "vuelos-sky",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "122 pares · fresco 0.2 h",
+   "detalle": "116 pares · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -126,7 +126,7 @@
    "id": "noche",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "congelamiento del 2026-11-15 · 36 series",
+   "detalle": "congelamiento del 2026-11-16 · 36 series",
    "accion": "sin cambio"
   },
   {
