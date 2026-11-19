@@ -1,8 +1,8 @@
 {
- "ts": "2026-11-19 22:03:23",
- "ts_stgo": "2026-11-19 19:03:23",
- "trigger": "fallo de refresh #6149",
- "gate_publicado": "PASS",
+ "ts": "2026-11-19 22:24:17",
+ "ts_stgo": "2026-11-19 19:24:17",
+ "trigger": "fallo de refresh #6151",
+ "gate_publicado": "FAIL",
  "gate_final": "PASS",
  "recaptura": true,
  "motivos_recaptura_omitida": [],
@@ -10,7 +10,7 @@
   {
    "cmd": "scraper.py",
    "rc": 0,
-   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 5 destinos donde el cruce es el precio publicado (1 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $327,799→$257,710\ndata.json actualizado"
+   "tail": "Sync GIG OK: 16 ventanas alineadas al ciclo fresco (JA/SKY/LA/Cocha)\nCruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 5 destinos donde el cruce es el precio publicado (1 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\ndata.json actualizado"
   },
   {
    "cmd": "fetch_coupons.py",
@@ -20,10 +20,10 @@
   {
    "cmd": "bus_alertas.py",
    "rc": 0,
-   "tail": "::notice::[alertas] bus rotado: …f8fa8569 → …c8619c1a (expira 2026-11-26). El front-end toma la cfg nueva sin caché en el próximo reload.\nbus_alertas[ENSURE]: vivo=True uuid=…c8619c1a rotado=True"
+   "tail": "bus_alertas[ENSURE]: vivo=True uuid=…f8fa8569 rotado=False"
   }
  ],
- "secs": 682.1,
+ "secs": 700.2,
  "modulos": [
   {
    "numero": "M01",
@@ -38,7 +38,7 @@
    "id": "vuelos-sky",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "116 pares · fresco 0.2 h",
+   "detalle": "115 pares · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.8 h",
+   "detalle": "20 fechas en grilla · fresco 1.2 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.8 h",
+   "detalle": "20 fechas en grilla · fresco 1.2 h",
    "accion": "sin cambio"
   },
   {
@@ -86,7 +86,7 @@
    "id": "playas",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "16/16 destinos · GIG sincronizado (1 min) · fresco 0.0 h",
+   "detalle": "16/16 destinos · GIG sincronizado (0 min) · fresco 0.0 h",
    "accion": "sin cambio"
   },
   {
@@ -156,10 +156,10 @@
   {
    "numero": "M17",
    "id": "sitio",
-   "antes": "OK",
+   "antes": "FALLA",
    "despues": "OK",
    "detalle": "verify.js PASS sobre el dato a publicar",
-   "accion": "sin cambio"
+   "accion": "FALLA → OK"
   }
  ],
  "resumen": "15/17 módulos OK tras la reparación"
