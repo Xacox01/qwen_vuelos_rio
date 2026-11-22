@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-21 20:30:25",
- "ts_stgo": "2026-11-21 17:30:25",
- "trigger": "fallo de refresh #6357",
+ "ts": "2026-11-22 07:39:39",
+ "ts_stgo": "2026-11-22 04:39:39",
+ "trigger": "fallo de refresh #6409",
  "gate_publicado": "PASS",
  "gate_final": "PASS",
  "recaptura": true,
@@ -10,7 +10,7 @@
   {
    "cmd": "scraper.py",
    "rc": 0,
-   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 8 destinos donde el cruce es el precio publicado (3 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $337,318→$257,710\ndata.json actualizado"
+   "tail": "Cruce playas OK: 16 destinos · 12 con opción mixta · 0.0s\nPlayas mejor integrado: 7 destinos donde el cruce es el precio publicado (2 mixtos)\nCombos OK: 2134 pares evaluados · mejor $257,710 (misma aerolínea) · ahorro vs mejor mono 0.0%\nCAMBIO DE PRECIOS detectado\nALERTA: Playas GIG $337,318→$257,710\ndata.json actualizado"
   },
   {
    "cmd": "fetch_coupons.py",
@@ -23,7 +23,7 @@
    "tail": "bus_alertas[ENSURE]: vivo=True uuid=…f8fa8569 rotado=False"
   }
  ],
- "secs": 637.0,
+ "secs": 666.2,
  "modulos": [
   {
    "numero": "M01",
@@ -38,7 +38,7 @@
    "id": "vuelos-sky",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "116 pares · fresco 0.2 h",
+   "detalle": "114 pares · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -54,7 +54,7 @@
    "id": "vuelos-cocha",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "5 ventanas (mínimos verificados) · fresco 0.1 h",
+   "detalle": "5 ventanas (mínimos verificados) · fresco 0.2 h",
    "accion": "sin cambio"
   },
   {
@@ -62,7 +62,7 @@
    "id": "vuelos-despegar",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.6 h",
+   "detalle": "20 fechas en grilla · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
@@ -70,7 +70,7 @@
    "id": "vuelos-falabella",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "20 fechas en grilla · fresco 0.6 h",
+   "detalle": "20 fechas en grilla · fresco 0.7 h",
    "accion": "sin cambio"
   },
   {
@@ -126,7 +126,7 @@
    "id": "noche",
    "antes": "OK",
    "despues": "OK",
-   "detalle": "congelamiento del 2026-11-20 · 36 series",
+   "detalle": "congelamiento del 2026-11-21 · 36 series",
    "accion": "sin cambio"
   },
   {
