@@ -1,9 +1,9 @@
 {
- "webhook": "https://webhook.site/9c83e9d8-31b5-4d53-968f-72c1f8fa8569",
+ "webhook": "https://webhook.site/db4484f7-a75c-4e30-ba00-e6e8ba8dc2c8",
  "pub": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4fkSqZWL6f8VVHex4k4gBtWu2swPXXNBhP37fE1PByxRVlkIwVaWBN1tjarEBRjjB3YlWBoSP7K0LsK4/RfVWtDsfe5dqZ3/mpIwCrRpOZctSOdo5VpXpyX6vYbzdHit7DukFtKilcf7mEOQi+uxUFLIvfNqoOj4DHL3rh0MGKY2ml2xp2yUYwA7tZ2Nj6bwIUAQ2jgs3dLQXe6gaL3IYlT1wOXAG2CkJp7sX2rRYd/3J4P3b0DKjdj24yiik5BroTpNr2Ztr/n2TrKUgTqMUmz+yKgCvU7uaGokkRFvRah9A8m0IA2w2B+98GFGIMcUvnYps2EsWLucWWnBy01uAQIDAQAB",
  "v": 1,
  "nota": "Config pública del módulo de alertas. La clave pública RSA-2048 cifra el correo EN EL NAVEGADOR del visitante; el bus solo ve texto cifrado. La clave privada vive en el secreto ALERT_RSA_PRIV de Actions.",
- "bus_rotado_ts": "2026-11-17 14:44:32",
- "bus_expira": "2026-11-24 14:44:32",
+ "bus_rotado_ts": "2026-11-24 14:52:45",
+ "bus_expira": "2026-12-01 14:52:45",
  "nota_bus": "endpoint auto-rotante: expira en 7 días y bus_alertas.py (refresh) crea el siguiente solo"
 }
