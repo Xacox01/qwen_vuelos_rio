@@ -1,7 +1,7 @@
 {
- "ts": "2026-11-26 03:42:58",
- "ts_stgo": "2026-11-26 00:42:58",
- "n": 140,
+ "ts": "2026-11-26 08:41:42",
+ "ts_stgo": "2026-11-26 05:41:42",
+ "n": 141,
  "total": 17,
  "ok": 17,
  "alertas": 0,
@@ -13,7 +13,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.2,
-   "detalle": "mínimo $284,281 · 20 registros · fresco 0.2 h (límite 26 h)",
+   "detalle": "mínimo $341,401 · 20 registros · fresco 0.2 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -22,7 +22,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.2,
-   "detalle": "mínimo $291,364.0 · 280 registros · fresco 0.2 h (límite 26 h)",
+   "detalle": "mínimo $291,364.0 · 276 registros · fresco 0.2 h (límite 26 h)",
    "muestra": []
   },
   {
@@ -39,8 +39,8 @@
    "nombre": "M04 · Vuelos Cocha",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $334,292 · 5 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $362,833 · 5 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -48,8 +48,8 @@
    "nombre": "M05 · Vuelos Despegar",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $106,803 · 20 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $106,803 · 20 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -57,8 +57,8 @@
    "nombre": "M06 · Vuelos Viajes Falabella",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 0.6,
-   "detalle": "mínimo $153,552 · 20 registros · fresco 0.6 h (límite 30 h)",
+   "frescura_h": 0.2,
+   "detalle": "mínimo $153,552 · 20 registros · fresco 0.2 h (límite 30 h)",
    "muestra": []
   },
   {
@@ -73,78 +73,87 @@
   {
    "id": "playas",
    "nombre": "M08 · Playas del extranjero",
-   "estado": "OK",
+   "estado": "CORREGIDO",
    "color": "#10b981",
    "frescura_h": 0.0,
-   "detalle": "16 destinos · 16 con precio · mínimo $220,619 · ventanas exactas 204/flex 0 · cruce 16/16 (8 mixtos) · fresco 0.0 h · mejor integrado con cruce: 6 · muestra viva verificada 6/6 (exactas 204, flex 0)",
+   "detalle": "16 destinos · 16 con precio · mínimo $238,958 · ventanas exactas 204/flex 0 · cruce 16/16 (7 mixtos) · fresco 0.0 h · mejor integrado con cruce: 6 · CORREGIDOS EN VIVO: FLN,GIG (exactas 204, flex 0)",
    "muestra": [
     {
-     "cod": "SJO",
-     "ida": "2027-02-12",
-     "vuelta": "2027-02-22",
-     "pub": 619230,
-     "vivo": 619230,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "PUJ",
-     "ida": "2027-01-22",
-     "vuelta": "2027-01-29",
-     "pub": 577301,
-     "vivo": 577301,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "SKY",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "NAT",
-     "ida": "2027-01-22",
-     "vuelta": "2027-02-01",
-     "pub": 591228,
-     "vivo": 629615,
-     "diff_pct": 6.5,
-     "exacta": true,
-     "aerolinea": "LATAM",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "ADZ",
-     "ida": "2026-12-15",
-     "vuelta": "2026-12-22",
-     "pub": 616476,
-     "vivo": 616476,
-     "diff_pct": 0.0,
-     "exacta": true,
-     "aerolinea": "Avianca",
-     "veredicto": "VERIFICADO"
-    },
-    {
-     "cod": "PTY",
-     "ida": "2027-02-19",
-     "vuelta": "2027-02-26",
-     "pub": 669574,
-     "vivo": 669574,
+     "cod": "HAV",
+     "ida": "2027-02-05",
+     "vuelta": "2027-02-12",
+     "pub": 734335,
+     "vivo": 734335,
      "diff_pct": 0.0,
      "exacta": true,
      "aerolinea": "Copa",
      "veredicto": "VERIFICADO"
     },
     {
-     "cod": "CUN",
-     "ida": "2027-01-29",
-     "vuelta": "2027-02-08",
-     "pub": 709475,
-     "vivo": 709475,
+     "cod": "LIR",
+     "ida": "2027-02-12",
+     "vuelta": "2027-02-22",
+     "pub": 1537932,
+     "vivo": 1537932,
      "diff_pct": 0.0,
      "exacta": true,
-     "aerolinea": "Aeroméxico",
+     "aerolinea": "AA",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "FLN",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-25",
+     "pub": 238958,
+     "vivo": 368029,
+     "diff_pct": 54.0,
+     "exacta": true,
+     "aerolinea": "SKY",
+     "veredicto": "CORREGIDO"
+    },
+    {
+     "cod": "GIG",
+     "ida": "2027-01-15",
+     "vuelta": "2027-01-26",
+     "pub": 239401,
+     "vivo": 400896,
+     "diff_pct": 67.5,
+     "exacta": true,
+     "aerolinea": "JetSMART",
+     "veredicto": "CORREGIDO"
+    },
+    {
+     "cod": "CTG",
+     "ida": "2027-02-05",
+     "vuelta": "2027-02-19",
+     "pub": 476825,
+     "vivo": 502959,
+     "diff_pct": 5.5,
+     "exacta": true,
+     "aerolinea": "JetSMART",
+     "veredicto": "VERIFICADO"
+    },
+    {
+     "cod": "BPS",
+     "ida": "2026-12-15",
+     "vuelta": "2026-12-22",
+     "pub": 518953,
+     "vivo": 518953,
+     "diff_pct": 0.0,
+     "exacta": true,
+     "aerolinea": "GOL",
      "veredicto": "VERIFICADO"
     }
    ]
+  },
+  {
+   "id": "viva-jetsmart",
+   "nombre": "M09 · Muestra viva JetSMART",
+   "estado": "VERIFICADO",
+   "color": "#10b981",
+   "frescura_h": null,
+   "detalle": "publicado $341,401 ≈ vivo $341,401 (0.0%) — el precio publicado es REAL",
+   "muestra": []
   },
   {
    "id": "viva-sky",
@@ -156,21 +165,12 @@
    "muestra": []
   },
   {
-   "id": "viva-latam",
-   "nombre": "Muestra viva LATAM",
-   "estado": "VERIFICADO",
-   "color": "#10b981",
-   "frescura_h": null,
-   "detalle": "publicado $466,797 ≈ vivo $466,797 (0.0%) — el precio publicado es REAL",
-   "muestra": []
-  },
-  {
    "id": "cupones",
    "nombre": "M11 · Cupones de descuento",
    "estado": "OK",
    "color": "#10b981",
-   "frescura_h": 2.1,
-   "detalle": "11 visibles de 94 cupones · fresco 2.1 h",
+   "frescura_h": 1.0,
+   "detalle": "11 visibles de 94 cupones · fresco 1.0 h",
    "muestra": []
   },
   {
@@ -179,7 +179,7 @@
    "estado": "OK",
    "color": "#10b981",
    "frescura_h": 0.0,
-   "detalle": "2134 pares · mejor $246,704 (Despegar grilla OTA + JetSMART vuelo JA753 10:45) · fresco 0.0 h",
+   "detalle": "2134 pares · mejor $257,414 (Despegar grilla OTA + Despegar grilla OTA) · fresco 0.0 h",
    "muestra": []
   },
   {
